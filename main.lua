@@ -2,7 +2,7 @@
 -- description: IN MARIO 64???
 
 dev = false
-debug = true
+debug = false
 
 useNametags = true
 useDpad = false
