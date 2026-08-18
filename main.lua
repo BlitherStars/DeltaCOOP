@@ -496,6 +496,33 @@ charList = {
 		}
 	},
 	{
+			name = "Seth",
+		boxW = 30,
+		boxH = 41,
+		sprites = {
+			{
+			    ["left"] = {
+					texture = get_texture_info("seth_walk_left"),
+					width = 35,
+					length = 2,
+				},
+				["down"] = {
+					texture = get_texture_info("seth_walk_down"),
+					width = 35,
+				},
+				["up"] = {
+					texture = get_texture_info("seth_walk_up"),
+					width = 35,
+				},
+				["right"] = {
+					texture = get_texture_info("seth_walk_right"),
+					width = 35,
+					length = 2,
+				}
+			},
+		}
+	},
+	{
 		name = "Orange",
 		boxW = 20,
 		boxH = 16,
