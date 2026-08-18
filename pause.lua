@@ -46,13 +46,14 @@ local function hud_render()
     if menu == "pause" then
 	    djui_hud_print_text(np.name, x, 10, 0.5)
 		local f = s.hp / s.maxHP
+		local lv = math.floor(1 + (s.exp / 2000))	
 		djui_hud_set_color(128, 0, 0, 255)
 		djui_hud_render_rect(x+16, 32, 64, 12)
 		djui_hud_set_color(255, 255, 0, 255)
 		djui_hud_render_rect(x+16, 32, math.floor(64 * f), 12)
 		djui_hud_set_color(255, 255, 255, 255)
 		djui_hud_print_text("HP", x, 30, 0.45)
-		djui_hud_print_text(math.floor(s.hp).."/"..math.floor(s.maxHP), x, 48, 0.45)
+		djui_hud_print_text(math.floor(s.hp).."/"..math.floor(s.maxHP).." - LV "..lv, x, 48, 0.45)
 		
 		for i,v in pairs(pauseMenuOptions) do
 			local textX = x
@@ -235,7 +236,7 @@ local function hud_render()
   
   	  if m.controller.buttonPressed & A_BUTTON ~= 0 then
 	        audio_stream_play(snd_menuaccept, true, 1)
-  		  change_room(warps[selectedOption].map, warps[selectedOption].spawn)
+  		  change_map(warps[selectedOption].map, warps[selectedOption].spawn)
 		end
 		
 	    if m.controller.buttonPressed & B_BUTTON ~= 0 then

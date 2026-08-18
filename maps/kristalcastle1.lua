@@ -467,7 +467,7 @@ return {
           rotation = 0,
           visible = true,
           properties = {
-            ["map"] = "room2",
+            ["map"] = "kristalcastle2",
             ["marker"] = "entry"
           }
         },

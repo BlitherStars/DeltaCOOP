@@ -20,10 +20,10 @@ _G.SURVEY_INTERFACE = {
 		tilesets[name] = data
 	end,
 	NEW_MAP = function(name, data)
-		rooms[name] = data
+		maps[name] = data
 	end,
 	GET_MAP = function(name)
-		return rooms[name]
+		return maps[name]
 	end,
 	GET_TILESET = function(name)
 		return tilesets[name]

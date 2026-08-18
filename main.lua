@@ -1,7 +1,8 @@
 -- name: DeltaCoop [WIP]
 -- description: IN MARIO 64???
 
-local dev = false
+dev = false
+debug = true
 
 useNametags = true
 useDpad = false
@@ -90,14 +91,14 @@ logo = get_texture_info("logo")
 warps = {
 	{
 		name = "Kristal Castle",
-		map = "room1",
+		map = "map1",
 		spawn = "spawn"
 	},
 }
 
-rooms = {
-	["room1"] = require("/rooms/room1"),
-	["room2"] = require("/rooms/room2"),
+maps = {
+	["kristalcastle1"] = require("/maps/kristalcastle1"),
+	["kristalcastle2"] = require("/maps/kristalcastle2"),
 }
 
 tilesets = {
@@ -490,6 +491,41 @@ charList = {
 					length = 2,
 					loop = true,
 					fps = 1,
+				},
+			},
+		}
+	},
+	{
+		name = "Orange",
+		boxW = 20,
+		boxH = 16,
+		sprites = {
+			{
+			    ["left"] = {
+					texture = get_texture_info("orange_walk_left"),
+					width = 33,
+				},
+				["down"] = {
+					texture = get_texture_info("orange_walk_down"),
+					width = 24,
+					length = 2,
+				},
+				["up"] = {
+					texture = get_texture_info("orange_walk_up"),
+					width = 24,
+					length = 2,
+				},
+				["right"] = {
+					texture = get_texture_info("orange_walk_right"),
+					width = 33,
+				},
+				["attack"] = {
+					texture = get_texture_info("orange_attack"),
+					width = 59,
+					length = 6,
+					offsetX = 14,
+					offsetY = 4,
+					fps = 20,
 				},
 			},
 		}

@@ -87,13 +87,13 @@ function overlap(a, b, steps)
 	return false;
 end
 
-function change_room(room, spawn)
+function change_map(map, spawn)
 	inTransition = true
 	lastSpawn = spawn
 	tween_start("transIn", 0, 255, 0.25, "linear", function(v) transitionAlpha = v end, function()
-		s.room = room
-		local rData = rooms[room] or rooms["castle1"]
-        local spawn = get_room_spawn_pos(rData, spawn)
+		s.map = map
+		local rData = maps[map] or maps["castle1"]
+        local spawn = get_map_spawn_pos(rData, spawn)
         s.x = spawn.x - s.bW/2
         s.y = spawn.y - s.bH/2
         inTransition = false

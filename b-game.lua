@@ -1,4 +1,3 @@
-local debug = false
 local player_chats = {}
 local anim_timer = 0
 local coolY = -48 
@@ -55,17 +54,17 @@ local function render_overworld()
         s.character = math.max(table.indexOf(charNames, mod_storage_load("character")), 1)
         
         s.exp = mod_storage_exists("exp") and mod_storage_load_number("exp") or 0
-        s.maxHP = math.floor(90 * (1 + (s.exp / 1000)))
+        s.maxHP = math.floor(90 * (1 + (s.exp / 5000)))
         s.hp = s.maxHP
         
         s.costume = 1
-        s.room = "room1"
+        s.map = "kristalcastle1"
         s.bW = 0
         s.bH = 0
         
         local char = charList[s.character]
-        local room = rooms[s.room] or rooms["castle1"]
-        local spawn = get_room_spawn_pos(room, "spawn")
+        local map = maps[s.map] or maps["kristalcastle1"]
+        local spawn = get_map_spawn_pos(map, "spawn")
         s.x = spawn.x - char.boxW/2
         s.y = spawn.y - char.boxH/4
         
@@ -74,19 +73,20 @@ local function render_overworld()
     
     s.attackCooldown = s.attackCooldown - 1
     
-    if rooms[s.room] == nil then
-    	s.room = "room1"
+    if maps[s.map] == nil then
+    	s.map = "map1"
     end
     
     local char = charList[s.character]
-    local room = rooms[s.room] or rooms["room1"]
-    if room.properties["music"] then
- 	   play_overworld_music(room.properties["music"])
+    local sprites = char.sprites[s.costume]
+    local map = maps[s.map] or maps["map1"]
+    if map.properties["music"] then
+ 	   play_overworld_music(map.properties["music"])
     else
     	stop_overworld_music()
     end
     
-    local rW, rH = room.width * room.tilewidth * mapScale, room.height * room.tileheight * mapScale
+    local rW, rH = map.width * map.tilewidth * mapScale, map.height * map.tileheight * mapScale
 	
     if not freezeControls and (m.controller.buttonPressed & L_TRIG) ~= 0 then
         s.costume = s.costume + 1
@@ -142,12 +142,12 @@ local function render_overworld()
 		lastAnim = anim
     end
     
-    if char.sprites[s.costume][anim] == nil then
+    if sprites[anim] == nil then
 		s.walking = true
 		anim = lastAnim
 	end
 	
-	if not freezeControls and (m.controller.buttonDown & X_BUTTON) ~= 0 and char.sprites[s.costume]["attack"] and s.attackCooldown <= 0 then
+	if not freezeControls and (m.controller.buttonDown & X_BUTTON) ~= 0 and sprites["attack"] and s.attackCooldown <= 0 then
 		s.walking = false
 		s.attackCooldown = 30
 		if ldx < 0 or anim == "left" then
@@ -157,35 +157,35 @@ local function render_overworld()
 		anim_frame = 1
 		anim_timer = 0
 		
-		if char.sprites[s.costume][anim].snd then
-			audio_stream_play(char.sprites[s.costume][anim].snd, true, 1)
+		if sprites[anim].snd then
+			audio_stream_play(sprites[anim].snd, true, 1)
 			network_send(true, {
 				type = "player",
 				character = s.character,
 				costume = s.costume,
 				anim = anim,
-				room = s.room
+				map = s.map
 			})
 		else
 			audio_stream_play(snd_slash, true, 1)
 			network_send(true, {
 				type = "attack",
-				room = s.room
+				map = s.map
 			})
 		end
 		
 		for i = 0, MAX_PLAYERS - 1 do
 	    	local ss = gPlayerSyncTable[i]
-	        if ss ~= s and gNetworkPlayers[i].connected and ss.room == s.room and overlap({x = s.x - (box_w * (s.flipX and 1 or 0)), y = s.y, width = box_w*2, height = box_h}, {x = ss.x, y = ss.y, width = ss.bW, height = ss.bH}) then
-				ss.hp = ss.hp - math.random(5, 10) * (1 + (s.exp / 1000))
+	        if ss ~= s and gNetworkPlayers[i].connected and ss.map == s.map and overlap({x = s.x - (box_w * (s.flipX and 1 or 0)), y = s.y, width = box_w*2, height = box_h}, {x = ss.x, y = ss.y, width = ss.bW, height = ss.bH}) then
+				ss.hp = ss.hp - math.random(5, 10) * (1 + (s.exp / 5000))
 				audio_stream_play(snd_damage, true, 1)
 				network_send(true, {
 					type = "dmg",
-					room = s.room
+					map = s.map
 				})
 				if ss.hp <= 0 and not ss.dead then
 					s.exp = s.exp + math.random(50, 150)
-					local newHP = math.floor(90 * (1 + (s.exp / 1000)))
+					local newHP = math.floor(90 * (1 + (s.exp / 5000)))
 					local hpDiff = newHP - s.maxHP
 					s.maxHP = newHP
         			s.hp = s.hp + hpDiff
@@ -200,9 +200,9 @@ local function render_overworld()
 		if s.hp <= 0 then
 			s.walking = false
 			timer_start("deadTimer", 1, function()
-				change_room(s.room, lastSpawn or "spawn")
+				change_map(s.map, lastSpawn or "spawn")
 			end)
-			if char.sprites[s.costume]["defeat"] then
+			if sprites["defeat"] then
 				anim = "defeat"
 				s.anim = "defeat"
 			end
@@ -217,11 +217,44 @@ local function render_overworld()
     	run = not run
     end
     
-    local max_frames = char.sprites[s.costume][anim].length or 4
-    local fpsDist = (char.sprites[s.costume][anim].fps or 12) / 30
-    local loop = char.sprites[s.costume][anim].loop or false
-    local persistent = char.sprites[s.costume][anim].persistent or false
-    local repeatAmount = char.sprites[s.costume][anim].repeatAmount or 1
+    local discard = {
+		["up"] = true,
+		["down"] = true,
+		["left"] = true,
+		["right"] = true,
+	}
+	local keys = {
+		L_JPAD,
+		D_JPAD,
+		U_JPAD,
+		R_JPAD
+	}
+	local curKey = 1
+	for i, v in pairs(sprites) do
+		if not discard[i] and not (v.other == true) and keys[curKey] and not freezeControls then
+			if (m.controller.buttonPressed & keys[curKey]) ~= 0 then
+				s.walking = false
+				anim = i
+				if sprites[anim].snd then
+					audio_stream_play(sprites[anim].snd, true, 1)
+					network_send(true, {
+						type = "player",
+						character = s.character,
+						costume = s.costume,
+						anim = anim,
+						map = s.map
+					})
+				end
+			end
+			curKey = curKey + 1
+		end
+	end
+    
+    local max_frames = sprites[anim].length or 4
+    local fpsDist = (sprites[anim].fps or 12) / 30
+    local loop = sprites[anim].loop or false
+    local persistent = sprites[anim].persistent or false
+    local repeatAmount = sprites[anim].repeatAmount or 1
     
 	if s.walking then
 	    if dx == 0 and dy == 0 then
@@ -253,7 +286,7 @@ local function render_overworld()
     nx = nx + (dx * speed)
     ny = ny + (dy * speed)
 	
-	for lay_id, layer in pairs(room.layers) do
+	for lay_id, layer in pairs(map.layers) do
 		if layer.type == "objectgroup" then
 			if layer.name == "collision" then
 				for obj_id, obj in pairs(layer.objects) do
@@ -267,7 +300,7 @@ local function render_overworld()
 			else
 				for obj_id, obj in pairs(layer.objects) do
 					if obj.name == "transition" and not inTransition and overlap({x = s.x, y = s.y, width = box_w, height = box_h}, {x = obj.x * mapScale, y = obj.y * mapScale, width = obj.width * mapScale, height = obj.height * mapScale}) then
-						change_room(obj.properties["map"], obj.properties["marker"])
+						change_map(obj.properties["map"], obj.properties["marker"])
 	    			end
 					if obj.name == "sprite" then
 						table.insert(render_queue, {
@@ -328,7 +361,7 @@ local function render_overworld()
 
     for i = 0, MAX_PLAYERS - 1 do
     	local ss = gPlayerSyncTable[i]
-        if gNetworkPlayers[i].connected and ss.room == s.room then
+        if gNetworkPlayers[i].connected and ss.map == s.map and ss.deltarune then
             table.insert(render_queue, {
                 type = "player",
                 id = gMarioStates[i].playerIndex or 0,
@@ -351,10 +384,10 @@ local function render_overworld()
         return a.y < b.y
     end)
     
-    for i, layer in pairs(room.layers) do
+    for i, layer in pairs(map.layers) do
     	if layer.type == "tilelayer" then
-	    	local tName = room.tilesets[layer.id] and (room.tilesets[layer.id].name or "castle") or "castle"
-	    	draw_tile_layer(layer, tilesets[tName] or tilesets["castle"], layer.x - camPos.x, layer.y - camPos.y, mapScale)
+	    	local default = {{firstgid = 1, name = "castle"}}
+	    	draw_tile_layer(layer, map.tilesets or default, layer.x - camPos.x, layer.y - camPos.y, mapScale)
 	    end
 		if layer.type == "objectgroup" and debug then
 			djui_hud_set_color(255, 255, 255, 32)
@@ -541,24 +574,37 @@ function getGridPos(i, w, h)
 	return i % w, math.floor(i/w) * h
 end
 
-function draw_tile_layer(data, tileset, x, y, scale)
+function draw_tile_layer(data, tilesetList, x, y, scale)
 	local x = (x + (data.offsetx or 0)) * (data.parallaxx or 1)
 	local y = (y + (data.offsety or 0)) * (data.parallaxy or 1)
 	local tiles = data.data
-	local texture = tileset.texture
-	if not texture or not tiles then return end
+	if not tiles then return end
 	djui_hud_set_color(255, 255, 255, 255 * data.opacity)
 	for i, tile in pairs(tiles) do
 		if tile > 0 then
-			local tX, tY = getGridPos((tile - 1) * tileset.tilewidth, texture.width, tileset.tileheight)
-			local oX, oY = getGridPos((i - 1) * tileset.tilewidth, data.width * tileset.tilewidth, tileset.tileheight)
-			djui_hud_render_texture_tile(texture, x + (oX * scale), y + (oY * scale), scale, scale, tX, tY, tileset.tilewidth, tileset.tileheight)
+			local texture
+			local tileset
+			local offset = 0
+			for i = 1, #tilesetList do
+				if tile >= tilesetList[i].firstgid then
+					tileset = tilesets[tilesetList[i].name]
+					if tileset then
+						texture = tileset.texture
+					end
+					offset = tilesetList[i].firstgid
+				end
+			end
+			if texture and tileset then
+				local tX, tY = getGridPos((tile - offset) * tileset.tilewidth, texture.width, tileset.tileheight)
+				local oX, oY = getGridPos((i - 1) * tileset.tilewidth, data.width * tileset.tilewidth, tileset.tileheight)
+				djui_hud_render_texture_tile(texture, x + (oX * scale), y + (oY * scale), scale, scale, tX, tY, tileset.tilewidth, tileset.tileheight)
+			end
 		end
 	end
 end
 
-function get_room_spawn_pos(room, id)
-	for i, layer in pairs(room.layers) do
+function get_map_spawn_pos(map, id)
+	for i, layer in pairs(map.layers) do
 		if layer.type == "objectgroup" and layer.name == "markers" then
 			for ii, obj in pairs(layer.objects) do
 				if obj.shape == "point" and obj.name == id then
@@ -567,7 +613,7 @@ function get_room_spawn_pos(room, id)
 			end
 		end
 	end
-	for i, layer in pairs(room.layers) do
+	for i, layer in pairs(map.layers) do
 		if layer.type == "objectgroup" and layer.name == "markers" then
 			for ii, obj in pairs(layer.objects) do
 				if obj.shape == "point" then
@@ -583,15 +629,15 @@ function on_packet(d)
 	if d.type == "player" then
 		local anim = d.anim
 		local sprites = charList[d.character].sprites[d.costume]
-		if sprites[anim] and sprites[anim].snd and d.room == s.room then
+		if sprites[anim] and sprites[anim].snd and d.map == s.map then
 			audio_stream_play(sprites[anim].snd, true, 1)
 		end
 	elseif d.type == "attack" then
-		if d.room == s.room then
+		if d.map == s.map then
 			audio_stream_play(snd_slash, true, 1)
 		end
 	elseif d.type == "dmg" then
-		if d.room == s.room then
+		if d.map == s.map then
 			audio_stream_play(snd_damage, true, 1)
 		end
 	end
@@ -620,7 +666,7 @@ function emote(anim)
 				character = s.character,
 				costume = s.costume,
 				anim = anim,
-				room = s.room
+				map = s.map
 			})
 		end
 	end
