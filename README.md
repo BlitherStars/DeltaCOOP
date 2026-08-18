@@ -5,6 +5,10 @@
 DeltaCoop is a Roleplay Project Mod for Super Mario 64 Coop Deluxe that includes an API for custom characters and custom maps called SURVEY_API!
 
 This is all worked for fun, So feel free to suggest stuff!
+
+## Community
+
+We have an official Discord server open to the public [here](https://discord.gg/QNJD2enFcm)!
 ‎
 ‎<details>
     <summary><h2>Credits</h2></summary>
