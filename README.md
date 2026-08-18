@@ -8,7 +8,7 @@ This is all worked for fun, So feel free to suggest stuff!
 
 ## Community
 
-We have an official Discord server open to the public [here](https://discord.gg/QNJD2enFcm)!
+We have an official Discord server open to the public [here](https://discord.gg/QNJD2enFcm)! On that Discord server, We post Devlogs, Playtest announcements, And much more!
 ‎
 ‎<details>
     <summary><h2>Credits</h2></summary>
