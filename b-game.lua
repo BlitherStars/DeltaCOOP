@@ -231,7 +231,7 @@ local function render_overworld()
 	}
 	local curKey = 1
 	for i, v in pairs(sprites) do
-		if not discard[i] and not (v.other == true) and keys[curKey] and not freezeControls then
+		if not discard[i] and not (v.other == true) and keys[curKey] and not freezeControls and not useDpad then
 			if (m.controller.buttonPressed & keys[curKey]) ~= 0 then
 				s.walking = false
 				anim = i
