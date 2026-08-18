@@ -5,7 +5,9 @@ DeltaCOOP is a roleplay project mod for Super Mario 64 Coop Deluxe that includes
 
 ‎Credits:
 ‎BlitherDev - Owner of the mod, What can i say?
+
 ‎ErickCatmanuel - Developer of the mod, Added maps, vessel menu, and reworked much stuff!
-‎
+
+‎Fel135 - Developer and Contributor of the mod, Made the Chara Sprites for the Chara SURVEY_API Example
 
 ‎Feel free to report bugs or contribute to the project.
