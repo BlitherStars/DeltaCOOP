@@ -526,6 +526,7 @@ charList = {
 					offsetX = 14,
 					offsetY = 4,
 					fps = 20,
+					other = true,
 				},
 			},
 		}
