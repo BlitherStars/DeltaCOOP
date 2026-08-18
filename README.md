@@ -11,7 +11,7 @@ This is all worked for fun, So feel free to suggest stuff!
   
   - Blither Dev - Owner: what can i say?
   - ErickCatmanuel - Developer: Added maps, vessel menu, and reworked much stuff!
-  - Fel135 - Developer and Contributor of the mod: Made the Chara Sprites for the Chara SURVEY_API Example
+  - Fel135 - Developer and Contributor of the mod: Made the Chara Sprites for the API Character Example
 </details>
 
 ‎Feel free to report bugs or contribute to the project.
