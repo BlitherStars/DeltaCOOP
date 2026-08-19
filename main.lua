@@ -530,6 +530,31 @@ charList = {
 		}
 	},
 	{
+		name = "Aqua",
+		boxW = 20,
+		boxH = 36,
+		sprites = {
+			{
+			    ["left"] = {
+					texture = get_texture_info("aqua_walk_left"),
+					width = 18,
+				},
+				["down"] = {
+					texture = get_texture_info("aqua_walk_down"),
+					width = 21,
+				},
+				["up"] = {
+					texture = get_texture_info("aqua_walk_up"),
+					width = 21,
+				},
+				["right"] = {
+					texture = get_texture_info("aqua_walk_right"),
+					width = 18,
+				}
+			},
+		}
+	},
+	{
 		name = "Seth",
 		boxW = 30,
 		boxH = 41,
