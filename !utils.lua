@@ -92,7 +92,7 @@ function change_map(map, spawn)
 	lastSpawn = spawn
 	tween_start("transIn", 0, 255, 0.25, "linear", function(v) transitionAlpha = v end, function()
 		s.map = map
-		local rData = maps[map] or maps["castle1"]
+		local rData = maps[map] or maps["kristalcastle1"]
         local spawn = get_map_spawn_pos(rData, spawn)
         s.x = spawn.x - s.bW/2
         s.y = spawn.y - s.bH/2
