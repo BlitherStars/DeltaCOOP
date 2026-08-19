@@ -522,6 +522,36 @@ charList = {
 		}
 	},
 	{
+		name = "Roulxs Kaard",
+		boxW = 47,
+		boxH = 57,
+		snd = audio_stream_load("txt_lancer.mp3"),
+		sprites = {
+			{
+			    ["left"] = {
+					texture = get_texture_info("roulxs_kaard"),
+					width = 47,
+					length = 1,
+				},
+				["down"] = {
+					texture = get_texture_info("roulxs_kaard"),
+					width = 47,
+					length = 1,
+				},
+				["up"] = {
+					texture = get_texture_info("roulxs_kaard"),
+					width = 47,
+					length = 1,
+				},
+				["right"] = {
+					texture = get_texture_info("roulxs_kaard"),
+					width = 47,
+					length = 1,
+				},
+			},
+		}
+	},
+	{
 		name = "Flowery",
 		boxW = 24,
 		boxH = 59,
@@ -547,6 +577,31 @@ charList = {
 					fps = 12,
 					other = true,
 				},
+			},
+		}
+	},
+	{
+		name = "Aqua",
+		boxW = 20,
+		boxH = 36,
+		sprites = {
+			{
+			    ["left"] = {
+					texture = get_texture_info("aqua_walk_left"),
+					width = 18,
+				},
+				["down"] = {
+					texture = get_texture_info("aqua_walk_down"),
+					width = 21,
+				},
+				["up"] = {
+					texture = get_texture_info("aqua_walk_up"),
+					width = 21,
+				},
+				["right"] = {
+					texture = get_texture_info("aqua_walk_right"),
+					width = 18,
+				}
 			},
 		}
 	},
