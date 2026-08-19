@@ -74,12 +74,12 @@ local function render_overworld()
     s.attackCooldown = s.attackCooldown - 1
     
     if maps[s.map] == nil then
-    	s.map = "map1"
+    	s.map = "kristalcastle1"
     end
     
     local char = charList[s.character]
     local sprites = char.sprites[s.costume]
-    local map = maps[s.map] or maps["map1"]
+    local map = maps[s.map] or maps["kristalcastle1"]
     if map.properties["music"] then
  	   play_overworld_music(map.properties["music"])
     else
