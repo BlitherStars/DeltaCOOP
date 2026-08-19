@@ -496,7 +496,41 @@ charList = {
 		}
 	},
 	{
-			name = "Seth",
+		name = "Flowery",
+		boxW = 24,
+		boxH = 59,
+		sprites = {
+			{
+			    ["left"] = {
+					texture = get_texture_info("flowery_walk_left"),
+					width = 20,
+				},
+				["down"] = {
+					texture = get_texture_info("flowery_walk_down"),
+					width = 24,
+				},
+				["up"] = {
+					texture = get_texture_info("flowery_walk_up"),
+					width = 24,
+				},
+				["right"] = {
+					texture = get_texture_info("flowery_walk_right"),
+					width = 20,
+				},
+				["attack"] = {
+					texture = get_texture_info("flowery_attack"),
+					width = 74,
+					length = 4,
+					offsetX = 14,
+					offsetY = 0,
+					fps = 12,
+					other = true,
+				},
+			},
+		}
+	},
+	{
+		name = "Seth",
 		boxW = 30,
 		boxH = 41,
 		sprites = {
