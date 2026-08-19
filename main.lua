@@ -91,7 +91,7 @@ logo = get_texture_info("logo")
 warps = {
 	{
 		name = "Kristal Castle",
-		map = "map1",
+		map = "kristalcastle1",
 		spawn = "spawn"
 	},
 }
