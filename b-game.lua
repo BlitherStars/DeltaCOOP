@@ -492,7 +492,6 @@ local function render_overworld()
 		
         if ent.type == "player" and player_chats[ent.id] then
             local chat = player_chats[ent.id]
-            djui_hud_set_font(FONT_OPERATOR)
             if chat.chars >= string.len(chat.text) then
             	chat.timer = chat.timer - 1
             end
@@ -581,6 +580,7 @@ local function render_overworld()
     end
     
     if not is_game_paused() then
+    	djui_hud_set_font(FONT_SPECIAL)
 	    local x = (screenOffset / 2) + 6
 	    coolY = math.lerp(coolY, s.hp < s.maxHP and 0 or -26, 0.2)
 	    local f = s.hp / s.maxHP

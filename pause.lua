@@ -41,12 +41,10 @@ local function hud_render()
     djui_hud_render_rect(-10, -10, sW + 20, sH + 20)
     
     djui_hud_set_color(255, 255, 255, 255)
-    djui_hud_set_font(FONT_OPERATOR)
+    djui_hud_set_font(FONT_SPECIAL)
     
     if menu == "pause" then
-    	djui_hud_set_font(FONT_SPECIAL)
 	    djui_hud_print_text(np.name, x, 10, 0.5)
-		djui_hud_set_font(FONT_OPERATOR)
 		local f = s.hp / s.maxHP
 		local lv = math.floor(1 + (s.exp / 2000))	
 		djui_hud_set_color(128, 0, 0, 255)
