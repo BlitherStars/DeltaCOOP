@@ -530,22 +530,18 @@ charList = {
 			{
 			    ["left"] = {
 					texture = get_texture_info("roulxs_kaard"),
-					width = 47,
 					length = 1,
 				},
 				["down"] = {
 					texture = get_texture_info("roulxs_kaard"),
-					width = 47,
 					length = 1,
 				},
 				["up"] = {
 					texture = get_texture_info("roulxs_kaard"),
-					width = 47,
 					length = 1,
 				},
 				["right"] = {
 					texture = get_texture_info("roulxs_kaard"),
-					width = 47,
 					length = 1,
 				},
 			},
@@ -588,19 +584,15 @@ charList = {
 			{
 			    ["left"] = {
 					texture = get_texture_info("aqua_walk_left"),
-					width = 18,
 				},
 				["down"] = {
 					texture = get_texture_info("aqua_walk_down"),
-					width = 21,
 				},
 				["up"] = {
 					texture = get_texture_info("aqua_walk_up"),
-					width = 21,
 				},
 				["right"] = {
 					texture = get_texture_info("aqua_walk_right"),
-					width = 18,
 				}
 			},
 		}
