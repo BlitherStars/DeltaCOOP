@@ -496,6 +496,36 @@ charList = {
 		}
 	},
 	{
+		name = "Roulxs Kaard",
+		boxW = 47,
+		boxH = 57,
+		snd = audio_stream_load("txt_lancer.mp3"),
+		sprites = {
+			{
+			    ["left"] = {
+					texture = get_texture_info("roulxs_kaard"),
+					width = 47,
+					length = 1,
+				},
+				["down"] = {
+					texture = get_texture_info("roulxs_kaard"),
+					width = 47,
+					length = 1,
+				},
+				["up"] = {
+					texture = get_texture_info("roulxs_kaard"),
+					width = 47,
+					length = 1,
+				},
+				["right"] = {
+					texture = get_texture_info("roulxs_kaard"),
+					width = 47,
+					length = 1,
+				},
+			},
+		}
+	},
+	{
 		name = "Flowery",
 		boxW = 24,
 		boxH = 59,
