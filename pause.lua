@@ -38,13 +38,15 @@ local function hud_render()
     local x, y = 10 + (screenOffset / 2), sH - 96
 
     djui_hud_set_color(0, 0, 0, 128)
-    djui_hud_render_rect(0, 0, sW + 20, sH)
+    djui_hud_render_rect(-10, -10, sW + 20, sH + 20)
     
     djui_hud_set_color(255, 255, 255, 255)
-    djui_hud_set_font(FONT_SPECIAL)
+    djui_hud_set_font(FONT_OPERATOR)
     
     if menu == "pause" then
+    	djui_hud_set_font(FONT_SPECIAL)
 	    djui_hud_print_text(np.name, x, 10, 0.5)
+		djui_hud_set_font(FONT_OPERATOR)
 		local f = s.hp / s.maxHP
 		local lv = math.floor(1 + (s.exp / 2000))	
 		djui_hud_set_color(128, 0, 0, 255)
@@ -114,11 +116,11 @@ local function hud_render()
 			cooldownCounter = cooldownCounter - 1
 		else
 	        if stickY > 30 then
-	            selectedOption = wrap(selectedOption - 1, 1, #pauseMenuOptions)
+	            selectedOption = wrap(selectedOption - 1, 1, #settings)
 	            audio_stream_play(snd_menumove, true, 1)
 	            cooldownCounter = cooldown
 	        elseif stickY < -30 then
-	            selectedOption = wrap(selectedOption + 1, 1, #pauseMenuOptions)
+	            selectedOption = wrap(selectedOption + 1, 1, #settings)
 	            audio_stream_play(snd_menumove, true, 1)
 	            cooldownCounter = cooldown
 	        end
@@ -149,7 +151,7 @@ local function hud_render()
 					cooldownCounter = cooldown
 				end
 			end
-			if settings[selectedOption].type == "bool" and math.abs(stickX) > 30 then
+			if settings[selectedOption].type == "bool" and (math.abs(stickX) > 30 or (m.controller.buttonPressed & A_BUTTON) ~= 0) then
 				settings[selectedOption].value = not settings[selectedOption].value
 				if settings[selectedOption].on_value_change then
 					settings[selectedOption].on_value_change(settings[selectedOption].value)
@@ -178,10 +180,11 @@ local function hud_render()
 			local textX = x
 			local textY = 10 + (38 * (i - lerpOption))
 			local sprite = v.sprites[1]["down"]
+			local spr_w = (sprite.width or (sprite.texture.width / (sprite.length or 4)))
 			djui_hud_set_color(255, 255, 255, i ~= selectedOption and 128 or 255)
 			djui_hud_render_texture(vessel_icon, textX, textY, 1, 1)
-			djui_hud_render_texture_tile(sprite.texture, textX + ((32 - sprite.width) / 2), textY + (30 - math.floor(sprite.texture.height/1.5)), 1, 1, 0, 0, sprite.width, math.floor(sprite.texture.height/1.5))
-			djui_hud_print_text(v.name, textX + 36, textY + 10, 0.5)
+			djui_hud_render_texture_tile(sprite.texture, textX + ((32 - spr_w) / 2), textY + (30 - math.floor(sprite.texture.height/1.5)), 1, 1, 0, 0, spr_w, math.floor(sprite.texture.height/1.5))
+			djui_hud_print_text(v.name, textX + 36, textY + 8, 0.5)
 			lerpOption = math.lerp(lerpOption, math.max(selectedOption - 5, 1), 0.15)
 		end
 		

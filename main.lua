@@ -1,12 +1,27 @@
 -- name: DeltaCoop [WIP]
 -- description: IN MARIO 64???
 
-dev = false
-debug = false
-
 useNametags = true
 useDpad = false
 autoRun = false
+
+gGlobalSyncTable.disablePVP = false
+
+snd_menumove = audio_stream_load("snd_menumove.mp3")
+snd_menuback = audio_stream_load("snd_menuback.ogg")
+snd_menuaccept = audio_stream_load("snd_menuaccept.ogg")
+
+snd_txt = audio_stream_load("txt_default.ogg")
+
+snd_slash = audio_stream_load("slash.ogg")
+snd_damage = audio_stream_load("damage.ogg")
+snd_splat = audio_stream_load("splat.ogg")
+
+vessel_icon = get_texture_info("vessel_icon")
+logo = get_texture_info("logo")
+
+BmFont = require("/lib/bmfont")
+FONT_OPERATOR = BmFont.load_sheet("font_operator", 16, 33, 14)
 
 settings = {
 	{
@@ -61,6 +76,18 @@ settings = {
 	},
 }
 
+if network_is_server() then
+	table.insert(settings, {
+		save_id = "disablePVP",
+		name = "Disable PVP",
+		type = "bool",
+		value = gGlobalSyncTable.disablePVP,
+		on_value_change = function(v)
+			gGlobalSyncTable.disablePVP = v
+		end,
+	})
+end
+
 for i, v in pairs(settings) do
 	settings[i].default = settings[i].value
 	if not v.nonsave and mod_storage_exists(v.save_id) then
@@ -75,18 +102,6 @@ for i, v in pairs(settings) do
 		settings[i].on_value_change(settings[i].value)
 	end
 end
-
-snd_menumove = audio_stream_load("snd_menumove.mp3")
-snd_menuback = audio_stream_load("snd_menuback.ogg")
-snd_menuaccept = audio_stream_load("snd_menuaccept.ogg")
-
-snd_txt = audio_stream_load("txt_default.ogg")
-
-snd_slash = audio_stream_load("slash.ogg")
-snd_damage = audio_stream_load("damage.ogg")
-
-vessel_icon = get_texture_info("vessel_icon")
-logo = get_texture_info("logo")
 
 warps = {
 	{
@@ -114,24 +129,19 @@ charList = {
 			{
 			    ["left"] = {
 					texture = get_texture_info("kris_light_walk_left"),
-					width = 19,
 				},
 				["down"] = {
 					texture = get_texture_info("kris_light_walk_down"),
-					width = 19,
 				},
 				["up"] = {
 					texture = get_texture_info("kris_light_walk_up"),
-					width = 19,
 				},
 				["right"] = {
 					texture = get_texture_info("kris_light_walk_right"),
-					width = 19,
 				},
 				["defeat"] = {
 					other = true,
 					texture = get_texture_info("kris_light_down"),
-					width = 43,
 					length = 1,
 					fps = 1,
 					loop = true,
@@ -140,31 +150,26 @@ charList = {
 			{
 			    ["left"] = {
 					texture = get_texture_info("kris_dark_walk_left"),
-					width = 19,
 				},
 				["down"] = {
 					texture = get_texture_info("kris_dark_walk_down"),
-					width = 19,
 				},
 				["up"] = {
 					texture = get_texture_info("kris_dark_walk_up"),
-					width = 19,
 				},
 				["right"] = {
 					texture = get_texture_info("kris_dark_walk_right"),
-					width = 19,
 				},
 				["splat"] = {
 					texture = get_texture_info("kris_dark_splat"),
-					width = 35,
 					length = 1,
 					fps = 1,
 					loop = true,
+					snd = snd_splat,
 				},
 				["attack"] = {
 					other = true,
 					texture = get_texture_info("kris_dark_attack"),
-					width = 63,
 					length = 7,
 					fps = 12,
 					offsetX = 16,
@@ -173,7 +178,6 @@ charList = {
 				["defeat"] = {
 					other = true,
 					texture = get_texture_info("kris_dark_down"),
-					width = 32,
 					length = 1,
 					fps = 1,
 					loop = true,
@@ -190,23 +194,18 @@ charList = {
 			{
 			    ["left"] = {
 					texture = get_texture_info("susie_light_walk_left"),
-					width = 25,
 				},
 				["down"] = {
 					texture = get_texture_info("susie_light_walk_down"),
-					width = 25,
 				},
 				["up"] = {
 					texture = get_texture_info("susie_light_walk_up"),
-					width = 25,
 				},
 				["right"] = {
 					texture = get_texture_info("susie_light_walk_right"),
-					width = 25,
 				},
 				["laugh"] = {
 					texture = get_texture_info("susie_light_laugh"),
-					width = 36,
 					length = 2,
 					repeatAmount = 3,
 					fps = 4,
@@ -215,7 +214,6 @@ charList = {
 				},
 				["shocked"] = {
 					texture = get_texture_info("susie_light_shocked"),
-					width = 29,
 					length = 1,
 					fps = 1,
 					
@@ -223,7 +221,6 @@ charList = {
 				},
 				["look"] = {
 					texture = get_texture_info("susie_light_look"),
-					width = 47,
 					length = 1,
 					fps = 1,
 					
@@ -232,7 +229,6 @@ charList = {
 				["defeat"] = {
 					other = true,
 					texture = get_texture_info("susie_light_down"),
-					width = 43,
 					length = 1,
 					fps = 1,
 					loop = true,
@@ -241,23 +237,18 @@ charList = {
 			{
 			    ["left"] = {
 					texture = get_texture_info("susie_dark_walk_left"),
-					width = 25,
 				},
 				["down"] = {
 					texture = get_texture_info("susie_dark_walk_down"),
-					width = 26,
 				},
 				["up"] = {
 					texture = get_texture_info("susie_dark_walk_up"),
-					width = 26,
 				},
 				["right"] = {
 					texture = get_texture_info("susie_dark_walk_right"),
-					width = 25,
 				},
 				["laugh"] = {
 					texture = get_texture_info("susie_dark_laugh"),
-					width = 36,
 					length = 2,
 					repeatAmount = 3,
 					fps = 4,
@@ -266,7 +257,6 @@ charList = {
 				},
 				["shocked"] = {
 					texture = get_texture_info("susie_dark_shocked"),
-					width = 41,
 					length = 1,
 					fps = 1,
 					
@@ -274,7 +264,6 @@ charList = {
 				},
 				["look"] = {
 					texture = get_texture_info("susie_dark_look"),
-					width = 47,
 					length = 1,
 					fps = 1,
 					
@@ -282,15 +271,14 @@ charList = {
 				},
 				["splat"] = {
 					texture = get_texture_info("susie_dark_splat"),
-					width = 49,
 					length = 1,
 					fps = 1,
 					loop = true,
+					snd = snd_splat,
 				},
 				["attack"] = {
 					other = true,
 					texture = get_texture_info("susie_dark_attack"),
-					width = 103,
 					length = 6,
 					fps = 12,
 					offsetX = 16,
@@ -299,7 +287,6 @@ charList = {
 				["defeat"] = {
 					other = true,
 					texture = get_texture_info("susie_dark_down"),
-					width = 43,
 					length = 1,
 					fps = 1,
 					loop = true,
@@ -316,49 +303,105 @@ charList = {
 			{
 			    ["left"] = {
 					texture = get_texture_info("noelle_light_walk_left"),
-					width = 23,
 				},
 				["down"] = {
 					texture = get_texture_info("noelle_light_walk_down"),
-					width = 23,
 				},
 				["up"] = {
 					texture = get_texture_info("noelle_light_walk_up"),
-					width = 23,
 				},
 				["right"] = {
 					texture = get_texture_info("noelle_light_walk_right"),
-					width = 23,
 				}
 			},
 			{
 			    ["left"] = {
 					texture = get_texture_info("noelle_dark_walk_left"),
-					width = 23,
 				},
 				["down"] = {
 					texture = get_texture_info("noelle_dark_walk_down"),
-					width = 23,
 				},
 				["up"] = {
 					texture = get_texture_info("noelle_dark_walk_up"),
-					width = 23,
 				},
 				["right"] = {
 					texture = get_texture_info("noelle_dark_walk_right"),
-					width = 23,
 				},
 				["attack"] = {
 					other = true,
 					texture = get_texture_info("noelle_dark_attack"),
-					width = 37,
 					length = 5,
 					fps = 12,
 				},
 				["defeat"] = {
 					other = true,
 					texture = get_texture_info("noelle_dark_down"),
-					width = 23,
+					length = 1,
+					fps = 1,
+					loop = true,
+				},
+			},
+		}
+	},
+	{
+		name = "Berdly",
+		boxW = 22,
+		boxH = 40,
+		snd = audio_stream_load("txt_berd.ogg"),
+		sprites = {
+			{
+			    ["left"] = {
+					texture = get_texture_info("berdly_light_walk_left"),
+				},
+				["down"] = {
+					texture = get_texture_info("berdly_light_walk_down"),
+				},
+				["up"] = {
+					texture = get_texture_info("berdly_light_walk_up"),
+				},
+				["right"] = {
+					texture = get_texture_info("berdly_light_walk_right"),
+				},
+			},
+			{
+			    ["left"] = {
+					texture = get_texture_info("berdly_dark_walk_left"),
+				},
+				["down"] = {
+					texture = get_texture_info("berdly_dark_walk_down"),
+				},
+				["up"] = {
+					texture = get_texture_info("berdly_dark_walk_up"),
+				},
+				["right"] = {
+					texture = get_texture_info("berdly_dark_walk_right"),
+				},
+				["nerd"] = {
+					texture = get_texture_info("berdly_dark_nerd"),
+					length = 1,
+					fps = 1,
+					loop = true,
+				},
+				["no"] = {
+					texture = get_texture_info("berdly_dark_no"),
+					length = 1,
+					fps = 1,
+					loop = true,
+				},
+				["shocked"] = {
+					texture = get_texture_info("berdly_dark_shocked"),
+					length = 1,
+					fps = 1,
+					loop = true,
+				},
+				["attack"] = {
+					other = true,
+					texture = get_texture_info("berdly_dark_attack"),
+					offsetX = 16,
+				},
+				["defeat"] = {
+					other = true,
+					texture = get_texture_info("berdly_dark_down"),
 					length = 1,
 					fps = 1,
 					loop = true,
@@ -375,31 +418,26 @@ charList = {
 			{
 			    ["left"] = {
 					texture = get_texture_info("ralsei_walk_left"),
-					width = 19,
 				},
 				["down"] = {
 					texture = get_texture_info("ralsei_walk_down"),
-					width = 21,
 				},
 				["up"] = {
 					texture = get_texture_info("ralsei_walk_up"),
-					width = 21,
 				},
 				["right"] = {
 					texture = get_texture_info("ralsei_walk_right"),
-					width = 19,
 				},
 				["splat"] = {
 					texture = get_texture_info("ralsei_splat"),
-					width = 47,
 					length = 1,
 					fps = 1,
 					loop = true,
+					snd = snd_splat,
 				},
 				["attack"] = {
 					other = true,
 					texture = get_texture_info("ralsei_attack"),
-					width = 77,
 					length = 4,
 					fps = 12,
 					offsetX = 16,
@@ -408,7 +446,6 @@ charList = {
 				["defeat"] = {
 					other = true,
 					texture = get_texture_info("ralsei_down"),
-					width = 29,
 					length = 1,
 					fps = 1,
 					loop = true,
@@ -417,31 +454,26 @@ charList = {
 			{
 			    ["left"] = {
 					texture = get_texture_info("ralsei_ch1_walk_left"),
-					width = 23,
 				},
 				["down"] = {
 					texture = get_texture_info("ralsei_ch1_walk_down"),
-					width = 23,
 				},
 				["up"] = {
 					texture = get_texture_info("ralsei_ch1_walk_up"),
-					width = 23,
 				},
 				["right"] = {
 					texture = get_texture_info("ralsei_ch1_walk_right"),
-					width = 23,
 				},
 				["splat"] = {
 					texture = get_texture_info("ralsei_ch1_splat"),
-					width = 47,
 					length = 1,
 					fps = 1,
 					loop = true,
+					snd = snd_splat,
 				},
 				["attack"] = {
 					other = true,
 					texture = get_texture_info("ralsei_ch1_attack"),
-					width = 77,
 					length = 6,
 					fps = 12,
 					offsetX = 16,
@@ -450,7 +482,6 @@ charList = {
 				["defeat"] = {
 					other = true,
 					texture = get_texture_info("ralsei_ch1_down"),
-					width = 29,
 					length = 1,
 					fps = 1,
 					loop = true,
@@ -467,27 +498,22 @@ charList = {
 			{
 			    ["left"] = {
 					texture = get_texture_info("lancer_left"),
-					width = 36,
 					length = 1,
 				},
 				["down"] = {
 					texture = get_texture_info("lancer_down"),
-					width = 36,
 					length = 1,
 				},
 				["up"] = {
 					texture = get_texture_info("lancer_up"),
-					width = 36,
 					length = 1,
 				},
 				["right"] = {
 					texture = get_texture_info("lancer_right"),
-					width = 36,
 					length = 1,
 				},
 				["sleep"] = {
 					texture = get_texture_info("lancer_sleep"),
-					width = 36,
 					length = 2,
 					loop = true,
 					fps = 1,
@@ -503,23 +529,18 @@ charList = {
 			{
 			    ["left"] = {
 					texture = get_texture_info("flowery_walk_left"),
-					width = 20,
 				},
 				["down"] = {
 					texture = get_texture_info("flowery_walk_down"),
-					width = 24,
 				},
 				["up"] = {
 					texture = get_texture_info("flowery_walk_up"),
-					width = 24,
 				},
 				["right"] = {
 					texture = get_texture_info("flowery_walk_right"),
-					width = 20,
 				},
 				["attack"] = {
 					texture = get_texture_info("flowery_attack"),
-					width = 74,
 					length = 4,
 					offsetX = 14,
 					offsetY = 0,
@@ -537,20 +558,16 @@ charList = {
 			{
 			    ["left"] = {
 					texture = get_texture_info("seth_walk_left"),
-					width = 35,
 					length = 2,
 				},
 				["down"] = {
 					texture = get_texture_info("seth_walk_down"),
-					width = 35,
 				},
 				["up"] = {
 					texture = get_texture_info("seth_walk_up"),
-					width = 35,
 				},
 				["right"] = {
 					texture = get_texture_info("seth_walk_right"),
-					width = 35,
 					length = 2,
 				}
 			},
@@ -564,31 +581,53 @@ charList = {
 			{
 			    ["left"] = {
 					texture = get_texture_info("orange_walk_left"),
-					width = 33,
 				},
 				["down"] = {
 					texture = get_texture_info("orange_walk_down"),
-					width = 24,
 					length = 2,
 				},
 				["up"] = {
 					texture = get_texture_info("orange_walk_up"),
-					width = 24,
 					length = 2,
 				},
 				["right"] = {
 					texture = get_texture_info("orange_walk_right"),
-					width = 33,
 				},
 				["attack"] = {
 					texture = get_texture_info("orange_attack"),
-					width = 59,
 					length = 6,
 					offsetX = 14,
 					offsetY = 4,
 					fps = 20,
 					other = true,
 				},
+			},
+		}
+	},
+	{
+		name = "Green",
+		boxW = 32,
+		boxH = 48,
+		sprites = {
+			{
+			    ["left"] = {
+					texture = get_texture_info("green_walk"),
+				},
+				["down"] = {
+					texture = get_texture_info("green_walk"),
+				},
+				["up"] = {
+					texture = get_texture_info("green_walk"),
+				},
+				["right"] = {
+					texture = get_texture_info("green_walk"),
+				},
+				["attack"] = {
+					texture = get_texture_info("green_attack"),
+					length = 4,
+					fps = 12,
+					other = true,
+				}
 			},
 		}
 	},
@@ -600,23 +639,18 @@ charList = {
 			{
 			    ["left"] = {
 					texture = get_texture_info("pink_walk_left"),
-					width = 23,
 				},
 				["down"] = {
 					texture = get_texture_info("pink_walk_down"),
-					width = 33,
 				},
 				["up"] = {
 					texture = get_texture_info("pink_walk_up"),
-					width = 33,
 				},
 				["right"] = {
 					texture = get_texture_info("pink_walk_right"),
-					width = 23,
 				},
 				["laugh"] = {
 					texture = get_texture_info("pink_laugh"),
-					width = 31,
 					length = 2,
 					repeatAmount = 12,
 					fps = 12,
@@ -625,7 +659,6 @@ charList = {
 				},
 				["shocked"] = {
 					texture = get_texture_info("pink_shocked"),
-					width = 32,
 					length = 1,
 					fps = 1,
 					loop = true,
@@ -634,7 +667,6 @@ charList = {
 				},
 				["hey"] = {
 					texture = get_texture_info("pink_hey"),
-					width = 32,
 					length = 1,
 					fps = 1,
 					loop = true,
@@ -759,3 +791,6 @@ end
 
 hook_event(HOOK_ON_HUD_RENDER, on_hud_render)
 hook_event(HOOK_MARIO_UPDATE, on_mario_update)
+
+dev = false
+debug = false -- for the collisions

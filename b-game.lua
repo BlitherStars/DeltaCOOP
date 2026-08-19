@@ -14,6 +14,8 @@ lastAnim = "down"
 lastSpawn = "spawn"
 
 inTransition = false
+inBattle = false
+battleAlpha = 0
 transitionAlpha = 0
 
 charScale = 1
@@ -22,10 +24,10 @@ mapScale = 0.5
 camPos = {x = 0, y = 0}
 freezeControls = false
 
-local function on_chat_message(m, message)
+local function on_chat_message(m, msg)
     if m.playerIndex < MAX_PLAYERS then
         player_chats[m.playerIndex] = {
-            text = message,
+            text = get_uncolored_string(msg),
             timer = 30 * 4,
             chars = 0
         }
@@ -33,13 +35,18 @@ local function on_chat_message(m, message)
 end
 
 local function render_overworld()
+	djui_hud_set_resolution(RESOLUTION_N64)
+	
+    local sW = 320
+    local sH = djui_hud_get_screen_height()
+    
 	freezeControls = menu ~= ""  or inTransition or s.dead
 	
 	if not s.deltarune then
 		s.deltarune = true
 		
-        s.x = spawn_x or 0
-        s.y = spawn_y or 0
+        s.x = 0
+        s.y = 0
         s.anim = "down"
         s.walking = false
         s.frame = 1
@@ -147,7 +154,7 @@ local function render_overworld()
 		anim = lastAnim
 	end
 	
-	if not freezeControls and (m.controller.buttonDown & X_BUTTON) ~= 0 and sprites["attack"] and s.attackCooldown <= 0 then
+	if not freezeControls and (m.controller.buttonDown & X_BUTTON) ~= 0 and sprites["attack"] and s.attackCooldown <= 0 and not gGlobalSyncTable.disablePVP then
 		s.walking = false
 		s.attackCooldown = 30
 		if ldx < 0 or anim == "left" then
@@ -177,7 +184,7 @@ local function render_overworld()
 		for i = 0, MAX_PLAYERS - 1 do
 	    	local ss = gPlayerSyncTable[i]
 	        if ss ~= s and gNetworkPlayers[i].connected and ss.map == s.map and overlap({x = s.x - (box_w * (s.flipX and 1 or 0)), y = s.y, width = box_w*2, height = box_h}, {x = ss.x, y = ss.y, width = ss.bW, height = ss.bH}) then
-				ss.hp = ss.hp - math.random(5, 10) * (1 + (s.exp / 5000))
+				ss.hp = ss.hp - 15 * (1 + (s.exp / 5000))
 				audio_stream_play(snd_damage, true, 1)
 				network_send(true, {
 					type = "dmg",
@@ -255,6 +262,7 @@ local function render_overworld()
     local loop = sprites[anim].loop or false
     local persistent = sprites[anim].persistent or false
     local repeatAmount = sprites[anim].repeatAmount or 1
+    local other = sprites[anim].other or false
     
 	if s.walking then
 	    if dx == 0 and dy == 0 then
@@ -271,7 +279,7 @@ local function render_overworld()
 			s.walking = true
 			anim = lastAnim
 		end
-		if (loop or persistent) and (m.controller.buttonPressed & A_BUTTON) ~= 0 then
+		if (loop or persistent) and (m.controller.buttonPressed & A_BUTTON) ~= 0 and not other then
 			s.walking = true
 			anim = lastAnim
 		end
@@ -339,22 +347,31 @@ local function render_overworld()
     if ny > rH - box_h/2 then ny = rH - box_h/2 end
 	
 	if not inTransition then
-	    s.x = nx
-	    s.y = ny
-	    s.anim = anim
-	    s.frame = anim_frame
+		if nx ~= s.x then
+	    	s.x = nx
+		end
+		if ny ~= s.y then
+	   	 s.y = ny
+		end
+		if anim ~= s.anim then
+	   	 s.anim = anim
+		end
+		if anim_frame ~= s.frame then
+	   	 s.frame = anim_frame
+		end
     end
-
-    djui_hud_set_resolution(RESOLUTION_N64)
-    local sW = 320
-    local sH = djui_hud_get_screen_height()
     
     local boundX = math.max(rW - sW, 0)
     local boundY = math.max(rH - sH, 0)
-    camPos.x = math.min(math.max(s.x - ((sW - box_w) / 2), 0), boundX) - (screenOffset / 2)
-    camPos.y = math.min(math.max(s.y - ((sH - (box_h / 2)) / 2), 0), boundY)
-
-    djui_hud_set_color(0, 0, 0, 255)
+    if inBattle then
+    	camPos.x = math.lerp(camPos.x, s.x - ((sW - box_w) / 2) - (screenOffset / 2) + 96, 0.1)
+   	 camPos.y = math.lerp(camPos.y, s.y - ((sH - box_h) / 2), 0.1)
+    else
+	    camPos.x = math.min(math.max(s.x - ((sW - box_w) / 2), 0), boundX) - (screenOffset / 2)
+	    camPos.y = math.min(math.max(s.y - ((sH - (box_h / 2)) / 2), 0), boundY)
+	end
+	
+	djui_hud_set_color(0, 0, 0, 255)
     djui_hud_render_rect(-4, -4, djui_hud_get_screen_width() + 8, sH + 8)
 
     local render_queue = {}
@@ -395,6 +412,18 @@ local function render_overworld()
 				djui_hud_render_rect((obj.x * mapScale) - camPos.x, (obj.y * mapScale) - camPos.y, obj.width * mapScale, obj.height  * mapScale)
 			end
 			djui_hud_set_color(255, 255, 255, 255)
+		end
+	end
+	
+	battleAlpha = math.lerp(battleAlpha, inBattle and 255 or 0, 0.1)
+	if battleAlpha > 0 then
+		djui_hud_set_color(0, 0, 0, battleAlpha)
+	    djui_hud_render_rect(-4, -4, djui_hud_get_screen_width() + 8, sH + 8)
+		for i = 1, 32 do
+			djui_hud_set_color(48, 24, 48, battleAlpha)
+			djui_hud_render_rect((i * 24) - ((get_global_timer() * 2) % 24), math.sin((get_global_timer() + i) / 8) * 30, 1, 200)
+			djui_hud_set_color(96, 24, 96, battleAlpha)
+			djui_hud_render_rect((i * 16) - ((get_global_timer() * 2) % 16), math.sin((get_global_timer() + i) / 8) * 30, 1, 200)
 		end
 	end
 	
@@ -461,8 +490,9 @@ local function render_overworld()
 			djui_hud_render_rect(text_x + (text_width - 32) / 2, text_y + 10, 32 * ent.hp, 4)
 		end
 		
-        if ent.type == "player" and player_chats[ent.id] ~= nil then
+        if ent.type == "player" and player_chats[ent.id] then
             local chat = player_chats[ent.id]
+            djui_hud_set_font(FONT_OPERATOR)
             if chat.chars >= string.len(chat.text) then
             	chat.timer = chat.timer - 1
             end
@@ -554,10 +584,10 @@ local function render_overworld()
 	    local x = (screenOffset / 2) + 6
 	    coolY = math.lerp(coolY, s.hp < s.maxHP and 0 or -26, 0.2)
 	    local f = s.hp / s.maxHP
-	    djui_hud_set_color(48, 32, 64, 255)
+	    djui_hud_set_color(64, 32, 48, 255)
 		djui_hud_render_rect(x - 6, coolY, 94, 26)
 		djui_hud_set_color(0, 0, 0, 255)
-		djui_hud_render_rect(x - 6, coolY, 92, 24)
+		djui_hud_render_rect(x - 6, coolY, 93, 25)
 		djui_hud_set_color(128, 0, 0, 255)
 		djui_hud_render_rect(x+16, coolY + 6, 64, 12)
 		djui_hud_set_color(255, 255, 0, 255)
@@ -644,10 +674,54 @@ function on_packet(d)
 end
 
 function on_player_disconnected(m)
+	player_chats[m.playerIndex] = nil
+	
 	if not network_is_server() then return end
-	gPlayerSyncTable[m.playerIndex].deltarune = false
+	
+	local s = gPlayerSyncTable[m.playerIndex]
+	s.deltarune = false
+	
+	s.x = 0
+    s.y = 0
+    s.anim = "down"
+    s.walking = false
+    s.frame = 1
+    
+    s.attackCooldown = 0
+    s.character = 1
+    
+    s.exp = 0
+    s.maxHP = 90
+    s.hp = 90
+    
+    s.costume = 1
+    s.map = "kristalcastle1"
+    s.bW = 0
+    s.bH = 0
+    
+    local char = charList[s.character]
+    local map = maps[s.map] or maps["kristalcastle1"]
+    local spawn = get_map_spawn_pos(map, "spawn")
+    s.x = spawn.x - char.boxW/2
+    s.y = spawn.y - char.boxH/4
+    
+    s.flipX = false
 end
 
+function bg()
+	djui_hud_set_resolution(RESOLUTION_N64)
+	djui_hud_set_font(FONT_SPECIAL)
+	
+    local sW = 320
+    local sH = djui_hud_get_screen_height()
+    
+	djui_hud_set_color(0, 0, 0, 255)
+    djui_hud_render_rect(-4, -4, djui_hud_get_screen_width() + 8, sH + 8)
+    
+    djui_hud_print_text("RENDER FAIL, PLEASE REJOIN!", 0, 0, 0.5)
+end
+
+hook_event(HOOK_ON_HUD_RENDER_BEHIND, bg)
 hook_event(HOOK_ON_HUD_RENDER_BEHIND, render_overworld)
 hook_event(HOOK_ON_CHAT_MESSAGE, on_chat_message)
 hook_event(HOOK_ON_PACKET_RECEIVE, on_packet)
@@ -656,9 +730,11 @@ hook_event(HOOK_ON_PLAYER_DISCONNECTED, on_player_disconnected)
 function emote(anim)
 	local anim = anim:lower()
 	local sprites = charList[s.character].sprites[s.costume]
-	if sprites[anim] and not (sprites[anim].other == true) then
+	if sprites[anim] and not sprites[anim].other then
 		s.walking = false
 		s.anim = anim
+		anim_timer = 0
+		s.frame = 1
 		if sprites[anim].snd then
 			audio_stream_play(sprites[anim].snd, true, 1)
 			network_send(true, {
