@@ -14,7 +14,7 @@ lastAnim = "down"
 lastSpawn = "spawn"
 
 inTransition = false
-inBattle = false
+_G.inBattle = false
 battleAlpha = 0
 transitionAlpha = 0
 
@@ -49,6 +49,7 @@ local function render_overworld()
         s.y = 0
         s.anim = "down"
         s.walking = false
+        s.battle = false
         s.frame = 1
         
         s.attackCooldown = 0
@@ -183,7 +184,7 @@ local function render_overworld()
 		
 		for i = 0, MAX_PLAYERS - 1 do
 	    	local ss = gPlayerSyncTable[i]
-	        if ss ~= s and gNetworkPlayers[i].connected and ss.map == s.map and overlap({x = s.x - (box_w * (s.flipX and 1 or 0)), y = s.y, width = box_w*2, height = box_h}, {x = ss.x, y = ss.y, width = ss.bW, height = ss.bH}) then
+	        if ss ~= s and not ss.battle and gNetworkPlayers[i].connected and ss.map == s.map and overlap({x = s.x - (box_w * (s.flipX and 1 or 0)), y = s.y, width = box_w*2, height = box_h}, {x = ss.x, y = ss.y, width = ss.bW, height = ss.bH}) then
 				ss.hp = ss.hp - 15 * (1 + (s.exp / 5000))
 				audio_stream_play(snd_damage, true, 1)
 				network_send(true, {
@@ -359,6 +360,9 @@ local function render_overworld()
 		if anim_frame ~= s.frame then
 	   	 s.frame = anim_frame
 		end
+		if s.battle ~= inBattle then
+			s.battle = inBattle
+		end
     end
     
     local boundX = math.max(rW - sW, 0)
@@ -367,8 +371,8 @@ local function render_overworld()
     	camPos.x = math.lerp(camPos.x, s.x - ((sW - box_w) / 2) - (screenOffset / 2) + 96, 0.1)
    	 camPos.y = math.lerp(camPos.y, s.y - ((sH - box_h) / 2), 0.1)
     else
-	    camPos.x = math.min(math.max(s.x - ((sW - box_w) / 2), 0), boundX) - (screenOffset / 2)
-	    camPos.y = math.min(math.max(s.y - ((sH - (box_h / 2)) / 2), 0), boundY)
+	    camPos.x = math.lerp(camPos.x, math.min(math.max(s.x - ((sW - box_w) / 2), 0), boundX) - (screenOffset / 2), (255-battleAlpha)/255)
+	    camPos.y = math.lerp(camPos.y, math.min(math.max(s.y - ((sH - (box_h / 2)) / 2), 0), boundY), (255-battleAlpha)/255)
 	end
 	
 	djui_hud_set_color(0, 0, 0, 255)
@@ -685,6 +689,7 @@ function on_player_disconnected(m)
     s.y = 0
     s.anim = "down"
     s.walking = false
+    s.battle = false
     s.frame = 1
     
     s.attackCooldown = 0
@@ -767,5 +772,6 @@ function emote_list()
 	return true
 end
 
+hook_chat_command("bt", "- battle test", function() inBattle = not inBattle end)
 hook_chat_command("e", "[emote name] - do an emote", emote)
 hook_chat_command("emotes", " - see your emotes", emote_list)
