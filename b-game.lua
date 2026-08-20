@@ -42,7 +42,7 @@ local function render_overworld()
     
 	freezeControls = menu ~= ""  or inTransition or s.dead
 	
-	if not s.deltarune then
+	if not s.deltarune or s.hp == nil or s.x == nil or s.y == nil or s.anim == nil then
 		s.deltarune = true
 		
         s.x = 0
@@ -185,7 +185,7 @@ local function render_overworld()
 		for i = 0, MAX_PLAYERS - 1 do
 	    	local ss = gPlayerSyncTable[i]
 	        if ss ~= s and not ss.battle and gNetworkPlayers[i].connected and ss.map == s.map and overlap({x = s.x - (box_w * (s.flipX and 1 or 0)), y = s.y, width = box_w*2, height = box_h}, {x = ss.x, y = ss.y, width = ss.bW, height = ss.bH}) then
-				ss.hp = ss.hp - 15 * (1 + (s.exp / 5000))
+				ss.hp = ss.hp - ((15 * (1 + (s.exp / 5000))) * (ss.anim == "attack" and 0.25 or 1))
 				audio_stream_play(snd_damage, true, 1)
 				network_send(true, {
 					type = "dmg",
@@ -396,7 +396,7 @@ local function render_overworld()
                 bW = ss.bW or 0,
                 bH = ss.bH or 0,
                 flipX = ss.flipX or false,
-                hp = ss.hp / ss.maxHP
+                hp = (ss.hp / ss.maxHP) or 0
             })
         end
     end
@@ -723,7 +723,7 @@ function bg()
 	djui_hud_set_color(0, 0, 0, 255)
     djui_hud_render_rect(-4, -4, djui_hud_get_screen_width() + 8, sH + 8)
     
-    djui_hud_print_text("RENDER FAIL, PLEASE REJOIN!", 0, 0, 0.5)
+    djui_hud_print_text("RENDER FAIL, PLEASE REJOIN!", screenOffset/2, 120, 0.5)
 end
 
 hook_event(HOOK_ON_HUD_RENDER_BEHIND, bg)

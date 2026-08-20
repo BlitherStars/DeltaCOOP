@@ -523,7 +523,7 @@ charList = {
 	},
 	{
 		name = "Roulxs Kaard",
-		boxW = 47,
+		boxW = 24,
 		boxH = 57,
 		snd = audio_stream_load("txt_lancer.mp3"),
 		sprites = {
