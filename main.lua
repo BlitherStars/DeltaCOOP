@@ -518,6 +518,14 @@ charList = {
 					loop = true,
 					fps = 1,
 				},
+				["laugh"] = {
+					texture = get_texture_info("lancer_laugh"),
+					length = 2,
+					repeatAmount = 12,
+					fps = 12,
+					
+					snd = audio_stream_load("snd_lancerlaugh.ogg"),
+				},
 			},
 		}
 	},
