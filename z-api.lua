@@ -4,13 +4,13 @@ _G.SURVEY_INTERFACE = {
 		return #charList
 	end,
 	NEW_COSTUME = function(name, data)
-		local id = get_vessel_from_str(name)
+		local id = type(name) == "number" and name or get_vessel_from_str(name)
 		if id < 1 then return -1 end
 		table.insert(charList[id].sprites, data)
 		return #charList[id].sprites
 	end,
 	GET_VESSEL = function(name)
-		local id = get_vessel_from_str(name)
+		local id = type(name) == "number" and name or get_vessel_from_str(name)
 		if id < 1 then return -1 end
 		return charList[id]
 	end,
@@ -36,4 +36,11 @@ _G.SURVEY_INTERFACE = {
 	GET_WARP = function(id)
 		return warps[id] or nil
 	end,
+	
+	PLAY_ANIM = playAnim,
+	
+	inBattle = false,
 }
+
+_G.gDeltaPlayerSyncTable = gPlayerSyncTable
+_G.gDeltaSyncTable = gGlobalSyncTable

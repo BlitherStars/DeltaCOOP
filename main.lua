@@ -1,27 +1,27 @@
 -- name: DeltaCoop [WIP]
 -- description: IN MARIO 64???
 
-useNametags = true
-useDpad = false
-autoRun = false
+_G.useNametags = true
+_G.useDpad = false
+_G.autoRun = false
 
 gGlobalSyncTable.disablePVP = false
 
-snd_menumove = audio_stream_load("snd_menumove.mp3")
-snd_menuback = audio_stream_load("snd_menuback.ogg")
-snd_menuaccept = audio_stream_load("snd_menuaccept.ogg")
+_G.snd_menumove = audio_stream_load("snd_menumove.mp3")
+_G.snd_menuback = audio_stream_load("snd_menuback.ogg")
+_G.snd_menuaccept = audio_stream_load("snd_menuaccept.ogg")
 
-snd_txt = audio_stream_load("txt_default.ogg")
+_G.snd_txt = audio_stream_load("txt_default.ogg")
 
-snd_slash = audio_stream_load("slash.ogg")
-snd_damage = audio_stream_load("damage.ogg")
+_G.snd_slash = audio_stream_load("slash.ogg")
+_G.snd_damage = audio_stream_load("damage.ogg")
 snd_splat = audio_stream_load("splat.ogg")
 
 vessel_icon = get_texture_info("vessel_icon")
 logo = get_texture_info("logo")
 
 BmFont = require("/lib/bmfont")
-FONT_OPERATOR = BmFont.load_sheet("font_operator", 16, 33, 14)
+_G.FONT_OPERATOR = BmFont.load_sheet("font_operator", 16, 33, 14)
 
 settings = {
 	{
@@ -30,7 +30,7 @@ settings = {
 		type = "bool",
 		value = useNametags,
 		on_value_change = function(v)
-			useNametags = v
+			_G.useNametags = v
 		end,
 	},
 	{
@@ -39,7 +39,7 @@ settings = {
 		type = "bool",
 		value = useDpad,
 		on_value_change = function(v)
-			useDpad = v
+			_G.useDpad = v
 		end,
 	},
 	{
@@ -48,7 +48,7 @@ settings = {
 		type = "bool",
 		value = autoRun,
 		on_value_change = function(v)
-			autoRun = v
+			_G.autoRun = v
 		end,
 	},
 	{
@@ -835,6 +835,34 @@ local function on_mario_update(m)
     
     set_audio_muted(1)
 end
+
+local customHooks = {}
+local old_hook_event = hook_event
+function new_hook_event(hook, call)
+	if hook < HOOK_MAX then
+		old_hook_event(hook, call)
+	else
+		if not customHooks[hook] then
+			customHooks[hook] = {}
+		end
+		table.insert(customHooks[hook], call)
+	end
+end
+
+_G.hook_event = new_hook_event
+
+function call_custom_hook(hook, ...)
+	if not customHooks[hook] then return end
+	for i, func in pairs(customHooks[hook]) do
+		func(...)
+	end
+end
+
+_G.HOOK_TILEMAP_RENDER = HOOK_MAX + 1
+_G.HOOK_DC_UI_RENDER = HOOK_MAX + 2
+_G.HOOK_QUEUE_RENDER = HOOK_MAX + 3
+_G.HOOK_DELTA_OBJ_PROCESS = HOOK_MAX + 4
+_G.HOOK_BEFORE_WORLD_RENDER = HOOK_MAX + 5
 
 hook_event(HOOK_ON_HUD_RENDER, on_hud_render)
 hook_event(HOOK_MARIO_UPDATE, on_mario_update)

@@ -230,7 +230,11 @@ return {
           rotation = 0,
           visible = true,
           properties = {
-            ["actor"] = "dummy",
+            ["sprite"] = {
+				texture = get_texture_info("dummy"),
+				length = 1,
+				loop = true
+			},
             ["encounter"] = "dummy"
           }
         },

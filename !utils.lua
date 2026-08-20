@@ -19,9 +19,8 @@ musicStream = nil
 function play_overworld_music(stream)
     if musicStream ~= stream then
     	stop_overworld_music()
-	    audio_stream_play(stream, false, 1)
+	    audio_stream_play(stream, false, 0.6)
 		audio_stream_set_looping(stream, true)
-		audio_stream_set_volume(stream, 0.6)
 	    musicStream = stream
     end
 end
@@ -106,4 +105,13 @@ function change_map(map, spawn)
         ldx = 0
 		tween_start("transOut", 255, 0, 0.25, "linear", function(v) transitionAlpha = v end)
 	end)
+end
+
+function playAnim(anim, force)
+	local sprites = charList[s.character].sprites[s.costume]
+	if sprites[anim] and (s.anim ~= anim or force) then
+		anim_timer = 0
+		s.anim = anim
+		s.frame = 1
+	end
 end

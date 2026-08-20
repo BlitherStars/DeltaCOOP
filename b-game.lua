@@ -1,5 +1,4 @@
 local player_chats = {}
-local anim_timer = 0
 local coolY = -48 
 local ldx = 0
 
@@ -13,16 +12,19 @@ local charsTimer = {
 lastAnim = "down"
 lastSpawn = "spawn"
 
+anim_timer = 0
+
 inTransition = false
-_G.inBattle = false
 battleAlpha = 0
 transitionAlpha = 0
 
-charScale = 1
-mapScale = 0.5
+_G.charScale = 1
+_G.mapScale = 0.5
 
-camPos = {x = 0, y = 0}
-freezeControls = false
+_G.camPos = {x = 0, y = 0}
+_G.freezeControls = false
+
+_G.render_queue = {}
 
 local function on_chat_message(m, msg)
     if m.playerIndex < MAX_PLAYERS then
@@ -35,8 +37,13 @@ local function on_chat_message(m, msg)
 end
 
 local function render_overworld()
+	if musicStream then
+		audio_stream_set_volume(musicStream, SURVEY_INTERFACE.inBattle and 0 or 0.5)
+	end
+	
 	djui_hud_set_resolution(RESOLUTION_N64)
 	
+	_G.render_queue = {}
     local sW = 320
     local sH = djui_hud_get_screen_height()
     
@@ -87,7 +94,7 @@ local function render_overworld()
     
     local char = charList[s.character]
     local sprites = char.sprites[s.costume]
-    local map = maps[s.map] or maps["kristalcastle1"]
+    local map = maps[s.map]
     if map.properties["music"] then
  	   play_overworld_music(map.properties["music"])
     else
@@ -132,12 +139,11 @@ local function render_overworld()
             if stick_y > 20 then dy = -1 elseif stick_y < -20 then dy = 1 end
         end
     end
-
-    local anim = s.anim
+    
     local anim_frame = s.frame
 	
 	if s.walking then
-		s.flipX = false
+		local anim = s.anim
 	    if dy < 0 then
 	        anim = "up"
 	    elseif dy > 0 then
@@ -147,12 +153,14 @@ local function render_overworld()
 	    elseif dx < 0 then
 	        anim = "left"
 	    end
+		playAnim(anim, false)
 		lastAnim = anim
+		s.flipX = false
     end
     
-    if sprites[anim] == nil then
+    if sprites[s.anim] == nil then
 		s.walking = true
-		anim = lastAnim
+		playAnim(lastAnim, true)
 	end
 	
 	if not freezeControls and (m.controller.buttonDown & X_BUTTON) ~= 0 and sprites["attack"] and s.attackCooldown <= 0 and not gGlobalSyncTable.disablePVP then
@@ -161,12 +169,10 @@ local function render_overworld()
 		if ldx < 0 or anim == "left" then
 			s.flipX = true
 		end
-		anim = "attack"
-		anim_frame = 1
-		anim_timer = 0
+		playAnim("attack", true)
 		
-		if sprites[anim].snd then
-			audio_stream_play(sprites[anim].snd, true, 1)
+		if sprites[s.anim].snd then
+			audio_stream_play(sprites[s.anim].snd, true, 1)
 			network_send(true, {
 				type = "player",
 				character = s.character,
@@ -213,10 +219,7 @@ local function render_overworld()
 			timer_start("deadTimer", 1, function()
 				change_map(s.map, lastSpawn or "spawn")
 			end)
-			if sprites["defeat"] then
-				anim = "defeat"
-				s.anim = "defeat"
-			end
+			playAnim("defeat", false)
 			inTransition = true
 		else
 			s.dead = false
@@ -244,31 +247,20 @@ local function render_overworld()
 	for i, v in pairs(sprites) do
 		if not discard[i] and not (v.other == true) and keys[curKey] and not freezeControls and not useDpad then
 			if (m.controller.buttonPressed & keys[curKey]) ~= 0 then
-				s.walking = false
-				anim = i
-				if sprites[anim].snd then
-					audio_stream_play(sprites[anim].snd, true, 1)
-					network_send(true, {
-						type = "player",
-						character = s.character,
-						costume = s.costume,
-						anim = anim,
-						map = s.map
-					})
-				end
+				emote(i, true)
 			end
 			curKey = curKey + 1
 		end
 	end
     
-    local max_frames = sprites[anim].length or 4
-    local fpsDist = (sprites[anim].fps or 12) / 30
-    local loop = sprites[anim].loop or false
-    local persistent = sprites[anim].persistent or false
-    local repeatAmount = sprites[anim].repeatAmount or 1
-    local other = sprites[anim].other or false
+    local max_frames = sprites[s.anim].length or 4
+    local fpsDist = (sprites[s.anim].fps or 12) / 30
+    local loop = sprites[s.anim].loop or false
+    local persistent = sprites[s.anim].persistent or false
+    local repeatAmount = sprites[s.anim].repeatAmount or 1
+    local other = sprites[s.anim].other or false
     
-	if s.walking then
+	if s.walking and not s.battle then
 	    if dx == 0 and dy == 0 then
 	        anim_frame = 1
 	        anim_timer = 0
@@ -279,19 +271,15 @@ local function render_overworld()
     else
     	anim_timer = anim_timer + fpsDist
 	    anim_frame = 1 + ((loop or repeatAmount > 1) and (math.floor(anim_timer) % max_frames) or math.min(math.floor(anim_timer), max_frames))
-	    if not loop and not persistent and anim_timer >= (max_frames * repeatAmount) then
-			s.walking = true
-			anim = lastAnim
-		end
-		if (loop or persistent) and (m.controller.buttonPressed & A_BUTTON) ~= 0 and not other then
-			s.walking = true
-			anim = lastAnim
+	    if (not loop and not persistent and anim_timer >= (max_frames * repeatAmount)) or ((loop or persistent) and (m.controller.buttonPressed & A_BUTTON) ~= 0 and not other) then
+			s.walking = not s.battle
+			playAnim(s.battle and "right" or lastAnim)
 		end
     end
 
     local speed = 2
     if run then speed = 3 end
-    if not s.walking then speed = 0 end
+    if not s.walking or s.battle then speed = 0 end
 
     local nx, ny = s.x, s.y
 
@@ -314,41 +302,41 @@ local function render_overworld()
 					if obj.name == "transition" and not inTransition and overlap({x = s.x, y = s.y, width = box_w, height = box_h}, {x = obj.x * mapScale, y = obj.y * mapScale, width = obj.width * mapScale, height = obj.height * mapScale}) then
 						change_map(obj.properties["map"], obj.properties["marker"])
 	    			end
-					if obj.name == "sprite" then
-						table.insert(render_queue, {
+					if obj.name == "sprite" or obj.properties["sprite"] then
+						local t = {
 			                type = "sprite",
 			                x = ((obj.x + layer.offsetx) or 0) * mapScale,
 			                y = ((obj.y + layer.offsety) or 0) * mapScale,
-			                sprite = {
+			                sprite = obj.properties["sprite"] or {
 								texture = obj.properties["texture"],
 								length = 1,
 								fps = 12 * obj.properties["speed"],
 							},
-							scaleX = obj.properties["scalex"] * mapScale,
-							scaleY = obj.properties["scaley"] * mapScale,
+							scaleX = math.abs(obj.properties["scalex"] or 2) * mapScale,
+							scaleY = (obj.properties["scaley"] or 2) * mapScale,
 							scrollX = layer.parallaxx or 1,
 							scrollY = layer.parallaxy or 1,
 			                frame = 1,
 			                bW = (obj.width or 0) * mapScale,
 			                bH = (obj.height or 0) * mapScale,
-			                flipX = ss.flipX or false
-			            })
-						if overlap({x = nx, y = s.y, width = box_w, height = box_h}, {x = obj.x * mapScale, y = obj.y * mapScale, width = obj.width * mapScale, height = obj.height * mapScale}) then
+			                flipX = obj.properties["flipX"] or ((obj.properties["scalex"] or 1) < 0),
+							alpha = obj.alpha or 1,
+			            }
+						if t then
+							table.insert(render_queue, t)
+						end
+						if obj.name ~= "enemy" and obj.collision and overlap({x = nx, y = s.y, width = box_w, height = box_h}, {x = obj.x * mapScale, y = obj.y * mapScale, width = obj.width * mapScale, height = obj.height * mapScale}) then
 							nx = s.x
 		    			end
-		  			  if overlap({x = s.x, y = ny, width = box_w, height = box_h}, {x = obj.x * mapScale, y = obj.y * mapScale, width = obj.width * mapScale, height = obj.height * mapScale}) then
+		  			  if obj.name ~= "enemy" and overlap({x = s.x, y = ny, width = box_w, height = box_h}, {x = obj.x * mapScale, y = obj.y * mapScale, width = obj.width * mapScale, height = obj.height * mapScale}) then
 							ny = s.y
 		    			end
 					end
+					call_custom_hook(HOOK_DELTA_OBJ_PROCESS, obj, obj_id)
 				end
 			end
 		end
 	end
-	
-	if nx < - box_w/2 then nx = - box_w/2 end
-    if nx > rW - box_w/2 then nx = rW - box_w/2 end
-    if ny < - box_w/2 then ny = - box_w/2 end
-    if ny > rH - box_h/2 then ny = rH - box_h/2 end
 	
 	if not inTransition then
 		if nx ~= s.x then
@@ -357,20 +345,19 @@ local function render_overworld()
 		if ny ~= s.y then
 	   	 s.y = ny
 		end
-		if anim ~= s.anim then
-	   	 s.anim = anim
-		end
 		if anim_frame ~= s.frame then
 	   	 s.frame = anim_frame
 		end
-		if s.battle ~= inBattle then
-			s.battle = inBattle
-		end
     end
+	
+	if nx < - box_w/2 then nx = - box_w/2 end
+    if nx > rW - box_w/2 then nx = rW - box_w/2 end
+    if ny < - box_w/2 then ny = - box_w/2 end
+    if ny > rH - box_h/2 then ny = rH - box_h/2 end
     
     local boundX = math.max(rW - sW, 0)
     local boundY = math.max(rH - sH, 0)
-    if inBattle then
+    if SURVEY_INTERFACE.inBattle then
     	camPos.x = math.lerp(camPos.x, s.x - ((sW - box_w) / 2) - (screenOffset / 2) + 96, 0.1)
    	 camPos.y = math.lerp(camPos.y, s.y - ((sH - box_h) / 2), 0.1)
     else
@@ -380,8 +367,6 @@ local function render_overworld()
 	
 	djui_hud_set_color(0, 0, 0, 255)
     djui_hud_render_rect(-4, -4, djui_hud_get_screen_width() + 8, sH + 8)
-
-    local render_queue = {}
 
     for i = 0, MAX_PLAYERS - 1 do
     	local ss = gPlayerSyncTable[i]
@@ -403,6 +388,8 @@ local function render_overworld()
             })
         end
     end
+    
+    call_custom_hook(HOOK_BEFORE_WORLD_RENDER)
 
     table.sort(render_queue, function(a, b)
         return a.y < b.y
@@ -412,6 +399,7 @@ local function render_overworld()
     	if layer.type == "tilelayer" then
 	    	local default = {{firstgid = 1, name = "castle"}}
 	    	draw_tile_layer(layer, map.tilesets or default, layer.x - camPos.x, layer.y - camPos.y, mapScale)
+			call_custom_hook(HOOK_TILEMAP_RENDER, layer, map.tilesets or default, layer.x - camPos.x, layer.y - camPos.y, mapScale)
 	    end
 		if layer.type == "objectgroup" and debug then
 			djui_hud_set_color(255, 255, 255, 32)
@@ -422,7 +410,7 @@ local function render_overworld()
 		end
 	end
 	
-	battleAlpha = math.lerp(battleAlpha, inBattle and 255 or 0, 0.1)
+	battleAlpha = math.lerp(battleAlpha, SURVEY_INTERFACE.inBattle and 255 or 0, 0.1)
 	if battleAlpha > 0 then
 		djui_hud_set_color(0, 0, 0, battleAlpha)
 	    djui_hud_render_rect(-4, -4, djui_hud_get_screen_width() + 8, sH + 8)
@@ -454,7 +442,7 @@ local function render_overworld()
         local hasTex = sprite and sprite.texture and sprite.texture.width > 0 and sprite.texture.height > 0
         local scaleX = ent.scaleX or (ent.scale or (charList[ent.character or -1].scale ~= nil and (charList[ent.character or -1].scale * charScale) or 1))
         local scaleY = ent.scaleY or (ent.scale or (charList[ent.character or -1].scale ~= nil and (charList[ent.character or -1].scale * charScale) or 1))
-        local alpha = math.max(ent.alpha or (charList[ent.character or -1].alpha or 1), 0.25)
+        local alpha = ent.alpha or (ent.character and math.max((charList[ent.character].alpha or 1), 0.25) or 1)
         djui_hud_set_color(255, 255, 255, 255 * alpha)
         
         if hasTex then
@@ -463,6 +451,7 @@ local function render_overworld()
             local tex_h = sprite.texture.height * scaleY
             local center_x = (screen_x + (pw - tex_w) / 2) + (tex_w * (ent.flipX and 1 or 0))
             local center_y = screen_y + (ph - tex_h)
+            call_custom_hook(HOOK_QUEUE_RENDER, ent)
             djui_hud_render_texture_tile(sprite.texture, center_x + ((sprite.offsetX or 0) * scaleX * (ent.flipX and -1 or 1)), center_y + ((sprite.offsetY or 0) * scaleY),  scaleX * (ent.flipX and -1 or 1), scaleY, spr_w * (math.min(ent.frame, sprite.length or 4) - 1), 0, spr_w, sprite.texture.height)
         end
         
@@ -474,7 +463,7 @@ local function render_overworld()
         
         djui_hud_set_font(FONT_SPECIAL)
   	  local text_scale = 0.3 * charScale
-        local text_width = djui_hud_measure_text(ent.name) * text_scale
+        local text_width = djui_hud_measure_text(ent.name or "") * text_scale
         local text_x = screen_x + (pw / 2) - (text_width / 2)
         local text_y = screen_y - ph - ((ent.hp and ent.hp < 1) and 14 or 8)
         
@@ -602,6 +591,8 @@ local function render_overworld()
 		djui_hud_set_color(255, 255, 255, 255)
 		djui_hud_print_text("HP", x, coolY + 5, 0.45)
     end
+    
+    call_custom_hook(HOOK_DC_UI_RENDER)
     
     djui_hud_set_color(0, 0, 0, transitionAlpha)
     djui_hud_render_rect(-4, -4, djui_hud_get_screen_width() + 8, sH + 8)
@@ -775,6 +766,5 @@ function emote_list()
 	return true
 end
 
-hook_chat_command("bt", "- battle test", function() inBattle = not inBattle end)
 hook_chat_command("e", "[emote name] - do an emote", emote)
 hook_chat_command("emotes", " - see your emotes", emote_list)
