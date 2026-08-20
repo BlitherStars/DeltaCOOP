@@ -186,6 +186,9 @@ local function render_overworld()
 	    	local ss = gPlayerSyncTable[i]
 	        if ss ~= s and not ss.battle and gNetworkPlayers[i].connected and ss.map == s.map and overlap({x = s.x - (box_w * (s.flipX and 1 or 0)), y = s.y, width = box_w*2, height = box_h}, {x = ss.x, y = ss.y, width = ss.bW, height = ss.bH}) then
 				ss.hp = ss.hp - ((15 * (1 + (s.exp / 5000))) * (ss.anim == "attack" and 0.25 or 1))
+				if ss.anim == "attack" then
+					s.attackCooldown = 60
+				end
 				audio_stream_play(snd_damage, true, 1)
 				network_send(true, {
 					type = "dmg",
