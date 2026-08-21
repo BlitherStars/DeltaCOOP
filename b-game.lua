@@ -26,6 +26,9 @@ _G.freezeControls = false
 
 _G.render_queue = {}
 
+local coolspX = 0
+local coolspY = 0
+
 local function on_chat_message(m, msg)
     if m.playerIndex < MAX_PLAYERS then
         player_chats[m.playerIndex] = {
@@ -277,14 +280,20 @@ local function render_overworld()
 		end
     end
 
+	local car = char.name == "Annoying Dog"
+	
     local speed = 2
     if run then speed = 3 end
     if not s.walking or s.battle then speed = 0 end
-
+    
+	coolspX = coolspX < speed * dx * 2 and coolspX + 1 or (coolspX > speed * dx * 2 and coolspX - 1 or coolspX)
+	coolspY = coolspY < speed * dy * 2 and coolspY + 1 or (coolspY > speed * dy * 2 and coolspY - 1 or coolspY)
+	log_to_console(tostring(speed * dy),0)
+	
     local nx, ny = s.x, s.y
 
-    nx = nx + (dx * speed)
-    ny = ny + (dy * speed)
+    nx = nx + (car and coolspX or dx * speed)
+    ny = ny + (car and coolspY or dy * speed)
 	
 	for lay_id, layer in pairs(map.layers) do
 		if layer.type == "objectgroup" then
