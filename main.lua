@@ -530,7 +530,7 @@ charList = {
 		}
 	},
 	{
-		name = "Roulxs Kaard",
+		name = "Rouxls Kaard",
 		boxW = 24,
 		boxH = 57,
 		snd = audio_stream_load("txt_lancer.mp3"),
