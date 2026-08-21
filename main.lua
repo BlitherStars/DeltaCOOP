@@ -471,6 +471,13 @@ charList = {
 					loop = true,
 					snd = snd_splat,
 				},
+				["dummy"] = {
+					texture = get_texture_info("dummy"),
+					length = 1,
+					fps = 1,
+					loop = true,
+					snd = snd_menuback,
+				},
 				["attack"] = {
 					other = true,
 					texture = get_texture_info("ralsei_ch1_attack"),
