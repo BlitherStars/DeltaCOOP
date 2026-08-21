@@ -410,6 +410,35 @@ charList = {
 		}
 	},
 	{
+		name = "Annoying Dog",
+		boxW = 29,
+		boxH = 42,
+		sprites = {
+			{
+			    ["left"] = {
+					texture = get_texture_info("annoying_dog_walk_left"),
+					width = 42,
+					length = 2,
+				},
+				["down"] = {
+					texture = get_texture_info("annoying_dog_walk_down"),
+					width = 42,
+					length = 2,
+				},
+				["up"] = {
+					texture = get_texture_info("annoying_dog_walk_up"),
+					width = 42,
+					length = 2,
+				},
+				["right"] = {
+					texture = get_texture_info("annoying_dog_walk_right"),
+					width = 42,
+					length = 2,
+				}
+			},
+		}
+	},
+	{
 		name = "Ralsei",
 		boxW = 23,
 		boxH = 44,
