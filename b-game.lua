@@ -68,7 +68,7 @@ local function render_overworld()
         
         s.character = math.max(table.indexOf(charNames, mod_storage_load("character")), 1)
         
-        s.exp = mod_storage_exists("exp") and mod_storage_load_number("exp") or 0
+        s.exp = mod_storage_exists("exp") and math.min(mod_storage_load_number("exp"), 20000) or 0
         s.maxHP = math.floor(90 * (1 + (s.exp / 5000)))
         s.hp = s.maxHP
         
@@ -135,8 +135,8 @@ local function render_overworld()
             if (m.controller.buttonDown & L_JPAD) ~= 0 then dx, ldx = -1, -1 elseif (m.controller.buttonDown & R_JPAD) ~= 0 then dx, ldx = 1, 1 end
             if (m.controller.buttonDown & U_JPAD) ~= 0 then dy = -1 elseif (m.controller.buttonDown & D_JPAD) ~= 0 then dy = 1 end
         else
-            if stick_x > 20 then dx, ldx = 1, 1 elseif stick_x < -20 then dx, ldx = -1, -1 end
-            if stick_y > 20 then dy = -1 elseif stick_y < -20 then dy = 1 end
+            if stick_x > 32 then dx, ldx = 1, 1 elseif stick_x < -32 then dx, ldx = -1, -1 end
+            if stick_y > 32 then dy = -1 elseif stick_y < -32 then dy = 1 end
         end
     end
     
@@ -201,7 +201,7 @@ local function render_overworld()
 					map = s.map
 				})
 				if ss.hp <= 0 and not ss.dead then
-					s.exp = s.exp + math.random(50, 150)
+					s.exp = math.min(s.exp + math.random(50, 150), 20000)
 					local newHP = math.floor(90 * (1 + (s.exp / 5000)))
 					local hpDiff = newHP - s.maxHP
 					s.maxHP = newHP
@@ -320,7 +320,7 @@ local function render_overworld()
 			                bW = (obj.width or 0) * mapScale,
 			                bH = (obj.height or 0) * mapScale,
 			                flipX = obj.properties["flipX"] or ((obj.properties["scalex"] or 1) < 0),
-							alpha = obj.alpha or 1,
+							alpha = obj.properties["alpha"] or 1,
 			            }
 						if t then
 							table.insert(render_queue, t)
@@ -359,7 +359,7 @@ local function render_overworld()
     local boundY = math.max(rH - sH, 0)
     if SURVEY_INTERFACE.inBattle then
     	camPos.x = math.lerp(camPos.x, s.x - ((sW - box_w) / 2) - (screenOffset / 2) + 96, 0.1)
-   	 camPos.y = math.lerp(camPos.y, s.y - ((sH - box_h) / 2), 0.1)
+   	 camPos.y = math.lerp(camPos.y, s.y - ((sH - box_h) / 2) + 16, 0.1)
     else
 	    camPos.x = math.lerp(camPos.x, math.min(math.max(s.x - ((sW - box_w) / 2), 0), boundX) - (screenOffset / 2), (255-battleAlpha)/255)
 	    camPos.y = math.lerp(camPos.y, math.min(math.max(s.y - ((sH - (box_h / 2)) / 2), 0), boundY), (255-battleAlpha)/255)
@@ -654,17 +654,17 @@ function get_map_spawn_pos(map, id)
 end
 
 function on_packet(d)
-	if d.type == "player" then
+	if d.type == "player" and not s.battle then
 		local anim = d.anim
 		local sprites = charList[d.character].sprites[d.costume]
 		if sprites[anim] and sprites[anim].snd and d.map == s.map then
 			audio_stream_play(sprites[anim].snd, true, 1)
 		end
-	elseif d.type == "attack" then
+	elseif d.type == "attack" and not s.battle then
 		if d.map == s.map then
 			audio_stream_play(snd_slash, true, 1)
 		end
-	elseif d.type == "dmg" then
+	elseif d.type == "dmg" and not s.battle then
 		if d.map == s.map then
 			audio_stream_play(snd_damage, true, 1)
 		end

@@ -92,6 +92,20 @@ function change_map(map, spawn)
 	tween_start("transIn", 0, 255, 0.25, "linear", function(v) transitionAlpha = v end, function()
 		s.map = map
 		local rData = maps[map] or maps["kristalcastle1"]
+		for i, layer in pairs(rData.layers) do
+			if layer.type == "objectgroup" then
+				for ii, obj in pairs(layer.objects) do
+					if obj.name == "enemy" then
+						if obj.encountered then
+							obj.properties["alpha"] = (obj.oldalpha or 1)
+							obj.encountered = false
+						else
+							obj.oldalpha = obj.properties["alpha"]
+						end
+					end
+				end
+			end
+		end
         local spawn = get_map_spawn_pos(rData, spawn)
         s.x = spawn.x - s.bW/2
         s.y = spawn.y - s.bH/2
