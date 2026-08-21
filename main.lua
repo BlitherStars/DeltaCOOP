@@ -394,6 +394,12 @@ charList = {
 					fps = 1,
 					loop = true,
 				},
+					["frozen"] = {
+					texture = get_texture_info("berdly_dark_ripbozo"),
+					length = 1,
+					fps = 1,
+					loop = true,
+				},
 				["attack"] = {
 					other = true,
 					texture = get_texture_info("berdly_dark_attack"),
@@ -406,6 +412,35 @@ charList = {
 					fps = 1,
 					loop = true,
 				},
+			},
+		}
+	},
+	{
+		name = "Annoying Dog",
+		boxW = 29,
+		boxH = 42,
+		sprites = {
+			{
+			    ["left"] = {
+					texture = get_texture_info("annoying_dog_walk_left"),
+					width = 42,
+					length = 2,
+				},
+				["down"] = {
+					texture = get_texture_info("annoying_dog_walk_down"),
+					width = 42,
+					length = 2,
+				},
+				["up"] = {
+					texture = get_texture_info("annoying_dog_walk_up"),
+					width = 42,
+					length = 2,
+				},
+				["right"] = {
+					texture = get_texture_info("annoying_dog_walk_right"),
+					width = 42,
+					length = 2,
+				}
 			},
 		}
 	},
@@ -559,6 +594,35 @@ charList = {
 					texture = get_texture_info("roulxs_kaard"),
 					length = 1,
 				},
+			},
+		}
+	},
+{
+		name = "Addison",
+		boxW = 25,
+		boxH = 45,
+		sprites = {
+			{
+			    ["left"] = {
+					texture = get_texture_info("addison_walk_left"),
+					width = 45,
+					length = 2,
+				},
+				["down"] = {
+					texture = get_texture_info("addison_walk_down"),
+					width = 45,
+					length = 2,
+				},
+				["up"] = {
+					texture = get_texture_info("addison_walk_up"),
+					width = 45,
+					length = 2,
+				},
+				["right"] = {
+					texture = get_texture_info("addison_walk_right"),
+					width = 45,
+					length = 2,
+				}
 			},
 		}
 	},
