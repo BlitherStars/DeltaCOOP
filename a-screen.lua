@@ -7,6 +7,6 @@ local function border()
     _G.screenOffset = sW - 320
     local barW = screenOffset / 2
     djui_hud_render_rect(0,0,barW,sH)
-    djui_hud_render_rect(sW-barW,0,barW,sH)
+    djui_hud_render_rect(sW-barW,0,barW*2,sH)
 end
 hook_event(HOOK_ON_HUD_RENDER, border)

@@ -421,9 +421,13 @@ return {
           rotation = 0,
           visible = true,
           properties = {
-            ["actor"] = "starwalker",
-            ["text1"] = "* These [color:yellow]stairs[color:reset] are [color:yellow]Pissing[color:reset] me\noff...",
-            ["text2"] = "* I'm the original   [color:yellow]Starwalker[color:reset]"
+            ["sprite"] = {
+				texture = "starwalker",
+				length = 1,
+			},
+			["solid"] = true,
+            ["text1"] = "* Who is this \\#ffff00\\faker",
+            ["text2"] = "* I'm the original   \\#ffff00\\Starwalker"
           }
         },
         {
@@ -444,16 +448,24 @@ return {
         },
         {
           id = 28,
-          name = "squeak",
+          name = "npc2",
           type = "",
           shape = "rectangle",
-          x = 680,
-          y = 600,
+          x = 380,
+          y = 840,
           width = 40,
           height = 40,
           rotation = 0,
           visible = true,
-          properties = {}
+          properties = {
+            ["sprite"] = {
+				texture = "tropical_starwalker",
+				length = 1,
+			},
+			["solid"] = true,
+            ["text1"] = "* What do you mean i am the original, You're tropissing me off",
+            ["text2"] = "* I am the\n\n\\#F288E5\\Trop\\#7DE2FF\\ical       \\#F288E5\\star\\#7DE2FF\\walker"
+          }
         },
         {
           id = 29,
@@ -501,7 +513,7 @@ return {
           properties = {
             ["actor"] = "wall",
             ["flagcheck"] = "wall_hit",
-            ["text1"] = "* I Am the Wall Guardian.[wait:5]\n* This Wall is Off Limits for you\nno-good wall slammers."
+            ["text1"] = "* I am the Wall Guardian.\n* This Wall is Off Limits for you\nno-good wall slammers."
           }
         }
       }

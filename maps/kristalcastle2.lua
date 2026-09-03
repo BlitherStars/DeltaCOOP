@@ -47,8 +47,8 @@ return {
         0, 0, 0, 0, 10, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 12, 0,
         0, 0, 0, 0, 10, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 12, 0,
         0, 0, 0, 0, 10, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 12, 0,
-        7, 7, 7, 7, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 12, 0,
-        15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 16, 0,
+        7, 7, 7, 7, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 0, 7,
+        15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
       }
@@ -131,7 +131,7 @@ return {
           x = 760,
           y = 120,
           width = 40,
-          height = 280,
+          height = 200,
           rotation = 0,
           visible = true,
           properties = {}
@@ -237,60 +237,12 @@ return {
 			},
             ["encounter"] = {
             	enemies = {
-            		{
-            			name = "Dummy",
-            			sprites = {
-            				["idle"] = {
-								texture = get_texture_info("dummy"),
-								length = 1,
-							},
-						},
-					},
-					{
-            			name = "Dummy",
-            			sprites = {
-            				["idle"] = {
-								texture = get_texture_info("dummy"),
-								length = 1,
-							},
-						},
-					},
-					{
-            			name = "Dummy",
-            			sprites = {
-            				["idle"] = {
-								texture = get_texture_info("dummy"),
-								length = 1,
-							},
-						},
-					},
-					{
-            			name = "Dummy",
-            			sprites = {
-            				["idle"] = {
-								texture = get_texture_info("dummy"),
-								length = 1,
-							},
-						},
-					},
-					{
-            			name = "Dummy",
-            			sprites = {
-            				["idle"] = {
-								texture = get_texture_info("dummy"),
-								length = 1,
-							},
-						},
-					},
-					{
-            			name = "Dummy",
-            			sprites = {
-            				["idle"] = {
-								texture = get_texture_info("dummy"),
-								length = 1,
-							},
-						},
-					},
+            		require("/enemies/dummy"),
+            		require("/enemies/dummy"),
+            		require("/enemies/dummy"),
+            		require("/enemies/dummy"),
+            		require("/enemies/dummy"),
+            		require("/enemies/dummy"),
 				}
 			},
           }

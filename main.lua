@@ -1,24 +1,58 @@
 -- name: DeltaCoop [WIP]
 -- description: IN MARIO 64???
 
+propPresets = {
+	["savepoint"] = {
+		["sprite"] = {
+			texture = "savepoint",
+			length = 6,
+			fps = 6,
+			loop = true,
+		},
+		["solid"] = true,
+		["dialog"] = {
+			{
+				func = function()
+					saveMenuCd = 5
+					inSaveMenu = true
+					saveMenuSel = 1
+					saveMenuHasSelected = false
+					nextDialog()
+				end
+			}
+		}
+	},
+}
+
+modList = {}
+for i = 1, #gActiveMods do
+    if gActiveMods[i] and gActiveMods[i].name and gActiveMods[i].name ~= get_active_mod().name then
+        table.insert(modList, tostring(gActiveMods[i].name))
+    end
+end
+
 _G.useNametags = true
 _G.useDpad = false
 _G.autoRun = false
+_G.showCollisions = false
 
 gGlobalSyncTable.disablePVP = false
 
 _G.snd_menumove = audio_stream_load("snd_menumove.mp3")
 _G.snd_menuback = audio_stream_load("snd_menuback.ogg")
 _G.snd_menuaccept = audio_stream_load("snd_menuaccept.ogg")
+_G.snd_save = audio_stream_load("save.ogg")
 
 _G.snd_txt = audio_stream_load("txt_default.ogg")
 
 _G.snd_slash = audio_stream_load("slash.ogg")
 _G.snd_damage = audio_stream_load("damage.ogg")
-snd_splat = audio_stream_load("splat.ogg")
+_G.snd_splat = audio_stream_load("splat.ogg")
 
-vessel_icon = get_texture_info("vessel_icon")
-logo = get_texture_info("logo")
+_G.vessel_icon = get_texture_info("vessel_icon")
+_G.logo = get_texture_info("logo")
+_G.textbox = get_texture_info("textbox")
+_G.soul = get_texture_info("heart")
 
 BmFont = require("/lib/bmfont")
 _G.FONT_OPERATOR = BmFont.load_sheet("font_operator", 16, 33, 14)
@@ -49,6 +83,15 @@ settings = {
 		value = autoRun,
 		on_value_change = function(v)
 			_G.autoRun = v
+		end,
+	},
+	{
+		save_id = "showCollisions",
+		name = "Show Collisions [DEBUG]",
+		type = "bool",
+		value = showCollisions,
+		on_value_change = function(v)
+			_G.showCollisions = v
 		end,
 	},
 	{
@@ -84,6 +127,15 @@ if network_is_server() then
 		value = gGlobalSyncTable.disablePVP,
 		on_value_change = function(v)
 			gGlobalSyncTable.disablePVP = v
+		end,
+	})
+	table.insert(settings, {
+		save_id = "accelMovement",
+		name = "Accelerative Movement",
+		type = "bool",
+		value = gGlobalSyncTable.accelMovement,
+		on_value_change = function(v)
+			gGlobalSyncTable.accelMovement = v
 		end,
 	})
 end
@@ -138,6 +190,21 @@ charList = {
 				},
 				["right"] = {
 					texture = get_texture_info("kris_light_walk_right"),
+				},
+				["hapi"] = {
+					texture = get_texture_info("kris_light_hapi"),
+					length = 1,
+					fps = 1,
+					loop = true,
+					
+					snd = audio_stream_load("snd_hapi.ogg"),
+				},
+				["splat"] = {
+					texture = get_texture_info("kris_light_splat"),
+					length = 1,
+					loop = true,
+					fps = 1,
+					snd = snd_splat,
 				},
 				["defeat"] = {
 					other = true,
@@ -312,6 +379,14 @@ charList = {
 				},
 				["right"] = {
 					texture = get_texture_info("noelle_light_walk_right"),
+				},
+				["hapi"] = {
+					texture = get_texture_info("noelle_light_hapi"),
+					length = 1,
+					fps = 1,
+					loop = true,
+					
+					snd = audio_stream_load("snd_hapi.ogg"),
 				}
 			},
 			{
@@ -412,6 +487,30 @@ charList = {
 					fps = 1,
 					loop = true,
 				},
+			},
+		}
+	},
+	{
+		name = "Carol",
+		boxW = 26,
+		boxH = 49,
+		sprites = {
+			{
+			    ["left"] = {
+					texture = get_texture_info("placeholder"),
+					length = 1,
+				},
+				["down"] = {
+					texture = get_texture_info("carol_walk_down"),
+				},
+				["up"] = {
+					texture = get_texture_info("placeholder"),
+					length = 1,
+				},
+				["right"] = {
+					texture = get_texture_info("placeholder"),
+					length = 1,
+				}
 			},
 		}
 	},
@@ -572,10 +671,117 @@ charList = {
 		}
 	},
 	{
+		name = "Rudinn",
+		boxW = 20,
+		boxH = 37,
+		sprites = {
+			{
+			    ["left"] = {
+					texture = get_texture_info("rudinn_walk_left"),
+				},
+				["down"] = {
+					texture = get_texture_info("rudinn_walk_down"),
+				},
+				["up"] = {
+					texture = get_texture_info("rudinn_walk_up"),
+				},
+				["right"] = {
+					texture = get_texture_info("rudinn_walk_right"),
+				}
+			},
+		}
+	},
+	{
+		name = "Hathy",
+		boxW = 20,
+		boxH = 38,
+		sprites = {
+			{
+			    ["left"] = {
+					texture = get_texture_info("hathy_walk_left"),
+				},
+				["down"] = {
+					texture = get_texture_info("hathy_walk_left"),
+				},
+				["up"] = {
+					texture = get_texture_info("hathy_walk_left"),
+				},
+				["right"] = {
+					texture = get_texture_info("hathy_walk_right"),
+				}
+			},
+		}
+	},
+	{
+		name = "Jigsawry",
+		boxW = 25,
+		boxH = 29,
+		sprites = {
+			{
+			    ["left"] = {
+					texture = get_texture_info("jigsawry_walk"),
+					length = 6,
+				},
+				["down"] = {
+					texture = get_texture_info("jigsawry_walk"),
+					length = 6,
+				},
+				["up"] = {
+					texture = get_texture_info("jigsawry_walk"),
+					length = 6,
+				},
+				["right"] = {
+					texture = get_texture_info("jigsawry_walk"),
+					length = 6,
+				},
+				["clobbered"] = {
+					texture = get_texture_info("jigsawry_clobbered"),
+					length = 1,
+					fps = 1,
+					loop = true,
+					snd = snd_splat,
+				},
+				["theygotbarry"] = {
+					texture = get_texture_info("jigsawry_barry"),
+					length = 1,
+					fps = 1,
+					loop = true,
+				},
+				["defeat"] = {
+					texture = get_texture_info("jigsawry_down"),
+					length = 1,
+					fps = 1,
+					loop = true,
+					other = true,
+				},
+			},
+		}
+	},
+	{
+		name = "Rudinn Ranger",
+		boxW = 20,
+		boxH = 37,
+		sprites = {
+			{
+			    ["left"] = {
+					texture = get_texture_info("rudinn_ranger_walk_left"),
+				},
+				["down"] = {
+					texture = get_texture_info("rudinn_ranger_walk_left"),
+				},
+				["up"] = {
+					texture = get_texture_info("rudinn_ranger_walk_up"),
+				},
+				["right"] = {
+					texture = get_texture_info("rudinn_ranger_walk_right"),
+				}
+			},
+		}
+	},
+	{
 		name = "Rouxls Kaard",
 		boxW = 24,
 		boxH = 57,
-		snd = audio_stream_load("txt_lancer.mp3"),
 		sprites = {
 			{
 			    ["left"] = {
@@ -592,6 +798,67 @@ charList = {
 				},
 				["right"] = {
 					texture = get_texture_info("roulxs_kaard"),
+					length = 1,
+				},
+			},
+		}
+	},
+		{
+		name = "Starwalker",
+		boxW = 24,
+		boxH = 30,
+		sprites = {
+			{
+			    ["left"] = {
+					texture = get_texture_info("starwalker"),
+					length = 1,
+				},
+				["down"] = {
+					texture = get_texture_info("starwalker"),
+					length = 1,
+				},
+				["up"] = {
+					texture = get_texture_info("starwalker"),
+					length = 1,
+				},
+				["right"] = {
+					texture = get_texture_info("starwalker"),
+					length = 1,
+				},
+			},
+			{
+			    ["left"] = {
+					texture = get_texture_info("tropical_starwalker"),
+					length = 1,
+				},
+				["down"] = {
+					texture = get_texture_info("tropical_starwalker"),
+					length = 1,
+				},
+				["up"] = {
+					texture = get_texture_info("tropical_starwalker"),
+					length = 1,
+				},
+				["right"] = {
+					texture = get_texture_info("tropical_starwalker"),
+					length = 1,
+				},
+			},
+			{
+			    ["left"] = {
+					texture = get_texture_info("final_starwalker"),
+					length = 1,
+				},
+				["down"] = {
+					texture = get_texture_info("final_starwalker"),
+					length = 1,
+				},
+				["up"] = {
+					texture = get_texture_info("final_starwalker"),
+					length = 1,
+				},
+				["right"] = {
+					texture = get_texture_info("final_starwalker"),
 					length = 1,
 				},
 			},
@@ -651,6 +918,37 @@ charList = {
 					offsetY = 0,
 					fps = 12,
 					other = true,
+					
+					snd = audio_stream_load("snd_flowery_voiceclip_jarona.mp3"),
+				},
+				["laddery"] = {
+					texture = get_texture_info("flowery_laddery"),
+					length = 1,
+					loop = true,
+				},
+				["signery"] = {
+					texture = get_texture_info("flowery_signery"),
+					length = 1,
+					loop = true,
+					
+					snd = audio_stream_load("snd_flowery_voiceclip_yes.mp3"),
+				},
+				["point"] = {
+					texture = get_texture_info("flowery_pose_point"),
+					length = 1,
+					loop = true,
+				},
+				["pose"] = {
+					texture = get_texture_info("flowery_pose"),
+					length = 1,
+					loop = true,
+				},
+				["kneel"] = {
+					texture = get_texture_info("flowery_kneel"),
+					length = 1,
+					loop = true,
+					
+					snd = audio_stream_load("snd_flowery_voiceclip_hey.mp3"),
 				},
 			},
 		}
@@ -672,7 +970,48 @@ charList = {
 				},
 				["right"] = {
 					texture = get_texture_info("aqua_walk_right"),
-				}
+				},
+				["sit"] = {
+					texture = get_texture_info("aqua_sit"),
+					loop = true,
+					length = 6,
+				},
+				["dance"] = {
+					texture = get_texture_info("aqua_dance"),
+					loop = true,
+					fps = 8,
+				},
+				["hey"] = {
+					texture = get_texture_info("aqua_hey"),
+					loop = true,
+					length = 6,
+				},
+				["wave"] = {
+					texture = get_texture_info("aqua_wave"),
+					loop = true,
+					length = 4,
+					loop = true,
+				},
+				["defeat"] = {
+					other = true,
+					texture = get_texture_info("aqua_down"),
+					length = 1,
+				},
+				["spin"] = {
+					texture = get_texture_info("aqua_spin"),
+					length = 5,
+					loop = true,
+				},
+				["bored"] = {
+					texture = get_texture_info("aqua_bored"),
+					length = 1,
+					loop = true,
+				},
+				["no"] = {
+					texture = get_texture_info("aqua_no"),
+					length = 4,
+					loop = true
+				},
 			},
 		}
 	},
@@ -695,6 +1034,93 @@ charList = {
 				["right"] = {
 					texture = get_texture_info("seth_walk_right"),
 					length = 2,
+				},
+				["upset"] = {
+					texture = get_texture_info("seth_upset"),
+					length = 1,
+					loop = true,
+				},
+				["despair"] = {
+					texture = get_texture_info("seth_despair"),
+					length = 1,
+					loop = true,
+				},
+				["collapsed"] = {
+					texture = get_texture_info("seth_collapsed"),
+					length = 1,
+					loop = true,
+				},
+			},
+		}
+	},
+	{
+		name = "Yellow",
+		boxW = 27,
+		boxH = 32,
+		sprites = {
+			{
+			    ["right"] = {
+					texture = get_texture_info("yellow_walk_left"),
+				},
+				["down"] = {
+					texture = get_texture_info("yellow_walk_down"),
+				},
+				["up"] = {
+					texture = get_texture_info("yellow_walk_up"),
+				},
+				["left"] = {
+					texture = get_texture_info("yellow_walk_right"),
+				},
+				["waitamin"] = {
+					texture = get_texture_info("yellow_waita"),
+					length = 1,
+					loop = true,
+				},
+				["shocked"] = {
+					texture = get_texture_info("yellow_shocked"),
+					length = 1,
+					loop = true,
+				},
+				["waitamin"] = {
+					texture = get_texture_info("yellow_waita"),
+					length = 1,
+					loop = true,
+				},
+				["wave"] = {
+					texture = get_texture_info("yellow_hello"),
+					length = 2,
+					loop = true,
+					fps = 6,
+				},
+				["defeat"] = {
+					texture = get_texture_info("yellow_down"),
+					length = 1,
+					loop = true,
+				},
+			},
+		}
+	},
+	{
+		name = "Blue",
+		boxW = 20,
+		boxH = 60,
+		sprites = {
+			{
+			    ["left"] = {
+					texture = get_texture_info("blue_walk_left"),
+					width = 49,
+				},
+				["down"] = {
+					texture = get_texture_info("blue_walk_left"),
+					width = 49,
+				},
+				["up"] = {
+					texture = get_texture_info("blue_walk_up"),
+					width = 49,
+				},
+				["right"] = {
+					texture = get_texture_info("blue_walk_right"),
+					width = 49,
 				}
 			},
 		}
@@ -726,6 +1152,11 @@ charList = {
 					offsetY = 4,
 					fps = 20,
 					other = true,
+				},
+				["thumbs_down"] = {
+					texture = get_texture_info("orange_thumbs_down"),
+					length = 1,
+					loop = true,
 				},
 			},
 		}
@@ -948,4 +1379,3 @@ hook_event(HOOK_ON_HUD_RENDER, on_hud_render)
 hook_event(HOOK_MARIO_UPDATE, on_mario_update)
 
 dev = false
-debug = false -- for the collisions
