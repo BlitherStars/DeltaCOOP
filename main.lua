@@ -203,8 +203,21 @@ charList = {
 					texture = get_texture_info("kris_light_splat"),
 					length = 1,
 					loop = true,
+					canWalk = true,
 					fps = 1,
 					snd = snd_splat,
+				},
+				["diagonall"] = {
+					texture = get_texture_info("kris_light_diagonal_left"),
+					length = 1,
+					fps = 1,
+					loop = true,
+				},
+				["diagonalr"] = {
+					texture = get_texture_info("kris_light_diagonal_right"),
+					length = 1,
+					fps = 1,
+					loop = true,
 				},
 				["defeat"] = {
 					other = true,
@@ -232,7 +245,14 @@ charList = {
 					length = 1,
 					fps = 1,
 					loop = true,
+					canWalk = true,
 					snd = snd_splat,
+				},
+				["dog_act"] = {
+					texture = get_texture_info("kris_dark_idonttrustmyplayerbasewiththis"),
+					length = 1,
+					fps = 1,
+					loop = true,
 				},
 				["attack"] = {
 					other = true,
@@ -290,8 +310,21 @@ charList = {
 					texture = get_texture_info("susie_light_look"),
 					length = 1,
 					fps = 1,
+					loop = true,
 					
 					snd = audio_stream_load("slap.ogg"),
+				},
+				["diagonall"] = {
+					texture = get_texture_info("susie_light_diagonal_left"),
+					length = 1,
+					fps = 1,
+					loop = true,
+				},
+				["diagonalr"] = {
+					texture = get_texture_info("susie_light_diagonal_right"),
+					length = 1,
+					fps = 1,
+					loop = true,
 				},
 				["defeat"] = {
 					other = true,
@@ -341,6 +374,7 @@ charList = {
 					length = 1,
 					fps = 1,
 					loop = true,
+					canWalk = true,
 					snd = snd_splat,
 				},
 				["attack"] = {
@@ -380,6 +414,14 @@ charList = {
 				["right"] = {
 					texture = get_texture_info("noelle_light_walk_right"),
 				},
+				["scream"] = {
+					texture = get_texture_info("noelle_light_scream"),
+					length = 11,
+					fps = 19,
+					persistent = true,
+					
+					snd = audio_stream_load("snd_noelle_scared.ogg")
+				},
 				["hapi"] = {
 					texture = get_texture_info("noelle_light_hapi"),
 					length = 1,
@@ -401,6 +443,14 @@ charList = {
 				},
 				["right"] = {
 					texture = get_texture_info("noelle_dark_walk_right"),
+				},
+				["hapi"] = {
+					texture = get_texture_info("noelle_dark_hapi"),
+					length = 1,
+					fps = 1,
+					loop = true,
+					
+					snd = audio_stream_load("snd_hapi.ogg"),
 				},
 				["attack"] = {
 					other = true,
@@ -436,6 +486,12 @@ charList = {
 				},
 				["right"] = {
 					texture = get_texture_info("berdly_light_walk_right"),
+				},
+				["nerd"] = {
+					texture = get_texture_info("berdly_light_nerd"),
+					length = 1,
+					fps = 1,
+					loop = true,
 				},
 			},
 			{
@@ -497,15 +553,13 @@ charList = {
 		sprites = {
 			{
 			    ["left"] = {
-					texture = get_texture_info("placeholder"),
-					length = 1,
+					texture = get_texture_info("carol_walk_left"),
 				},
 				["down"] = {
 					texture = get_texture_info("carol_walk_down"),
 				},
 				["up"] = {
-					texture = get_texture_info("placeholder"),
-					length = 1,
+					texture = get_texture_info("carol_walk_up"),
 				},
 				["right"] = {
 					texture = get_texture_info("placeholder"),
@@ -567,7 +621,22 @@ charList = {
 					length = 1,
 					fps = 1,
 					loop = true,
+					canWalk = true,
 					snd = snd_splat,
+				},
+				["nuzzle_act"] = {
+					texture = get_texture_info("ralsei_nuzzle"),
+					length = 8,
+					fps = 8,
+					loop = true,
+				},
+				["sing"] = {
+					texture = get_texture_info("ralsei_sing"),
+					length = 3,
+					repeatAmount = 6,
+					fps = 8,
+					
+					snd = audio_stream_load("snd_ralseising1.ogg")
 				},
 				["attack"] = {
 					other = true,
@@ -603,6 +672,7 @@ charList = {
 					length = 1,
 					fps = 1,
 					loop = true,
+					canWalk = true,
 					snd = snd_splat,
 				},
 				["dummy"] = {
@@ -610,6 +680,7 @@ charList = {
 					length = 1,
 					fps = 1,
 					loop = true,
+					canWalk = true,
 					snd = snd_menuback,
 				},
 				["attack"] = {
@@ -632,7 +703,7 @@ charList = {
 	},
 	{
 		name = "Lancer",
-		boxW = 36,
+		boxW = 25,
 		boxH = 35,
 		snd = audio_stream_load("txt_lancer.mp3"),
 		sprites = {
@@ -658,6 +729,15 @@ charList = {
 					length = 2,
 					loop = true,
 					fps = 1,
+				},
+				["bike"] = {
+					texture = get_texture_info("lancer_bike"),
+					length = 6,
+					loop = true,
+					canWalk = true,
+					fps = 15,
+					
+					snd = audio_stream_load("snd_lancerwhistle.ogg")
 				},
 				["laugh"] = {
 					texture = get_texture_info("lancer_laugh"),
