@@ -54,13 +54,32 @@ _G.render_queue = {}
 local coolspX = 0
 local coolspY = 0
 
+local snd_ominous = audio_sample_load("snd_ominous.ogg")
+local snd_ominous_cancel = audio_sample_load("snd_ominous_cancel.ogg")
+
 local function on_chat_message(m, msg)
 	if m.playerIndex < MAX_PLAYERS then
+		local clean_msg = get_uncolored_string(msg)
+		
 		player_chats[m.playerIndex] = {
-			text = get_uncolored_string(msg),
+			text = clean_msg,
 			timer = 30 * 4,
 			chars = 0
 		}
+		
+		local msg_lower = clean_msg:lower()
+		if msg_lower == "proceed" or msg_lower == "abort" then
+			local sender_map = gPlayerSyncTable[m.playerIndex].map
+			local local_map = gPlayerSyncTable[0].map
+			
+			if sender_map == local_map then
+				if msg_lower == "proceed" then
+					audio_sample_play(snd_ominous, gMarioStates[0].pos, 1.0)
+				elseif msg_lower == "abort" then
+					audio_sample_play(snd_ominous_cancel, gMarioStates[0].pos, 1.0)
+				end
+			end
+		end
 	end
 end
 
@@ -124,7 +143,7 @@ local function render_overworld()
 	local sprites = char.sprites[s.costume]
 	local map = maps[s.map]
 	if map.properties["music"] then
-		play_overworld_music(map.properties["music"])
+	play_overworld_music(map.properties["music"])
 	else
 		stop_overworld_music()
 	end
@@ -158,6 +177,10 @@ local function render_overworld()
 	local dx = 0
 	local dy = 0
 
+	if char.name == "Shi" then
+		freezeControls = true
+	end
+
 	if not freezeControls then
 		if useDpad then
 			if (m.controller.buttonDown & L_JPAD) ~= 0 then dx, ldx = -1, -1 elseif (m.controller.buttonDown & R_JPAD) ~= 0 then dx, ldx = 1, 1 end
@@ -172,18 +195,46 @@ local function render_overworld()
 	
 	if s.walking then
 		local anim = s.anim
-		if dy < 0 then
-			anim = "up"
-		elseif dy > 0 then
-			anim = "down"
-		elseif dx > 0 then
-			anim = "right"
-		elseif dx < 0 then
-			anim = "left"
+		local ignore = char.ignore or false
+		local canFlip = char.canFlip or false
+		
+		if ignore then
+			if dx > 0 then
+				anim = "right"
+			elseif dx < 0 then
+				anim = "left"
+			elseif ldx > 0 then
+				anim = "right"
+			elseif ldx < 0 then
+				anim = "left"
+			end
+		else
+			if dy < 0 then
+				anim = "up"
+			elseif dy > 0 then
+				anim = "down"
+			elseif dx > 0 then
+				anim = "right"
+			elseif dx < 0 then
+				anim = "left"
+			end
 		end
+		
 		playAnim(anim, false)
 		lastAnim = anim
 		s.flipX = false
+		
+		if canFlip then
+			if dx > 0 then
+				s.flipX = true
+			elseif dx < 0 then
+				s.flipX = false
+			elseif ldx > 0 then
+				s.flipX = true
+			elseif ldx < 0 then
+				s.flipX = false
+			end
+		end
 	end
 	
 	if sprites[s.anim] == nil then
@@ -286,6 +337,33 @@ local function render_overworld()
 	local persistent = sprites[s.anim].persistent or false
 	local repeatAmount = sprites[s.anim].repeatAmount or 1
 	local other = sprites[s.anim].other or false
+	local canWalk = sprites[s.anim].canWalk or false
+	local ignore = char.ignore or false
+	local canFlip = char.canFlip or false
+
+	if s.walking then
+		if ignore then
+			if s.anim == "walk_up" or s.anim == "walk_down" then
+				s.anim = "walk"
+			end
+		end
+
+		if canFlip then
+			if dx > 0 then
+				s.flipX = true
+			elseif dx < 0 then
+				s.flipX = false
+			end
+		end
+	end
+	
+	if canWalk and char.name == "Lancer" and s.anim == "bike" then
+		if dx > 0 then
+			s.flipX = true
+		elseif dx < 0 then
+			s.flipX = false
+		end
+	end
 	
 	if s.walking and not s.battle then
 		if dx == 0 and dy == 0 then
@@ -309,13 +387,19 @@ local function render_overworld()
 	
 	local speed = 3
 	if run then speed = 4 end
-	if not s.walking or s.battle then speed = 0 end
+	
+	if canWalk and char.name == "Lancer" and s.anim == "bike" then
+		speed = speed * 2
+	end
+	
+	if (not s.walking and not canWalk) or s.battle then speed = 0 end
+	
 	
 	coolspX = coolspX < speed * dx * mult and coolspX + 1 or (coolspX > speed * dx * mult and coolspX - 0.5 or coolspX)
 	coolspY = coolspY < speed * dy * mult and coolspY + 1 or (coolspY > speed * dy * mult and coolspY - 0.5 or coolspY)
 	
 	local nx, ny = s.x, s.y
-	
+
 	nx = nx + (sm64 and coolspX or dx * speed)
 	ny = ny + (sm64 and coolspY or dy * speed)
 	
@@ -327,7 +411,7 @@ local function render_overworld()
 						if overlap({x = nx, y = s.y, width = box_w, height = box_h}, {x = obj.x * mapScale, y = obj.y * mapScale, width = obj.width * mapScale, height = obj.height * mapScale}) then
 							nx = s.x
 						end
-						if overlap({x = s.x, y = ny, width = box_w, height = box_h}, {x = obj.x * mapScale, y = obj.y * mapScale, width = obj.width * mapScale, height = obj.height * mapScale}) then
+					if overlap({x = s.x, y = ny, width = box_w, height = box_h}, {x = obj.x * mapScale, y = obj.y * mapScale, width = obj.width * mapScale, height = obj.height * mapScale}) then
 							ny = s.y
 						end
 					else
@@ -342,7 +426,7 @@ local function render_overworld()
 						if overlapPolygon(a, {x = nx, y = s.y, width = box_w, height = box_h}) then
 							nx = s.x
 						end
-						if overlapPolygon(a, {x = s.x, y = ny, width = box_w, height = box_h}) then
+					if overlapPolygon(a, {x = s.x, y = ny, width = box_w, height = box_h}) then
 							ny = s.y
 						end
 					end
@@ -374,7 +458,7 @@ local function render_overworld()
 							frame = math.floor((get_global_timer() * ((spr.fps or 12) / 30)) % spr.length) + 1,
 							bW = (obj.width or 0) * mapScale,
 							bH = (obj.height or 0) * mapScale,
-							flipX = obj.properties["flipX"],
+							flipX = obj.properties["flipX"] or ((obj.properties["scalex"] or 1) < 0),
 							alpha = obj.properties["alpha"] or 1,
 						}
 						if t then
@@ -383,7 +467,7 @@ local function render_overworld()
 						if obj.properties["solid"] and overlap({x = nx, y = s.y, width = box_w, height = box_h}, {x = obj.x * mapScale, y = obj.y * mapScale, width = obj.width * mapScale, height = obj.height * mapScale}) then
 							nx = s.x
 						end
-						if obj.properties["solid"] and overlap({x = s.x, y = ny, width = box_w, height = box_h}, {x = obj.x * mapScale, y = obj.y * mapScale, width = obj.width * mapScale, height = obj.height * mapScale}) then
+					if obj.properties["solid"] and overlap({x = s.x, y = ny, width = box_w, height = box_h}, {x = obj.x * mapScale, y = obj.y * mapScale, width = obj.width * mapScale, height = obj.height * mapScale}) then
 							ny = s.y
 						end
 					end
@@ -417,10 +501,10 @@ local function render_overworld()
 			s.x = nx
 		end
 		if ny ~= s.y then
-			s.y = ny
+		s.y = ny
 		end
 		if anim_frame ~= s.frame then
-			s.frame = anim_frame
+		s.frame = anim_frame
 		end
 	end
 	
@@ -433,7 +517,7 @@ local function render_overworld()
 	local boundY = math.max(rH - sH, 0)
 	if SURVEY_INTERFACE.inBattle then
 		camPos.x = math.lerp(camPos.x, s.x - ((sW - box_w) / 2) - (screenOffset / 2) + 96, 0.1)
-		camPos.y = math.lerp(camPos.y, s.y - ((sH - box_h) / 2) + 16, 0.1)
+	camPos.y = math.lerp(camPos.y, s.y - ((sH - box_h) / 2) + 16, 0.1)
 	else
 		camPos.x = math.lerp(camPos.x, math.min(math.max(s.x - ((sW - box_w) / 2), 0), boundX) - (screenOffset / 2), (255-battleAlpha)/255)
 		camPos.y = math.lerp(camPos.y, math.min(math.max(s.y - ((sH - (box_h / 2)) / 2), 0), boundY), (255-battleAlpha)/255)
@@ -444,7 +528,7 @@ local function render_overworld()
 
 	for i = 0, MAX_PLAYERS - 1 do
 		local m = gMarioStates[i]
-		local np = gNetworkPlayers[m.playerIndex]
+	local np = gNetworkPlayers[m.playerIndex]
 		local ss = gPlayerSyncTable[m.playerIndex]
 		if (not SURVEY_INTERFACE.inBattle or m.playerIndex == 0) and (np.connected or ss.deltarune) and ss.map == s.map then
 			table.insert(render_queue, {
@@ -542,22 +626,18 @@ local function render_overworld()
 		
 		local hasTex = sprite and sprite.texture and sprite.texture.width > 0 and sprite.texture.height > 0
 		local scaleX = ent.scaleX or (ent.scale or (charList[ent.character or -1].scale ~= nil and (charList[ent.character or -1].scale * charScale) or 1))
-		if ent.flipX then
-			scaleX = -scaleX
-		end
-		log_to_console(tostring(scaleX),0)
 		local scaleY = ent.scaleY or (ent.scale or (charList[ent.character or -1].scale ~= nil and (charList[ent.character or -1].scale * charScale) or 1))
 		local alpha = ent.alpha or (ent.character and math.max((charList[ent.character].alpha or 1), 0.25) or 1)
 		djui_hud_set_color(255, 255, 255, 255 * alpha)
 		
 		if hasTex then
 			local spr_w = (sprite.width or (sprite.texture.width / (sprite.length or 4)))
-			local tex_w = spr_w * math.abs(scaleX)
+			local tex_w = spr_w * scaleX
 			local tex_h = sprite.texture.height * scaleY
-			local center_x = (screen_x + (pw - tex_w) / 2) + (tex_w * (scaleX < 0 and 1 or 0))
+			local center_x = (screen_x + (pw - tex_w) / 2) + (tex_w * (ent.flipX and 1 or 0))
 			local center_y = screen_y + (ph - tex_h)
 			call_custom_hook(HOOK_QUEUE_RENDER, ent)
-			djui_hud_render_texture_tile(sprite.texture, center_x + ((sprite.offsetX or 0) * scaleX), center_y + ((sprite.offsetY or 0) * scaleY),scaleX, scaleY, spr_w * (math.min(ent.frame, sprite.length or 4) - 1), 0, spr_w, sprite.texture.height)
+			djui_hud_render_texture_tile(sprite.texture, center_x + ((sprite.offsetX or 0) * scaleX * (ent.flipX and -1 or 1)), center_y + ((sprite.offsetY or 0) * scaleY),scaleX * (ent.flipX and -1 or 1), scaleY, spr_w * (math.min(ent.frame, sprite.length or 4) - 1), 0, spr_w, sprite.texture.height)
 		end
 		
 		if showCollisions or not hasTex then
@@ -567,7 +647,7 @@ local function render_overworld()
 		end
 		
 		djui_hud_set_font(FONT_SPECIAL)
-		local text_scale = 0.3 * charScale
+	local text_scale = 0.3 * charScale
 		local text_width = djui_hud_measure_text(ent.name or "") * text_scale
 		local text_x = screen_x + (pw / 2) - (text_width / 2)
 		local text_y = screen_y - ph - ((ent.hp and ent.hp < 1) and 14 or 8)
@@ -1013,6 +1093,11 @@ function emote(anim)
 	local anim = anim:lower()
 	local sprites = charList[s.character].sprites[s.costume]
 	if sprites[anim] and not sprites[anim].other then
+		if s.anim == anim and sprites[anim].canWalk then
+			s.walking = true
+			return true
+		end
+		
 		s.walking = false
 		s.anim = anim
 		anim_timer = 0
