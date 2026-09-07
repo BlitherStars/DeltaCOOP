@@ -254,6 +254,12 @@ charList = {
 					fps = 1,
 					loop = true,
 				},
+				["dance_act"] = {
+					texture = get_texture_info("kris_dark_dance"),
+					length = 4,
+					fps = 8,
+					loop = true,
+				},
 				["attack"] = {
 					other = true,
 					texture = get_texture_info("kris_dark_attack"),
