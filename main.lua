@@ -736,6 +736,15 @@ charList = {
 					loop = true,
 					fps = 1,
 				},
+				["tuba"] = {
+					texture = get_texture_info("lancer_tuba"),
+					length = 2,
+					loop = true,
+					canWalk = true,
+					fps = 8,
+					
+					snd = audio_stream_load("lancer_annoying.ogg")
+				},
 				["bike"] = {
 					texture = get_texture_info("lancer_bike"),
 					length = 6,
