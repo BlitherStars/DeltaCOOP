@@ -203,7 +203,7 @@ charList = {
 					texture = get_texture_info("kris_light_splat"),
 					length = 1,
 					loop = true,
-					canWalk = true,
+					speed = 1,
 					fps = 1,
 					snd = snd_splat,
 				},
@@ -245,7 +245,7 @@ charList = {
 					length = 1,
 					fps = 1,
 					loop = true,
-					canWalk = true,
+					speed = 1,
 					snd = snd_splat,
 				},
 				["dog_act"] = {
@@ -380,7 +380,7 @@ charList = {
 					length = 1,
 					fps = 1,
 					loop = true,
-					canWalk = true,
+					speed = 1,
 					snd = snd_splat,
 				},
 				["attack"] = {
@@ -578,6 +578,8 @@ charList = {
 		name = "Annoying Dog",
 		boxW = 29,
 		boxH = 42,
+		forceAccel = true,
+		speedMult = 2,
 		sprites = {
 			{
 			    ["left"] = {
@@ -627,7 +629,7 @@ charList = {
 					length = 1,
 					fps = 1,
 					loop = true,
-					canWalk = true,
+					speed = 1,
 					snd = snd_splat,
 				},
 				["nuzzle_act"] = {
@@ -678,7 +680,7 @@ charList = {
 					length = 1,
 					fps = 1,
 					loop = true,
-					canWalk = true,
+					speed = 1,
 					snd = snd_splat,
 				},
 				["dummy"] = {
@@ -686,7 +688,7 @@ charList = {
 					length = 1,
 					fps = 1,
 					loop = true,
-					canWalk = true,
+					speed = 1,
 					snd = snd_menuback,
 				},
 				["attack"] = {
@@ -740,7 +742,7 @@ charList = {
 					texture = get_texture_info("lancer_tuba"),
 					length = 2,
 					loop = true,
-					canWalk = true,
+					speed = 1,
 					fps = 8,
 					
 					snd = audio_stream_load("lancer_annoying.ogg")
@@ -749,8 +751,9 @@ charList = {
 					texture = get_texture_info("lancer_bike"),
 					length = 6,
 					loop = true,
-					canWalk = true,
+					speed = 8,
 					fps = 15,
+					canFlip = true,
 					
 					snd = audio_stream_load("snd_lancerwhistle.ogg")
 				},
