@@ -568,8 +568,7 @@ charList = {
 					texture = get_texture_info("carol_walk_up"),
 				},
 				["right"] = {
-					texture = get_texture_info("placeholder"),
-					length = 1,
+					texture = get_texture_info("carol_walk_right"),
 				}
 			},
 		}
