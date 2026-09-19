@@ -337,11 +337,14 @@ local function render_overworld()
 			if layer.name == "collision" then
 				for obj_id, obj in pairs(layer.objects) do
 					if obj.shape ~= "polygon" then
-						if overlap({x = nx, y = s.y, width = box_w, height = box_h}, {x = obj.x * mapScale, y = obj.y * mapScale, width = obj.width * mapScale, height = obj.height * mapScale}) then
-							nx = s.x
+						local hitbox = {x = obj.x * mapScale, y = obj.y * mapScale, width = obj.width * mapScale, height = obj.height * mapScale}
+						while overlap({x = nx, y = s.y, width = box_w, height = box_h}, hitbox) do
+							local offset = xsp == 0 and 1 or xsp
+							nx = nx - offset / math.abs(offset)
 						end
-						if overlap({x = s.x, y = ny, width = box_w, height = box_h}, {x = obj.x * mapScale, y = obj.y * mapScale, width = obj.width * mapScale, height = obj.height * mapScale}) then
-							ny = s.y
+						while overlap({x = s.x, y = ny, width = box_w, height = box_h}, hitbox) do
+							local offset = ysp == 0 and 1 or ysp
+							ny = ny - offset / math.abs(offset)
 						end
 					else
 						local a = {
@@ -352,11 +355,13 @@ local function render_overworld()
 						for i, v in pairs(obj.polygon) do
 							table.insert(a.polygon, {x = v.x * mapScale, y = v.y * mapScale})
 						end
-						if overlapPolygon(a, {x = nx, y = s.y, width = box_w, height = box_h}) then
-							nx = s.x
+						while overlapPolygon(a, {x = nx, y = s.y, width = box_w, height = box_h}) do
+							local offset = xsp == 0 and 1 or xsp
+							nx = nx - offset / math.abs(offset)
 						end
-						if overlapPolygon(a, {x = s.x, y = ny, width = box_w, height = box_h}) then
-							ny = s.y
+						while overlapPolygon(a, {x = s.x, y = ny, width = box_w, height = box_h}) do
+							local offset = ysp == 0 and 1 or ysp
+							ny = ny - offset / math.abs(offset)
 						end
 					end
 				end
@@ -393,11 +398,16 @@ local function render_overworld()
 						if t then
 							table.insert(render_queue, t)
 						end
-						if obj.properties["solid"] and overlap({x = nx, y = s.y, width = box_w, height = box_h}, {x = obj.x * mapScale, y = obj.y * mapScale, width = obj.width * mapScale, height = obj.height * mapScale}) then
-							nx = s.x
-						end
-						if obj.properties["solid"] and overlap({x = s.x, y = ny, width = box_w, height = box_h}, {x = obj.x * mapScale, y = obj.y * mapScale, width = obj.width * mapScale, height = obj.height * mapScale}) then
-							ny = s.y
+						if obj.properties["solid"] then
+							local hitbox = {x = obj.x * mapScale, y = obj.y * mapScale, width = obj.width * mapScale, height = obj.height * mapScale}
+							while overlap({x = nx, y = s.y, width = box_w, height = box_h}, hitbox) do
+								local offset = xsp == 0 and 1 or xsp
+								nx = nx - offset / math.abs(offset)
+							end
+							while overlap({x = s.x, y = ny, width = box_w, height = box_h}, hitbox) do
+								local offset = ysp == 0 and 1 or ysp
+								ny = ny - offset / math.abs(offset)
+							end
 						end
 					end
 					if not freezeControls and (m.controller.buttonPressed & A_BUTTON ~= 0) and overlap({x = s.x-5, y = s.y-5, width = box_w+10, height = box_h+10}, {x = obj.x * mapScale, y = obj.y * mapScale, width = obj.width * mapScale, height = obj.height * mapScale}) then
