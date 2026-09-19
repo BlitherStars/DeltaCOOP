@@ -55,16 +55,33 @@ local coolspX = 0
 local coolspY = 0
 
 local function on_chat_message(m, msg)
-	if m.playerIndex < MAX_PLAYERS then
-		player_chats[m.playerIndex] = {
-			text = get_uncolored_string(msg),
-			timer = 30 * 4,
-			chars = 0
-		}
+	local msg = get_uncolored_string(msg)
+		
+	player_chats[m.playerIndex] = {
+		text = msg,
+		timer = 30 * 4,
+		chars = 0
+	}
+	
+	local msg_lower = msg:lower()
+	if gPlayerSyncTable[0].map == gPlayerSyncTable[m.playerIndex].map then
+		if msg_lower == "proceed" or msg_lower == "abort" then	
+			if sender_map == local_map then
+				if msg_lower == "proceed" then
+					audio_sample_play(snd_ominous, gMarioStates[0].pos, 1.0)
+				elseif msg_lower == "abort" then
+					audio_sample_play(snd_ominous_cancel, gMarioStates[0].pos, 1.0)
+				end
+			end
+		end
 	end
 end
 
 local function render_overworld()
+	m.freeze = 1
+	
+	set_audio_muted(1)
+	
 	if musicStream then
 		audio_stream_set_volume(musicStream, SURVEY_INTERFACE.inBattle and 0 or 0.5)
 	end
@@ -328,9 +345,10 @@ local function render_overworld()
 	coolspY = coolspY < speed * dy * mult and coolspY + 0.5 or (coolspY > speed * dy * mult and coolspY - 0.5 or coolspY)
 	
 	local nx, ny = s.x, s.y
-
-	nx = nx + (sm64 and coolspX or dx * speed * mult)
-	ny = ny + (sm64 and coolspY or dy * speed * mult)
+	local xsp, ysp = (sm64 and coolspX or dx * speed * mult), (sm64 and coolspY or dy * speed * mult)
+	
+	nx = nx + xsp
+	ny = ny + ysp
 	
 	for lay_id, layer in pairs(map.layers) do
 		if layer.type == "objectgroup" then
@@ -553,9 +571,11 @@ local function render_overworld()
 			
 			if active_sprites and active_sprites[ent.anim] then
 				sprite = active_sprites[ent.anim]
+			elseif active_sprites then
+				sprite = active_sprites["down"]
 			end
 		end
-		
+			
 		if sprite.image and type(sprite.image) == "string" then
 			sprite.texture = get_texture_info(sprite.image)
 		end
@@ -568,7 +588,7 @@ local function render_overworld()
 		if ent.flipX then
 			scaleX = -scaleX
 		end
-		log_to_console(tostring(scaleX),0)
+		
 		local scaleY = ent.scaleY or (ent.scale or (charList[ent.character or -1].scale ~= nil and (charList[ent.character or -1].scale * charScale) or 1))
 		local alpha = ent.alpha or (ent.character and math.max((charList[ent.character].alpha or 1), 0.25) or 1)
 		djui_hud_set_color(255, 255, 255, 255 * alpha)
@@ -815,16 +835,18 @@ function render_save_menu()
 	end
 	
 	local options = {"Save", "Return"}
-	local x,y = (screenOffset/2) + ((320-240)/2), ((240-120)/2)
+	local x,y = (screenOffset/2) + ((320-240)/2), ((240-96)/2)
 	djui_hud_set_color(0, 0, 0, 255)
-	djui_hud_render_outlined_rect(x,y, 240, 120, {255,255,255,255}, 4)
+	djui_hud_render_outlined_rect(x,y, 240, 48, {255,255,255,255}, 4)
 	djui_hud_set_color(255, 255, not saveMenuHasSelected and 255 or 0, 255)
 	djui_hud_print_text(np.name, x + 8, y + 8, 0.5)
 	local lvtext = "\\#ffff00\\LV \\#ffffff\\"..math.floor(1 + (mod_storage_load_number("exp", 0) / 2000))
 	djui_hud_print_text(lvtext,x + (djui_hud_measure_text(np.name) * 0.5) + 16, y + 8, 0.5)
 	djui_hud_print_text(maps[mod_storage_load("map", "toby_fox")] and (maps[mod_storage_load("map", "toby_fox")].properties["name"] or "car pit") or "______", x + 8, y + 24, 0.5)
 	for i, v in pairs(options) do
-		local tx, ty = x + 64 + (64 * (i - 1)), y + 120 - 32
+		local tx, ty = x + 64 + (64 * (i - 1)), y + 64
+		djui_hud_set_color(0, 0, 0, 255)
+		djui_hud_render_outlined_rect(tx - 16, ty - 4, (djui_hud_measure_text(v) / 2) + 24, 24, {255,255,255,255}, 4)
 		djui_hud_set_color(255, 255, not saveMenuHasSelected and 255 or 0, 255)
 		djui_hud_print_text(v, tx, ty, 0.5)
 		if i == saveMenuSel then
