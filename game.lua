@@ -118,12 +118,12 @@ local function render_overworld()
 		s.hp = s.maxHP
 		
 		s.costume = 1
-		s.map = mod_storage_load("map", "kristalcastle1")
+		s.map = mod_storage_load("map", entryMap)
 		s.bW = 0
 		s.bH = 0
 		
 		local char = charList[s.character]
-		local map = maps[s.map] or maps["kristalcastle1"]
+		local map = maps[s.map] or maps[entryMap]
 		local spawn = get_map_spawn_pos(map, "spawn")
 		s.x = spawn.x - char.boxW/2
 		s.y = spawn.y - char.boxH/4
@@ -132,13 +132,16 @@ local function render_overworld()
 	end
 	
 	if maps[s.map] == nil then
-		s.map = "kristalcastle1"
+		s.map = entryMap
 	end
 	
 	s.attackCooldown = s.attackCooldown - 1
 	
 	local char = charList[s.character]
+	local sm64 = char.forceAccel or gGlobalSyncTable.accelMovement
+	local mult = char.speedMult or 1
 	local sprites = char.sprites[s.costume]
+	
 	local map = maps[s.map]
 	if map.properties["music"] then
 		play_overworld_music(map.properties["music"])
@@ -208,37 +211,46 @@ local function render_overworld()
 		playAnim(lastAnim, true)
 	end
 	
-	if not s.battle and not freezeControls and (m.controller.buttonDown & X_BUTTON) ~= 0 and sprites["attack"] and s.attackCooldown <= 0 and not gGlobalSyncTable.disablePVP then
-		s.walking = false
-		s.attackCooldown = 30
-		if ldx < 0 or anim == "left" then
-			s.flipX = true
+	if not s.battle and not freezeControls and (m.controller.buttonDown & X_BUTTON) ~= 0 and (sprites["attack"] or char.name == "Annoying Dog") and s.attackCooldown <= 0 and not gGlobalSyncTable.disablePVP then
+		s.attackCooldown = char.name == "Annoying Dog" and 3 or 30
+		if sprites["attack"] then
+			s.walking = false
+			if ldx < 0 or anim == "left" then
+				s.flipX = true
+			end
+			playAnim("attack", true)
 		end
-		playAnim("attack", true)
 		
-		if sprites[s.anim].snd then
-			audio_stream_play(sprites[s.anim].snd, true, 1)
-			network_send(true, {
-				type = "player",
-				character = s.character,
-				costume = s.costume,
-				anim = anim,
-				map = s.map
-			})
-		else
-			audio_stream_play(snd_slash, true, 1)
-			network_send(true, {
-				type = "attack",
-				map = s.map
-			})
+		if char.name ~= "Annoying Dog" then 
+			if sprites[s.anim].snd then
+				audio_stream_play(sprites[s.anim].snd, true, 1)
+				network_send(true, {
+					type = "player",
+					character = s.character,
+					costume = s.costume,
+					anim = anim,
+					map = s.map
+				})
+			else
+				audio_stream_play(snd_slash, true, 1)
+				network_send(true, {
+					type = "attack",
+					map = s.map
+				})
+			end
 		end
 		
 		for i = 0, MAX_PLAYERS - 1 do
 			local ss = gPlayerSyncTable[i]
 			if ss ~= s and not ss.battle and gNetworkPlayers[i].connected and ss.map == s.map and overlap({x = s.x - (box_w * (s.flipX and 1 or 0)), y = s.y, width = box_w*2, height = box_h}, {x = ss.x, y = ss.y, width = ss.bW, height = ss.bH}) then
-				ss.hp = ss.hp - ((15 * (1 + (s.exp / 5000))) * (ss.anim == "attack" and 0.25 or 1))
+				ss.hp = ss.hp - (char.name == "Annoying Dog" and 10 or ((15 * (1 + (s.exp / 5000))) * (ss.anim == "attack" and 0.25 or 1)))
 				if ss.anim == "attack" then
 					s.attackCooldown = 60
+				end
+				if char.name == "Annoying Dog" then
+					coolspX = - coolspX
+					coolspY = - coolspY
+					s.attackCooldown = 3
 				end
 				audio_stream_play(snd_damage, true, 1)
 				network_send(true, {
@@ -253,6 +265,7 @@ local function render_overworld()
 					s.hp = s.hp + hpDiff
 					ss.dead = true
 				end
+				call_custom_hook(HOOK_ON_PVP_ATTACK, gMarioStates[0], gMarioStates[i])
 			end
 		end
 	end
@@ -331,9 +344,6 @@ local function render_overworld()
 			playAnim(s.battle and "right" or lastAnim)
 		end
 	end
-
-	local sm64 = char.forceAccel or gGlobalSyncTable.accelMovement
-	local mult = char.speedMult or 1
 	
 	local speed = 3
 	if run then speed = 4 end
@@ -352,17 +362,63 @@ local function render_overworld()
 	
 	for lay_id, layer in pairs(map.layers) do
 		if layer.type == "objectgroup" then
-			if layer.name == "collision" then
-				for obj_id, obj in pairs(layer.objects) do
+			for obj_id, obj in pairs(layer.objects) do
+				local properties = propPresets[obj.name] or {}
+				for i, v in pairs(properties) do
+					obj.properties[i] = v
+				end
+				if obj.name == "transition" and not inTransition and overlap({x = s.x, y = s.y, width = box_w, height = box_h}, {x = obj.x * mapScale, y = obj.y * mapScale, width = obj.width * mapScale, height = obj.height * mapScale}) then
+					change_map(obj.properties["map"], obj.properties["marker"])
+				end
+				if obj.name == "sprite" or obj.properties["sprite"] then
+					local spr = obj.properties["sprite"] or {
+						texture = obj.properties["image"],
+						length = obj.properties["length"] or 1,
+						fps = obj.properties["fps"] or 12,
+					}
+					local t = {
+						type = "sprite",
+						x = ((obj.x + layer.offsetx) or 0) * mapScale,
+						y = ((obj.y + layer.offsety) or 0) * mapScale,
+						sprite = spr,
+						scaleX = math.abs(obj.properties["scalex"] or 2) * mapScale,
+						scaleY = (obj.properties["scaley"] or 2) * mapScale,
+						scrollX = layer.parallaxx or 1,
+						scrollY = layer.parallaxy or 1,
+						frame = math.floor((get_global_timer() * ((spr.fps or 12) / 30)) % spr.length) + 1,
+						bW = (obj.width or 0) * mapScale,
+						bH = (obj.height or 0) * mapScale,
+						flipX = obj.properties["flipX"],
+						alpha = obj.properties["alpha"] or 1,
+						angle = obj.properties["angle"] or 0,
+						r = obj.properties["r"],
+						g = obj.properties["g"],
+						b = obj.properties["b"]
+					}
+					if t then
+						table.insert(render_queue, t)
+					end	
+				end
+				
+				local solid = obj.properties["solid"] or layer.name == "collision"
+				if solid then
 					if obj.shape ~= "polygon" then
 						local hitbox = {x = obj.x * mapScale, y = obj.y * mapScale, width = obj.width * mapScale, height = obj.height * mapScale}
 						while overlap({x = nx, y = s.y, width = box_w, height = box_h}, hitbox) do
 							local offset = xsp == 0 and 1 or xsp
 							nx = nx - offset / math.abs(offset)
+							if char.name == "Annoying Dog" then
+								coolspX = - coolspX * 0.75
+								nx = nx + coolspX
+							end
 						end
 						while overlap({x = s.x, y = ny, width = box_w, height = box_h}, hitbox) do
 							local offset = ysp == 0 and 1 or ysp
 							ny = ny - offset / math.abs(offset)
+							if char.name == "Annoying Dog" then
+								coolspY = - coolspY * 0.75
+								ny = ny + coolspY
+							end
 						end
 					else
 						local a = {
@@ -383,72 +439,43 @@ local function render_overworld()
 						end
 					end
 				end
-			else
-				for obj_id, obj in pairs(layer.objects) do
-					local properties = propPresets[obj.name] or {}
-					for i, v in pairs(properties) do
-						obj.properties[i] = v
+				
+				local canInteract = false
+				if obj.shape ~= "polygon" then
+					local hitbox = {x = obj.x * mapScale, y = obj.y * mapScale, width = obj.width * mapScale, height = obj.height * mapScale}
+					canInteract = overlap({x = nx - 2, y = ny - 2, width = box_w + 4, height = box_h + 4}, hitbox)
+				else
+					local a = {
+						x = obj.x * mapScale,
+						y = obj.y * mapScale,
+						polygon = {}
+					}
+					for i, v in pairs(obj.polygon) do
+						table.insert(a.polygon, {x = v.x * mapScale, y = v.y * mapScale})
 					end
-					if obj.name == "transition" and not inTransition and overlap({x = s.x, y = s.y, width = box_w, height = box_h}, {x = obj.x * mapScale, y = obj.y * mapScale, width = obj.width * mapScale, height = obj.height * mapScale}) then
-						change_map(obj.properties["map"], obj.properties["marker"])
-					end
-					if obj.name == "sprite" or obj.properties["sprite"] then
-						local spr = obj.properties["sprite"] or {
-							texture = obj.properties["texture"],
-							length = 1,
-							fps = 12 * obj.properties["speed"],
-						}
-						local t = {
-							type = "sprite",
-							x = ((obj.x + layer.offsetx) or 0) * mapScale,
-							y = ((obj.y + layer.offsety) or 0) * mapScale,
-							sprite = spr,
-							scaleX = math.abs(obj.properties["scalex"] or 2) * mapScale,
-							scaleY = (obj.properties["scaley"] or 2) * mapScale,
-							scrollX = layer.parallaxx or 1,
-							scrollY = layer.parallaxy or 1,
-							frame = math.floor((get_global_timer() * ((spr.fps or 12) / 30)) % spr.length) + 1,
-							bW = (obj.width or 0) * mapScale,
-							bH = (obj.height or 0) * mapScale,
-							flipX = obj.properties["flipX"],
-							alpha = obj.properties["alpha"] or 1,
-						}
-						if t then
-							table.insert(render_queue, t)
-						end
-						if obj.properties["solid"] then
-							local hitbox = {x = obj.x * mapScale, y = obj.y * mapScale, width = obj.width * mapScale, height = obj.height * mapScale}
-							while overlap({x = nx, y = s.y, width = box_w, height = box_h}, hitbox) do
-								local offset = xsp == 0 and 1 or xsp
-								nx = nx - offset / math.abs(offset)
-							end
-							while overlap({x = s.x, y = ny, width = box_w, height = box_h}, hitbox) do
-								local offset = ysp == 0 and 1 or ysp
-								ny = ny - offset / math.abs(offset)
-							end
-						end
-					end
-					if not freezeControls and (m.controller.buttonPressed & A_BUTTON ~= 0) and overlap({x = s.x-5, y = s.y-5, width = box_w+10, height = box_h+10}, {x = obj.x * mapScale, y = obj.y * mapScale, width = obj.width * mapScale, height = obj.height * mapScale}) then
-						local data = {}
-						for id, str in pairs(obj.properties) do
-							if id:sub(1,4) == "text" then
-								data[tonumber(id:sub(5, #id)) or (#data + 1)] = {text = str}
-							end
-						end
-						if obj.properties["dialog"] then
-							for id, v in pairs(obj.properties["dialog"]) do
-								v.triggered = false
-								table.insert(data, v)
-							end
-						end
-						if #data >= 0 and dialog.num <= 0 or dialog.num > #dialog.data then
-							dialog.data = data
-							dialog.chars = 0
-							dialog.num = 1
-						end
-					end
-					call_custom_hook(HOOK_DELTA_OBJ_PROCESS, obj, obj_id)
+					canInteract = overlapPolygon(a, {x = nx - 2, y = ny - 2, width = box_w + 4, height = box_h + 4})
 				end
+				
+				if not freezeControls and (m.controller.buttonPressed & A_BUTTON ~= 0) and canInteract then
+					local data = {}
+					for id, str in pairs(obj.properties) do
+						if id:sub(1,4) == "text" then
+							data[tonumber(id:sub(5, #id)) or (#data + 1)] = {text = str}
+						end
+					end
+					if obj.properties["dialog"] then
+						for id, v in pairs(obj.properties["dialog"]) do
+							v.triggered = false
+							table.insert(data, v)
+						end
+					end
+					if #data >= 0 and dialog.num <= 0 or dialog.num > #dialog.data then
+						dialog.data = data
+						dialog.chars = 0
+						dialog.num = 1
+					end
+				end
+				call_custom_hook(HOOK_DELTA_OBJ_PROCESS, obj, obj_id)
 			end
 		end
 	end
@@ -515,7 +542,7 @@ local function render_overworld()
 	for i, layer in pairs(map.layers) do
 		if layer.type == "tilelayer" then
 			local default = {{firstgid = 1, name = "castle"}}
-			draw_tile_layer(layer, map.tilesets or default, layer.x - camPos.x, layer.y - camPos.y, mapScale)
+			draw_tile_layer(layer, layer.properties, map.tilesets or default, layer.x - camPos.x, layer.y - camPos.y, mapScale)
 			call_custom_hook(HOOK_TILEMAP_RENDER, layer, map.tilesets or default, layer.x - camPos.x, layer.y - camPos.y, mapScale)
 		end
 		if layer.type == "imagelayer" then
@@ -591,15 +618,17 @@ local function render_overworld()
 		
 		local scaleY = ent.scaleY or (ent.scale or (charList[ent.character or -1].scale ~= nil and (charList[ent.character or -1].scale * charScale) or 1))
 		local alpha = ent.alpha or (ent.character and math.max((charList[ent.character].alpha or 1), 0.25) or 1)
-		djui_hud_set_color(255, 255, 255, 255 * alpha)
+		local angle = degrees_to_sm64(ent.angle or 0) 
 		
+		call_custom_hook(HOOK_QUEUE_RENDER, ent)
+		djui_hud_set_color(ent.r or 255, ent.g or 255, ent.b or 255, 255 * alpha)
 		if hasTex then
 			local spr_w = (sprite.width or (sprite.texture.width / (sprite.length or 4)))
 			local tex_w = spr_w * math.abs(scaleX)
 			local tex_h = sprite.texture.height * scaleY
 			local center_x = (screen_x + (pw - tex_w) / 2) + (tex_w * (scaleX < 0 and 1 or 0))
 			local center_y = screen_y + (ph - tex_h)
-			call_custom_hook(HOOK_QUEUE_RENDER, ent)
+			djui_hud_set_rotation(angle, 0.5, 0.5)
 			djui_hud_render_texture_tile(sprite.texture, center_x + ((sprite.offsetX or 0) * scaleX), center_y + ((sprite.offsetY or 0) * scaleY),scaleX, scaleY, spr_w * (math.min(ent.frame, sprite.length or 4) - 1), 0, spr_w, sprite.texture.height)
 		end
 		
@@ -613,7 +642,7 @@ local function render_overworld()
 		local text_scale = 0.3 * charScale
 		local text_width = djui_hud_measure_text(ent.name or "") * text_scale
 		local text_x = screen_x + (pw / 2) - (text_width / 2)
-		local text_y = screen_y - ph - ((ent.hp and ent.hp < 1) and 14 or 8)
+		local text_y = screen_y - ph - ((ent.hp and ent.hp < 1 and ent.id ~= m.playerIndex) and 14 or 8)
 		
 		local out_px = 1
 		if useNametags and ent.type == "player" then
@@ -835,14 +864,18 @@ function render_save_menu()
 	end
 	
 	local options = {"Save", "Return"}
-	local x,y = (screenOffset/2) + ((320-240)/2), ((240-96)/2)
+	local x,y = (screenOffset/2) + 40, 72
+	
 	djui_hud_set_color(0, 0, 0, 255)
 	djui_hud_render_outlined_rect(x,y, 240, 48, {255,255,255,255}, 4)
+	
 	djui_hud_set_color(255, 255, not saveMenuHasSelected and 255 or 0, 255)
 	djui_hud_print_text(np.name, x + 8, y + 8, 0.5)
+	
 	local lvtext = "\\#ffff00\\LV \\#ffffff\\"..math.floor(1 + (mod_storage_load_number("exp", 0) / 2000))
 	djui_hud_print_text(lvtext,x + (djui_hud_measure_text(np.name) * 0.5) + 16, y + 8, 0.5)
 	djui_hud_print_text(maps[mod_storage_load("map", "toby_fox")] and (maps[mod_storage_load("map", "toby_fox")].properties["name"] or "car pit") or "______", x + 8, y + 24, 0.5)
+	
 	for i, v in pairs(options) do
 		local tx, ty = x + 64 + (64 * (i - 1)), y + 64
 		djui_hud_set_color(0, 0, 0, 255)
@@ -858,6 +891,7 @@ function render_save_menu()
 					mod_storage_save("map", s.map)
 					mod_storage_save_number("exp", s.exp)
 					audio_stream_play(snd_save, true, 1)
+					tween_start("hpMax", s.hp, s.maxHP, 0.75, "expoOut", function(v) s.hp = v end)
 					timer_start("save", 1, function()
 						inSaveMenu = false
 					end)
@@ -920,12 +954,22 @@ function getGridPos(i, w, h)
 	return i % w, math.floor(i/w) * h
 end
 
-function draw_tile_layer(data, tilesetList, x, y, scale)
+function draw_tile_layer(data, properties, tilesetList, x, y, scale)
 	local x = (x + (data.offsetx or 0)) * (data.parallaxx or 1)
 	local y = (y + (data.offsety or 0)) * (data.parallaxy or 1)
+	local r,g,b = 255,255,255
 	local tiles = data.data
+	local fxList = {}
 	if not tiles then return end
-	djui_hud_set_color(255, 255, 255, 255 * data.opacity)
+	if properties["color"] then
+		r, g, b = hex_to_rgb(properties["color"])
+	end
+	for i, v in pairs(properties) do
+		if i:sub(1,2) == "fx" then
+			table.insert(fxList, v)
+		end
+	end
+	djui_hud_set_color(r, g, b, 255 * data.opacity)
 	for i, tile in pairs(tiles) do
 		if tile > 0 then
 			local texture
@@ -950,6 +994,15 @@ function draw_tile_layer(data, tilesetList, x, y, scale)
 				local tX, tY = getGridPos((tile - offset) * tileset.tilewidth, texture.width, tileset.tileheight)
 				local oX, oY = getGridPos((i - 1) * tileset.tilewidth, data.width * tileset.tilewidth, tileset.tileheight)
 				local cX, cY = x + (oX * scale), y + (oY * scale)
+				if table.contains(fxList, "sinewave") then
+					cY = cY + math.sin((get_global_timer() / 15) + (oX / tileset.tilewidth))
+				end
+				if table.contains(fxList, "sinewave_h") then
+					cX = cX + math.sin((get_global_timer() / 15) + (oY / tileset.tileheight))
+				end
+				if table.contains(fxList, "scramble") and math.random(1, 16) == 1 then
+					tX = math.min(tX + tileset.tilewidth, texture.width)
+				end
 				if not (cX < (screenOffset/2) - tileset.tilewidth or cY < - tileset.tileheight or cX >= (screenOffset/2) + 320 or cY >= 240) then
 					djui_hud_render_texture_tile(texture, cX, cY, scale, scale, tX, tY, tileset.tilewidth, tileset.tileheight)
 				end
@@ -968,6 +1021,7 @@ function get_map_spawn_pos(map, id)
 			end
 		end
 	end
+	
 	for i, layer in pairs(map.layers) do
 		if layer.type == "objectgroup" and layer.name == "markers" then
 			for ii, obj in pairs(layer.objects) do
@@ -977,6 +1031,7 @@ function get_map_spawn_pos(map, id)
 			end
 		end
 	end
+	
 	return {x=0,y=0}
 end
 
@@ -1021,12 +1076,12 @@ function reset_player(m)
 	s.hp = 90
 	
 	s.costume = 1
-	s.map = "kristalcastle1"
+	s.map = entryMap
 	s.bW = 0
 	s.bH = 0
 	
 	local char = charList[s.character]
-	local map = maps[s.map] or maps["kristalcastle1"]
+	local map = maps[s.map] or maps[entryMap]
 	local spawn = get_map_spawn_pos(map, "spawn")
 	s.x = spawn.x - char.boxW/2
 	s.y = spawn.y - char.boxH/4

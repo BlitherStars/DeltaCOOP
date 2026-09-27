@@ -139,21 +139,22 @@ end
 -- WARP LIST --
 warps = {
 	{
-		name = "Kristal Castle",
-		map = "kristalcastle1",
+		name = "Fieldy Place (Lobby)",
+		map = "lobby1",
 		spawn = "spawn"
 	},
 }
 
 -- MAP LIST --
+entryMap = "lobby1"
 maps = {
-	["kristalcastle1"] = require("/maps/kristalcastle1"),
-	["kristalcastle2"] = require("/maps/kristalcastle2"),
+	["lobby1"] = require("/maps/lobby1"),
 }
 
 -- MAP TILESETS --
 tilesets = {
 	["castle"] = require("/tilesets/castle"),
+	["field"] = require("/tilesets/field"),
 }
 
 -- PRESETS --
@@ -184,6 +185,7 @@ propPresets = {
 charList = {
 	{
 		name = "Kris",
+		desc = "* ...",
 		boxW = 19,
 		boxH = 38,
 		sprites = {
@@ -289,6 +291,7 @@ charList = {
 	},
 	{
 		name = "Susie",
+		desc = "* Oh yeah! Flowery told me.",
 		boxW = 26,
 		boxH = 46,
 		snd = audio_stream_load("txt_susie.ogg"),
@@ -411,7 +414,7 @@ charList = {
 		}
 	},
 	{
-		name = "Noelle",
+		name = "Noelle", 
 		boxW = 23,
 		boxH = 48,
 		snd = audio_stream_load("txt_noelle.ogg"),
@@ -584,6 +587,7 @@ charList = {
 	},
 	{
 		name = "Annoying Dog",
+		desc = "bark bark",
 		boxW = 29,
 		boxH = 42,
 		forceAccel = true,
@@ -719,6 +723,7 @@ charList = {
 	},
 	{
 		name = "Lancer",
+		desc = "* Ho ho ho!",
 		boxW = 25,
 		boxH = 35,
 		snd = audio_stream_load("txt_lancer.mp3"),
@@ -886,6 +891,7 @@ charList = {
 	},
 	{
 		name = "Rouxls Kaard",
+		desc = "* Chips Ahoyeth Worms!",
 		boxW = 24,
 		boxH = 57,
 		sprites = {
@@ -909,8 +915,9 @@ charList = {
 			},
 		}
 	},
-		{
+	{
 		name = "Starwalker",
+		desc = "* I'm the original      \nStarwalker",
 		boxW = 24,
 		boxH = 30,
 		sprites = {
@@ -970,7 +977,7 @@ charList = {
 			},
 		}
 	},
-{
+	{
 		name = "Addison",
 		boxW = 25,
 		boxH = 45,
@@ -1001,6 +1008,7 @@ charList = {
 	},
 	{
 		name = "Flowery",
+		desc = "* It's me, Flowery!",
 		boxW = 24,
 		boxH = 59,
 		sprites = {
@@ -1061,6 +1069,7 @@ charList = {
 	},
 	{
 		name = "Aqua",
+		desc = "* Ooo, are playing a \nscreaming game?\nAAAAAAAAAAAAAAAAAAA",
 		boxW = 20,
 		boxH = 36,
 		sprites = {
@@ -1123,6 +1132,7 @@ charList = {
 	},
 	{
 		name = "Seth",
+		desc = "* ...",
 		boxW = 30,
 		boxH = 41,
 		sprites = {
@@ -1161,6 +1171,7 @@ charList = {
 	},
 	{
 		name = "Yellow",
+		desc = "",
 		boxW = 27,
 		boxH = 32,
 		sprites = {
@@ -1343,12 +1354,10 @@ charList = {
 local customHooks = {}
 local old_hook_event = hook_event
 function new_hook_event(hook, call)
-	if hook < HOOK_MAX then
+	if hook < OLD_HOOK_MAX then
 		old_hook_event(hook, call)
 	else
-		if not customHooks[hook] then
-			customHooks[hook] = {}
-		end
+		if not customHooks[hook] then customHooks[hook] = {} end
 		table.insert(customHooks[hook], call)
 	end
 end
@@ -1362,13 +1371,19 @@ function call_custom_hook(hook, ...)
 	end
 end
 
-_G.HOOK_TILEMAP_RENDER = HOOK_MAX
-_G.HOOK_DC_UI_RENDER = HOOK_MAX + 1
-_G.HOOK_QUEUE_RENDER = HOOK_MAX + 2
-_G.HOOK_DELTA_OBJ_PROCESS = HOOK_MAX + 3
-_G.HOOK_BEFORE_WORLD_RENDER = HOOK_MAX + 4
-_G.HOOK_DC_DEATH = HOOK_MAX + 5
-_G.HOOK_MAX = HOOK_DC_DEATH + 1
+OLD_HOOK_MAX = HOOK_MAX
+function allocate_hook()
+	_G.HOOK_MAX = HOOK_MAX + 1
+	return HOOK_MAX - 1
+end
+
+_G.HOOK_TILEMAP_RENDER = allocate_hook()
+_G.HOOK_DC_UI_RENDER = allocate_hook()
+_G.HOOK_QUEUE_RENDER = allocate_hook()
+_G.HOOK_DELTA_OBJ_PROCESS = allocate_hook()
+_G.HOOK_BEFORE_WORLD_RENDER = allocate_hook()
+_G.HOOK_DC_DEATH = allocate_hook()
+_G.HOOK_ON_PVP_ATTACK = allocate_hook()
 
 -- OTHER --
 m = gMarioStates[0]

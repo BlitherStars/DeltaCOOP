@@ -1,13 +1,16 @@
 menu = ""
+paused = false
 
-_G.is_game_paused = function() return menu ~= "" end
+_G.is_game_paused = function() return paused end
 
 local selectedOption = 1
 local lerpOption = 1
+local descChars = 1
 
 local function close_menu()
-    if menu ~= "" then
+    if paused then
         menu = ""
+        paused = false
         m.controller.buttonPressed = 0
     end
 end
@@ -29,7 +32,7 @@ local pauseMenuOptions = {
 }
 
 local function hud_render()
-    if menu == "" then return end
+    if not paused then return end
 
     djui_hud_set_resolution(RESOLUTION_N64)
     local sW, sH = djui_hud_get_screen_width(), djui_hud_get_screen_height()
@@ -87,6 +90,7 @@ local function hud_render()
 	            menu = option.menu
 				selectedOption = 1
 				lerpOption = 1
+				descChars = 1
 	        end
 	    end
     elseif menu == "options" then
@@ -175,30 +179,54 @@ local function hud_render()
 		end
     elseif menu == "vessels" then
     	for i,v in pairs(charList) do
-			local textX = x
-			local textY = 10 + (38 * (i - lerpOption))
+			local x = (screenOffset / 2) + 10 + (38 * ((i - 1) % 4))
+			local y = 10 + (38 * (math.floor((i - 1) / 4) - lerpOption))
 			local sprite = v.sprites[1]["down"]
 			local spr_w = (sprite.width or (sprite.texture.width / (sprite.length or 4)))
 			djui_hud_set_color(255, 255, 255, i ~= selectedOption and 128 or 255)
-			djui_hud_render_texture(vessel_icon, textX, textY, 1, 1)
-			djui_hud_render_texture_tile(sprite.texture, textX + ((32 - spr_w) / 2), textY + (30 - math.floor(sprite.texture.height/1.5)), 1, 1, 0, 0, spr_w, math.floor(sprite.texture.height/1.5))
-			djui_hud_print_text(v.name, textX + 36, textY + 8, 0.5)
-			lerpOption = math.lerp(lerpOption, math.max(selectedOption - 5, 1), 0.15)
+			djui_hud_render_texture(vessel_icon, x, y, 1, 1)
+			djui_hud_render_texture_tile(sprite.texture, x + ((32 - spr_w) / 2), y + (30 - math.floor(sprite.texture.height/1.5)), 1, 1, 0, 0, spr_w, math.floor(sprite.texture.height/1.5))
+			if i == selectedOption then
+				djui_hud_print_text(v.name, (screenOffset / 2)  + (38 * 4.25), 10, 0.5)
+				djui_hud_set_color(255, 255, 255, 128)
+				djui_hud_print_text(v.desc and v.desc:sub(1, math.floor(descChars)) or "", (screenOffset / 2)  + (38 * 4.25), 26, 0.4)
+			end
+			lerpOption = math.lerp(lerpOption, math.max(math.floor(selectedOption / 4) - 5, 1) - 1, 0.15)
 		end
 		
 	    if cooldownCounter > 0 then
 	        cooldownCounter = cooldownCounter - 1
 	    else
-	        if stickY > 60 then
+	        if stickX < -60 then
 	            selectedOption = wrap(selectedOption - 1, 1, #charList)
+				descChars = 1
 	            audio_stream_play(snd_menumove, true, 1)
 	            cooldownCounter = cooldown
-	        elseif stickY < -60 then
+	        elseif stickX > 60 then
 	            selectedOption = wrap(selectedOption + 1, 1, #charList)
 	            audio_stream_play(snd_menumove, true, 1)
+				descChars = 1
+	            cooldownCounter = cooldown
+	        end
+			if stickY > 60 then
+	            selectedOption = wrap(selectedOption - 4, 1, #charList)
+	            audio_stream_play(snd_menumove, true, 1)
+				descChars = 1
+	            cooldownCounter = cooldown
+	        elseif stickY < -60 then
+	            selectedOption = wrap(selectedOption + 4, 1, #charList)
+	            audio_stream_play(snd_menumove, true, 1)
+				descChars = 1
 	            cooldownCounter = cooldown
 	        end
   	  end
+  	  
+  	  if charList[selectedOption].desc and descChars < #charList[selectedOption].desc then
+			descChars = descChars + 0.5
+			if descChars % 1 == 0 then
+				audio_stream_play(snd_txt, true, 1)
+			end
+		end
   
   	  if m.controller.buttonPressed & A_BUTTON ~= 0 then
 	        audio_stream_play(snd_menuaccept, true, 1)
@@ -260,15 +288,21 @@ end
 
 function before_mario_update()
     local rTrigPressed = m.controller.buttonPressed & R_TRIG ~= 0
+    
+    if m.controller.buttonPressed & L_TRIG ~= 0 and paused then
+    	game_pause()
+    	m.controller.buttonPressed = L_TRIG
+    end
 
     if pressed_pause() then
-        if menu == "" then
+        if not paused and fade_alpha <= 0 then
             menu = "pause"
+            paused = true
             selectedOption = 1
             audio_stream_play(snd_menumove, true, 1)
         end
         m.controller.buttonPressed = 0
-    elseif rTrigPressed and menu ~= "" then
+    elseif rTrigPressed and paused then
         djui_open_pause_menu()
         m.controller.buttonPressed = 0
         audio_stream_play(snd_menumove, true, 1)

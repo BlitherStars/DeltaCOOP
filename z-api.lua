@@ -21,8 +21,8 @@ _G.SURVEY_INTERFACE = {
 	end,
 	NEW_MAP = function(name, data)
 		maps[name] = data
-		if maps[name].properties["music"] and type(maps[name].properties["music"]) == "string" then
-			maps[name].properties["music"] = audio_stream_load(maps[name].properties["music"]..".ogg")
+		if data.properties["music"] and type(data.properties["music"]) == "string" then
+			maps[name].properties["music"] = audio_stream_load(data.properties["music"]..".ogg")
 		end
 	end,
 	GET_MAP = function(name)

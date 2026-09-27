@@ -109,7 +109,7 @@ function overlap(a, b, steps)
 				math.lerp(pa[1], pb[1], x),
 				math.lerp(pa[2], pb[2], x)
 			}
-			if (pos[1] >= b.x and pos[1] <= (b.x + b.width) and pos[2] >= b.y and pos[2] <= (b.y + b.height)) then
+			if (pos[1] >= b.x + 1 and pos[1] <= (b.x + b.width - 1) and pos[2] >= b.y + 1 and pos[2] <= (b.y + b.height - 1)) then
 				return true;
 			end
 		end
@@ -169,7 +169,7 @@ function getPoints(obj)
 end
 
 function change_map(map, spawn)
-	local rData = maps[map] or maps["kristalcastle1"]
+	local rData = maps[map] or maps[entryMap]
 	inTransition = true
 	lastSpawn = spawn
 	dialog.num = -1
@@ -296,3 +296,32 @@ local function timer_update()
 	end
 end
 hook_event(HOOK_UPDATE, timer_update)
+
+function hex_to_rgb(hex)
+	local r, g, b, a = 0, 0, 0, 0
+    local colorhex = string.gsub(hex, "#", "")
+    if (string.len(colorhex) == 6) then
+        r = string.sub(colorhex, 0, 2)
+        g = string.sub(colorhex, 3, 4)
+        b = string.sub(colorhex, 5, 6)
+
+        r = tonumber(r, 16)
+        g = tonumber(g, 16)
+        b = tonumber(b, 16)
+        return r, g, b
+    elseif (string.len(colorhex) == 8) then
+        r = string.sub(colorhex, 0, 2)
+        g = string.sub(colorhex, 3, 4)
+        b = string.sub(colorhex, 5, 6)
+        a = string.sub(colorhex, 7, 8)
+
+        r = tonumber(r, 16)
+        g = tonumber(g, 16)
+        b = tonumber(b, 16)
+        a = tonumber(a, 16)
+        return r, g, b, a
+    else
+        print("Color format is invalid.")
+        return
+    end
+end
