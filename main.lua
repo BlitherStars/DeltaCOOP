@@ -10,10 +10,12 @@ for i = 1, #gActiveMods do
 end
 
 -- CONFIG VARS --
-_G.useNametags = true
-_G.useDpad = false
-_G.autoRun = false
-_G.showCollisions = false
+useNametags = true
+useDpad = false
+autoRun = false
+
+showCollisions = false
+noclip = false
 
 gGlobalSyncTable.disablePVP = false
 
@@ -45,7 +47,7 @@ settings = {
 		type = "bool",
 		value = useNametags,
 		on_value_change = function(v)
-			_G.useNametags = v
+			useNametags = v
 		end,
 	},
 	{
@@ -54,7 +56,7 @@ settings = {
 		type = "bool",
 		value = useDpad,
 		on_value_change = function(v)
-			_G.useDpad = v
+			useDpad = v
 		end,
 	},
 	{
@@ -63,42 +65,43 @@ settings = {
 		type = "bool",
 		value = autoRun,
 		on_value_change = function(v)
-			_G.autoRun = v
+			autoRun = v
 		end,
 	},
-	{
+}
+
+if _G.cheatsApi then
+	table.insert(settings, {
 		save_id = "showCollisions",
 		name = "Show Collisions [DEBUG]",
 		type = "bool",
 		value = showCollisions,
-		on_value_change = function(v)
-			_G.showCollisions = v
-		end,
-	},
-	{
 		nonsave = true,
-		name = "Reset Settings",
+		on_value_change = function(v)
+			showCollisions = v
+		end,
+	})
+	table.insert(settings, {
+		save_id = "noclip",
+		name = "NoClip [DEBUG]",
+		type = "bool",
+		value = noclip,
+		nonsave = true,
+		on_value_change = function(v)
+			noclip = v
+		end,
+	})
+	table.insert(settings, {
+		nonsave = true,
+		name = "Warp To...",
 		type = "button",
 		func = function(v)
-			for i, v in pairs(settings) do
-				settings[i].value = settings[i].default
-				if v.on_value_change ~= nil then
-					v.on_value_change(settings[i].value)
-				end
-				if settings[i].type == "bool" then
-					if settings[i].nonsave ~= true then
-						mod_storage_save_bool(settings[i].save_id, settings[i].value)
-					end
-				end
-				if settings[i].type == "number" or settings[i].type == "text" then
-					if settings[i].nonsave ~= true then
-						mod_storage_save_number(settings[i].save_id, settings[i].value)
-					end
-				end
-			end
+			menu = "warp_dev"
+			selectedOption = 1
+			lerpOption = 1
 		end,
-	},
-}
+	})
+end
 
 if network_is_server() then
 	table.insert(settings, {
@@ -120,6 +123,30 @@ if network_is_server() then
 		end,
 	})
 end
+
+table.insert(settings, {
+	nonsave = true,
+	name = "Reset Settings",
+	type = "button",
+	func = function(v)
+		for i, v in pairs(settings) do
+			settings[i].value = settings[i].default
+			if v.on_value_change ~= nil then
+				v.on_value_change(settings[i].value)
+			end
+			if settings[i].type == "bool" then
+				if settings[i].nonsave ~= true then
+					mod_storage_save_bool(settings[i].save_id, settings[i].value)
+				end
+			end
+			if settings[i].type == "number" or settings[i].type == "text" then
+				if settings[i].nonsave ~= true then
+					mod_storage_save_number(settings[i].save_id, settings[i].value)
+				end
+			end
+		end
+	end,
+})
 
 for i, v in pairs(settings) do
 	settings[i].default = settings[i].value
@@ -149,12 +176,14 @@ warps = {
 entryMap = "lobby1"
 maps = {
 	["lobby1"] = require("/maps/lobby1"),
+	["lobby2"] = require("/maps/lobby2"),
 }
 
 -- MAP TILESETS --
 tilesets = {
 	["castle"] = require("/tilesets/castle"),
 	["field"] = require("/tilesets/field"),
+	["forest"] = require("/tilesets/forest"),
 }
 
 -- PRESETS --

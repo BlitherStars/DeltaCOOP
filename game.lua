@@ -78,8 +78,10 @@ local function on_chat_message(m, msg)
 end
 
 local function render_overworld()
-	m.freeze = 1
+	djui_hud_set_color(0, 0, 0, 255)
+	djui_hud_render_rect(-4, -4, djui_hud_get_screen_width() + 8, djui_hud_get_screen_height() + 8)
 	
+	m.freeze = 1
 	set_audio_muted(1)
 	
 	if musicStream then
@@ -91,8 +93,9 @@ local function render_overworld()
 	_G.render_queue = {}
 	local sW = 320
 	local sH = djui_hud_get_screen_height()
+	local inDialog = (dialog.num > 0 and dialog.num <= #dialog.data)
 	
-	freezeControls = menu ~= ""or inTransition or s.dead or (dialog.num > 0 and dialog.num <= #dialog.data) or inSaveMenu or fade_alpha > 0
+	freezeControls = menu ~= "" or inTransition or s.dead or inDialog or inSaveMenu or fade_alpha > 0
 	
 	if not s.deltarune or s.hp == nil or s.x == nil or s.y == nil or s.anim == nil then
 		s.deltarune = true
@@ -212,7 +215,7 @@ local function render_overworld()
 	end
 	
 	if not s.battle and not freezeControls and (m.controller.buttonDown & X_BUTTON) ~= 0 and (sprites["attack"] or char.name == "Annoying Dog") and s.attackCooldown <= 0 and not gGlobalSyncTable.disablePVP then
-		s.attackCooldown = char.name == "Annoying Dog" and 3 or 30
+		s.attackCooldown = char.name == "Annoying Dog" and 9 or 30
 		if sprites["attack"] then
 			s.walking = false
 			if ldx < 0 or anim == "left" then
@@ -250,7 +253,7 @@ local function render_overworld()
 				if char.name == "Annoying Dog" then
 					coolspX = - coolspX
 					coolspY = - coolspY
-					s.attackCooldown = 3
+					s.attackCooldown = 9
 				end
 				audio_stream_play(snd_damage, true, 1)
 				network_send(true, {
@@ -400,8 +403,14 @@ local function render_overworld()
 					end	
 				end
 				
+				if showCollisions then
+					djui_hud_set_color(255, 255, 255, 32)
+					djui_hud_render_rect((obj.x * mapScale) - camPos.x, (obj.y * mapScale) - camPos.y, obj.width * mapScale, obj.height* mapScale)
+					djui_hud_set_color(255, 255, 255, 255)
+				end
+				
 				local solid = obj.properties["solid"] or layer.name == "collision"
-				if solid then
+				if solid and not noclip then
 					if obj.shape ~= "polygon" then
 						local hitbox = {x = obj.x * mapScale, y = obj.y * mapScale, width = obj.width * mapScale, height = obj.height * mapScale}
 						while overlap({x = nx, y = s.y, width = box_w, height = box_h}, hitbox) do
@@ -421,7 +430,7 @@ local function render_overworld()
 							end
 						end
 					else
-						local a = {
+						--[[local a = {
 							x = obj.x * mapScale,
 							y = obj.y * mapScale,
 							polygon = {}
@@ -430,13 +439,11 @@ local function render_overworld()
 							table.insert(a.polygon, {x = v.x * mapScale, y = v.y * mapScale})
 						end
 						while overlapPolygon(a, {x = nx, y = s.y, width = box_w, height = box_h}) do
-							local offset = xsp == 0 and 1 or xsp
-							nx = nx - offset / math.abs(offset)
+							nx = s.x
 						end
 						while overlapPolygon(a, {x = s.x, y = ny, width = box_w, height = box_h}) do
-							local offset = ysp == 0 and 1 or ysp
-							ny = ny - offset / math.abs(offset)
-						end
+							ny = s.y
+						end]] --polygons might not be possible
 					end
 				end
 				
@@ -469,7 +476,7 @@ local function render_overworld()
 							table.insert(data, v)
 						end
 					end
-					if #data >= 0 and dialog.num <= 0 or dialog.num > #dialog.data then
+					if #data >= 0 and not inDialog then
 						dialog.data = data
 						dialog.chars = 0
 						dialog.num = 1
@@ -477,6 +484,29 @@ local function render_overworld()
 				end
 				call_custom_hook(HOOK_DELTA_OBJ_PROCESS, obj, obj_id)
 			end
+		end
+		if layer.type == "tilelayer" then
+			local default = {{firstgid = 1, name = "castle"}}
+			draw_tile_layer(layer, layer.properties, map.tilesets or default, layer.x - camPos.x, layer.y - camPos.y, mapScale)
+			call_custom_hook(HOOK_TILEMAP_RENDER, layer, map.tilesets or default, layer.x - camPos.x, layer.y - camPos.y, mapScale)
+		end
+		if layer.type == "imagelayer" then
+			local l = {
+				x = (layer.offsetx or 0) * mapScale,
+				y = (layer.offsety or 0) * mapScale,
+				texture = layer.image or layer.texture or nil,
+				scrollX = layer.parallaxx or 1,
+				scrollY = layer.parallaxy or 1,
+				alpha = layer.visible and (layer.opacity * 255) or 0,
+			}
+			if l.texture and type(l.texture) == "string" then
+				l.texture = get_texture_info(l.texture)
+			end
+			djui_hud_set_color(255,255,255,l.alpha)
+			if l.texture and type(l.texture) ~= "string" and l.texture.width > 0 and l.texture.height > 0 then
+				djui_hud_render_texture(l.texture, (l.x - camPos.x) * l.scrollX, (l.y - camPos.y) * l.scrollY, mapScale, mapScale)
+			end
+			djui_hud_set_color(255,255,255,255)
 		end
 	end
 	
@@ -499,16 +529,15 @@ local function render_overworld()
 	
 	local boundX = math.max(rW - sW, 0)
 	local boundY = math.max(rH - sH, 0)
-	if SURVEY_INTERFACE.inBattle then
-		camPos.x = math.lerp(camPos.x, s.x - ((sW - box_w) / 2) - (screenOffset / 2) + 96, 0.1)
-		camPos.y = math.lerp(camPos.y, s.y - ((sH - box_h) / 2) + 16, 0.1)
-	else
-		camPos.x = math.lerp(camPos.x, math.min(math.max(s.x - ((sW - box_w) / 2), 0), boundX) - (screenOffset / 2), (255-battleAlpha)/255)
-		camPos.y = math.lerp(camPos.y, math.min(math.max(s.y - ((sH - (box_h / 2)) / 2), 0), boundY), (255-battleAlpha)/255)
+	if not inDialog then
+		if SURVEY_INTERFACE.inBattle then
+			camPos.x = math.lerp(camPos.x, s.x - ((sW - box_w) / 2) - (screenOffset / 2) + 96, 0.1)
+			camPos.y = math.lerp(camPos.y, s.y - ((sH - box_h) / 2) + 16, 0.1)
+		else
+			camPos.x = math.lerp(camPos.x, math.min(math.max(s.x - ((sW - box_w) / 2), 0), boundX) - (screenOffset / 2), (255-battleAlpha)/255)
+			camPos.y = math.lerp(camPos.y, math.min(math.max(s.y - ((sH - (box_h / 2)) / 2), 0), boundY), (255-battleAlpha)/255)
+		end
 	end
-	
-	djui_hud_set_color(0, 0, 0, 255)
-	djui_hud_render_rect(-4, -4, djui_hud_get_screen_width() + 8, sH + 8)
 
 	for i = 0, MAX_PLAYERS - 1 do
 		local m = gMarioStates[i]
@@ -538,39 +567,6 @@ local function render_overworld()
 	table.sort(render_queue, function(a, b)
 		return a.y < b.y
 	end)
-	
-	for i, layer in pairs(map.layers) do
-		if layer.type == "tilelayer" then
-			local default = {{firstgid = 1, name = "castle"}}
-			draw_tile_layer(layer, layer.properties, map.tilesets or default, layer.x - camPos.x, layer.y - camPos.y, mapScale)
-			call_custom_hook(HOOK_TILEMAP_RENDER, layer, map.tilesets or default, layer.x - camPos.x, layer.y - camPos.y, mapScale)
-		end
-		if layer.type == "imagelayer" then
-			local l = {
-				x = (layer.offsetx or 0) * mapScale,
-				y = (layer.offsety or 0) * mapScale,
-				texture = layer.image or layer.texture or nil,
-				scrollX = layer.parallaxx or 1,
-				scrollY = layer.parallaxy or 1,
-				alpha = layer.visible and (layer.opacity * 255) or 0,
-			}
-			if l.texture and type(l.texture) == "string" then
-				l.texture = get_texture_info(l.texture)
-			end
-			djui_hud_set_color(255,255,255,l.alpha)
-			if l.texture and type(l.texture) ~= "string" and l.texture.width > 0 and l.texture.height > 0 then
-				djui_hud_render_texture(l.texture, (l.x - camPos.x) * l.scrollX, (l.y - camPos.y) * l.scrollY, mapScale, mapScale)
-			end
-			djui_hud_set_color(255,255,255,255)
-		end
-		if layer.type == "objectgroup" and showCollisions then
-			djui_hud_set_color(255, 255, 255, 32)
-			for ii, obj in pairs(layer.objects) do
-				djui_hud_render_rect((obj.x * mapScale) - camPos.x, (obj.y * mapScale) - camPos.y, obj.width * mapScale, obj.height* mapScale)
-			end
-			djui_hud_set_color(255, 255, 255, 255)
-		end
-	end
 	
 	battleAlpha = math.lerp(battleAlpha, SURVEY_INTERFACE.inBattle and 255 or 0, 0.1)
 	if battleAlpha > 0 then
@@ -960,6 +956,7 @@ function draw_tile_layer(data, properties, tilesetList, x, y, scale)
 	local r,g,b = 255,255,255
 	local tiles = data.data
 	local fxList = {}
+	local map = maps[s.map]
 	if not tiles then return end
 	if properties["color"] then
 		r, g, b = hex_to_rgb(properties["color"])
@@ -977,7 +974,7 @@ function draw_tile_layer(data, properties, tilesetList, x, y, scale)
 			local offset = 0
 			for i = 1, #tilesetList do
 				if tile >= tilesetList[i].firstgid then
-					tileset = tilesets[tilesetList[i].name]
+					tileset = (tilesetList[i].image or tilesetList[i].texture) and tilesetList[i] or tilesets[tilesetList[i].name]
 					if tileset then
 						if tileset.image and type(tileset.image) == "string" then
 							tileset.texture = get_texture_info(tileset.image)
@@ -985,14 +982,19 @@ function draw_tile_layer(data, properties, tilesetList, x, y, scale)
 						if tileset.texture and type(tileset.texture) == "string" then
 							tileset.texture = get_texture_info(tileset.texture)
 						end
-						texture = tileset.texture
+						texture = tileset.texture or nil
+						if not texture then
+							log_to_console("ERROR: The texture or image for the tileset \""..(tilesetList[i].name or "nil").."\" doesn't exist!", 2)
+						end
+					else
+						log_to_console("ERROR: The tileset \""..(tilesetList[i].name or "nil").."\" doesn't exist!", 2)
 					end
 					offset = tilesetList[i].firstgid
 				end
 			end
 			if texture and tileset then
 				local tX, tY = getGridPos((tile - offset) * tileset.tilewidth, texture.width, tileset.tileheight)
-				local oX, oY = getGridPos((i - 1) * tileset.tilewidth, data.width * tileset.tilewidth, tileset.tileheight)
+				local oX, oY = getGridPos((i - 1) * map.tilewidth, data.width * map.tilewidth, map.tileheight)
 				local cX, cY = x + (oX * scale), y + (oY * scale)
 				if table.contains(fxList, "sinewave") then
 					cY = cY + math.sin((get_global_timer() / 15) + (oX / tileset.tilewidth))
@@ -1004,7 +1006,7 @@ function draw_tile_layer(data, properties, tilesetList, x, y, scale)
 					tX = math.min(tX + tileset.tilewidth, texture.width)
 				end
 				if not (cX < (screenOffset/2) - tileset.tilewidth or cY < - tileset.tileheight or cX >= (screenOffset/2) + 320 or cY >= 240) then
-					djui_hud_render_texture_tile(texture, cX, cY, scale, scale, tX, tY, tileset.tilewidth, tileset.tileheight)
+					djui_hud_render_texture_tile(texture, cX, cY, (map.tilewidth/(tileset.tilewidth or 40)) * scale, (map.tileheight/(tileset.tileheight or 40)) * scale, tX, tY, tileset.tilewidth, tileset.tileheight)
 				end
 			end
 		end

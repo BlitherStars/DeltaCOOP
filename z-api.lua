@@ -42,6 +42,13 @@ _G.SURVEY_INTERFACE = {
 	
 	PLAY_ANIM = playAnim,
 	NEXT_DIALOG = nextDialog,
+	GET_OPTION_VALUE = function(name)
+		for i, v in pairs(options) do
+			if v.id == name then
+				return v.value
+			end
+		end
+	end,
 	
 	inBattle = false,
 }

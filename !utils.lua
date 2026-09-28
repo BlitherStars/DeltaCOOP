@@ -122,8 +122,8 @@ function overlapPolygon(a, b, steps)
 	for i = 1, #points do
 		for l = 0, (steps or 10) do
 			local pa = points[i]
-			pa.x = pa.x + a.x
-			pa.y = pa.y + a.y
+			pa.x = a.x + pa.x
+			pa.y = a.y + pa.y
 			local pb = points[i + 1] or points[1]
 			pb.x = pb.x + a.x
 			pb.y = pb.y + a.y
@@ -133,6 +133,7 @@ function overlapPolygon(a, b, steps)
 				math.lerp(pa.y, pb.y, x)
 			}
 			if (pos[1] >= b.x and pos[1] <= (b.x + b.width) and pos[2] >= b.y and pos[2] <= (b.y + b.height)) then
+				log_to_console("u"..math.random(1,16),0)
 				return true;
 			end
 		end
@@ -308,7 +309,7 @@ function hex_to_rgb(hex)
         r = tonumber(r, 16)
         g = tonumber(g, 16)
         b = tonumber(b, 16)
-        return r, g, b
+        return r, g, b, 255
     elseif (string.len(colorhex) == 8) then
         r = string.sub(colorhex, 0, 2)
         g = string.sub(colorhex, 3, 4)

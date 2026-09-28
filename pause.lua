@@ -3,9 +3,9 @@ paused = false
 
 _G.is_game_paused = function() return paused end
 
-local selectedOption = 1
-local lerpOption = 1
-local descChars = 1
+selectedOption = 1
+lerpOption = 1
+descChars = 1
 
 local function close_menu()
     if paused then
@@ -272,6 +272,45 @@ local function hud_render()
 	    if m.controller.buttonPressed & B_BUTTON ~= 0 then
 	        audio_stream_play(snd_menuback, true, 1)
 			menu = "pause"
+			selectedOption = 1
+			lerpOption = 1
+	    end
+	elseif menu == "warp_dev" then
+		local list = {}
+		for i,v in pairs(maps) do
+			table.insert(list, i)
+		end
+		
+		for i,v in pairs(list) do
+			local textX = x
+			local textY = 10 + (16 * (i - lerpOption))
+			djui_hud_set_color(255, 255, 255, i ~= selectedOption and 128 or 255)
+			djui_hud_print_text(v, textX, textY, 0.5)
+			lerpOption = math.lerp(lerpOption, math.max(selectedOption - 13, 1), 0.15)
+		end
+		
+	    if cooldownCounter > 0 then
+	        cooldownCounter = cooldownCounter - 1
+	    else
+	        if stickY > 60 then
+	            selectedOption = wrap(selectedOption - 1, 1, #list)
+	            audio_stream_play(snd_menumove, true, 1)
+	            cooldownCounter = cooldown
+	        elseif stickY < -60 then
+	            selectedOption = wrap(selectedOption + 1, 1, #list)
+	            audio_stream_play(snd_menumove, true, 1)
+	            cooldownCounter = cooldown
+	        end
+  	  end
+  
+  	  if m.controller.buttonPressed & A_BUTTON ~= 0 then
+	        audio_stream_play(snd_menuaccept, true, 1)
+  		  change_map(list[selectedOption], "spawn")
+		end
+		
+	    if m.controller.buttonPressed & B_BUTTON ~= 0 then
+	        audio_stream_play(snd_menuback, true, 1)
+			menu = "options"
 			selectedOption = 1
 			lerpOption = 1
 	    end
