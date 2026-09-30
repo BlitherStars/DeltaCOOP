@@ -522,7 +522,7 @@ charList = {
 	},
 	{
 		name = "Berdly",
-		desc = "* Valiant warrior of/nbrave intelligence!",
+		desc = "* Valiant warrior of\nbrave intelligence!",
 		boxW = 22,
 		boxH = 40,
 		snd = audio_stream_load("txt_berd.ogg"),
@@ -601,7 +601,7 @@ charList = {
 	},
 	{
 		name = "Carol",
-		desc = "* YOU Are welcome here anytime.",
+		desc = "* YOU Are welcome here \nanytime.",
 		boxW = 26,
 		boxH = 49,
 		sprites = {
@@ -820,7 +820,7 @@ charList = {
 	},
 	{
 		name = "Rudinn",
-		desc = "* A diamond in/nthe rough.",
+		desc = "* A diamond in\nthe rough.",
 		boxW = 20,
 		boxH = 37,
 		sprites = {
@@ -864,7 +864,7 @@ charList = {
 	},
 	{
 		name = "Jigsawry",
-		desc = "* BARRY! THEY GOT/nBARRY!",
+		desc = "* BARRY! THEY GOT\nBARRY!",
 		boxW = 25,
 		boxH = 29,
 		sprites = {
@@ -1020,7 +1020,7 @@ charList = {
 	},
 	{
 		name = "Addison",
-		desc = "* Spamton.... He's/n , well.",
+		desc = "* Spamton.... He's\n , well.",
 		boxW = 25,
 		boxH = 45,
 		sprites = {
@@ -1174,7 +1174,7 @@ charList = {
 	},
 	{
 		name = "Seth",
-		desc = "* Aqua, do/n THAT Attack!",
+		desc = "* Aqua, do\n THAT Attack!",
 		boxW = 30,
 		boxH = 41,
 		sprites = {
@@ -1287,7 +1287,7 @@ charList = {
 	},
 	{
 		name = "Orange",
-		desc = "* SHUT UP/n CHIBI!",
+		desc = "* SHUT UP\n CHIBI!",
 		boxW = 20,
 		boxH = 16,
 		sprites = {
@@ -1352,7 +1352,7 @@ charList = {
 	},
 	{
 		name = "Pink",
-		desc = "* The prettiest of all/n flowers, PINK!",
+		desc = "* The prettiest of all\n flowers, PINK!",
 		boxW = 23,
 		boxH = 43,
 		sprites = {
