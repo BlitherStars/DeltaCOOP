@@ -20,7 +20,7 @@ dialog = {
 }
 
 local player_chats = {}
-local coolY = -48 
+local coolY = 26 
 local ldx = 0
 
 local charsTimer = {
@@ -47,7 +47,7 @@ _G.charScale = 1
 _G.mapScale = 0.5
 
 _G.camPos = {x = 0, y = 0}
-_G.freezeControls = false
+freezeControls = false
 
 _G.render_queue = {}
 
@@ -95,7 +95,7 @@ local function render_overworld()
 	local sH = djui_hud_get_screen_height()
 	local inDialog = (dialog.num > 0 and dialog.num <= #dialog.data)
 	
-	freezeControls = menu ~= "" or inTransition or s.dead or inDialog or inSaveMenu or fade_alpha > 0
+	freezeControls = paused or inTransition or s.dead or inDialog or inSaveMenu or fade_alpha > 0
 	
 	if not s.deltarune or s.hp == nil or s.x == nil or s.y == nil or s.anim == nil then
 		s.deltarune = true
@@ -349,7 +349,7 @@ local function render_overworld()
 	end
 	
 	local speed = 3
-	if run then speed = 4 end
+	if run then speed = 5 end
 	
 	if not s.walking or s.battle then speed = 0 end	
 	if animSpeed > 0 then speed = animSpeed end
@@ -362,6 +362,10 @@ local function render_overworld()
 	
 	nx = nx + xsp
 	ny = ny + ysp
+	if nx < - box_w/2 then nx = - box_w/2 end
+	if nx > rW - box_w/2 then nx = rW - box_w/2 end
+	if ny < - box_w/2 then ny = - box_h/2 end
+	if ny > rH - box_h/2 then ny = rH - box_h/2 end
 	
 	for lay_id, layer in pairs(map.layers) do
 		if layer.type == "objectgroup" then
@@ -521,11 +525,6 @@ local function render_overworld()
 			s.frame = anim_frame
 		end
 	end
-	
-	if nx < - box_w/2 then nx = - box_w/2 end
-	if nx > rW - box_w/2 then nx = rW - box_w/2 end
-	if ny < - box_w/2 then ny = - box_w/2 end
-	if ny > rH - box_h/2 then ny = rH - box_h/2 end
 	
 	local boundX = math.max(rW - sW, 0)
 	local boundY = math.max(rH - sH, 0)
@@ -757,22 +756,36 @@ local function render_overworld()
 		render_dialog()
 	end
 	
-	if not SURVEY_INTERFACE.inBattle and not is_game_paused() then
-		djui_hud_set_font(FONT_SPECIAL)
-		local x = (screenOffset / 2) + 6
-		coolY = math.lerp(coolY, s.hp < s.maxHP and 0 or -26, 0.2)
-		local f = s.hp / s.maxHP
-		djui_hud_set_color(64, 32, 48, 255)
-		djui_hud_render_rect(x - 6, coolY, 94, 26)
-		djui_hud_set_color(0, 0, 0, 255)
-		djui_hud_render_rect(x - 6, coolY, 93, 25)
-		djui_hud_set_color(128, 0, 0, 255)
-		djui_hud_render_rect(x+16, coolY + 6, 64, 12)
-		djui_hud_set_color(255, 255, 0, 255)
-		djui_hud_render_rect(x+16, coolY + 6, math.floor(64 * f), 12)
-		djui_hud_set_color(255, 255, 255, 255)
-		djui_hud_print_text("HP", x, coolY + 5, 0.45)
-	end
+	djui_hud_set_font(FONT_SPECIAL)
+	local x, y = (screenOffset / 2), sH - 26 + coolY
+	local sprite = char.sprites[s.costume]["down"]
+	local spr_w = (sprite.width or (sprite.texture.width / (sprite.length or 4)))
+	coolY = math.lerp(coolY, (not SURVEY_INTERFACE.inBattle and (paused or (s.hp < s.maxHP and s.hp > 0))) and 0 or 32, 0.2)
+	
+	local f = s.hp / s.maxHP
+	djui_hud_set_color(51, 32, 51, 255)
+	djui_hud_render_rect(x, y, sW, 26)
+	djui_hud_set_color(0, 0, 0, 255)
+	djui_hud_render_rect(x, y + 2, sW, 24)
+	
+	djui_hud_set_color(255, 255, 255, 255)
+	djui_hud_render_texture_tile(sprite.texture, x + 8 + ((12 - spr_w) / 2), y + (26 - math.floor(sprite.texture.height/1.5)), 1, 1, 0, 0, spr_w, math.floor(sprite.texture.height/1.5))
+	
+	djui_hud_set_font(FONT_NAME)
+	djui_hud_set_color(255, 255, 255, 255)
+	djui_hud_print_text(char.name:upper(), x + 8 + 24, y + 8, 0.75)
+	
+	x = x + (djui_hud_measure_text(char.name:upper()) * 0.75) + 48
+	djui_hud_set_color(128, 0, 0, 255)
+	djui_hud_render_rect(x, y + 14, 48, 6)
+	djui_hud_set_color(255, 255, 0, 255)
+	djui_hud_render_rect(x, y + 14, math.floor(48 * f), 6)
+	
+	djui_hud_set_font(FONT_TINYNUM)
+	djui_hud_set_color(255, 255, 255, 255)
+	djui_hud_print_text(s.hp.." / "..s.maxHP, x, y + 8, 0.5)
+	
+	djui_hud_set_font(FONT_SPECIAL)
 	
 	if inSaveMenu then
 		render_save_menu()

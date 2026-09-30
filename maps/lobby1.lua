@@ -410,7 +410,7 @@ return{
             ["text2"] =             "* I'm the original   \\#ffff00\\Starwalker",
             ["length"] =             1,
             ["fps"] =             12,
-            ["texture"] =             "starwalker"
+            ["image"] =             "starwalker"
           },
         },
         {
@@ -430,7 +430,7 @@ return{
             ["text2"] =             "* I am the\n\n\\#F288E5\\Trop\\#7DE2FF\\ical       \\#F288E5\\star\\#7DE2FF\\walker",
             ["length"] =             1,
             ["fps"] =             12,
-            ["texture"] =             "tropical_starwalker"
+            ["image"] =             "tropical_starwalker"
           },
         },
         {

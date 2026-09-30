@@ -515,6 +515,32 @@ return{
           rotation = 0.0,
           visible = true,
           properties = {},
+        },
+        {
+          id = 25,
+          name = "",
+          type = "",
+          shape = "rectangle",
+          x = -40.0,
+          y = 1400.0,
+          width = 40.0,
+          height = 120.0,
+          rotation = 0.0,
+          visible = true,
+          properties = {},
+        },
+        {
+          id = 26,
+          name = "",
+          type = "",
+          shape = "rectangle",
+          x = 800.0,
+          y = 1400.0,
+          width = 40.0,
+          height = 120.0,
+          rotation = 0.0,
+          visible = true,
+          properties = {},
         }
       }
     },
@@ -546,30 +572,33 @@ return{
           },
         },
         {
-          id = 25,
-          name = "",
+          id = 2763,
+          name = "enemy",
           type = "",
           shape = "rectangle",
-          x = -40.0,
-          y = 1400.0,
-          width = 40.0,
-          height = 120.0,
-          rotation = 0.0,
+          x = 530,
+          y = 280,
+          width = 40,
+          height = 40,
+          rotation = 0,
           visible = true,
-          properties = {},
-        },
-        {
-          id = 26,
-          name = "",
-          type = "",
-          shape = "rectangle",
-          x = 800.0,
-          y = 1400.0,
-          width = 40.0,
-          height = 120.0,
-          rotation = 0.0,
-          visible = true,
-          properties = {},
+          properties = {
+            ["sprite"] = {
+				texture = get_texture_info("dummy"),
+				length = 1,
+				loop = true
+			},
+            ["encounter"] = {
+            	enemies = {
+            		require("/enemies/dummy"),
+            		require("/enemies/dummy"),
+            		require("/enemies/dummy"),
+            		require("/enemies/dummy"),
+            		require("/enemies/dummy"),
+            		require("/enemies/dummy"),
+				}
+			},
+          }
         }
       }
     },

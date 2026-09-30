@@ -39,6 +39,10 @@ logo = get_texture_info("logo")
 textbox = get_texture_info("textbox")
 soul = get_texture_info("heart")
 
+FONT_SPECIAL = new_font(get_texture_info("font_operator"), [[ !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~¡¢£¥©«®°±µ¶·»¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ]], -1, 16, 32)
+FONT_NAME = new_font(get_texture_info("font_name"), " ABCDEFGHIJKLMNOPQRSTUVWXYZ", -1, 11, 18)
+FONT_TINYNUM = new_font(get_texture_info("font_tinynum"), " 0123456789+-%/.einfa", -1, 9, 10)
+
 -- SETTINGS --
 settings = {
 	{
@@ -96,7 +100,7 @@ if _G.cheatsApi then
 		name = "Warp To...",
 		type = "button",
 		func = function(v)
-			menu = "warp_dev"
+			submenu = "warp_dev"
 			selectedOption = 1
 			lerpOption = 1
 		end,
@@ -214,7 +218,7 @@ propPresets = {
 charList = {
 	{
 		name = "Kris",
-		desc = "* ...",
+		desc = "* The first hero.\nThe Cage, with human soul\nand parts!",
 		boxW = 19,
 		boxH = 38,
 		sprites = {
@@ -320,7 +324,7 @@ charList = {
 	},
 	{
 		name = "Susie",
-		desc = "* Oh yeah! Flowery told me.",
+		desc = "* The second hero.\nThe girl, with hope crossed\non her heart.",
 		boxW = 26,
 		boxH = 46,
 		snd = audio_stream_load("txt_susie.ogg"),
@@ -444,6 +448,7 @@ charList = {
 	},
 	{
 		name = "Noelle", 
+		desc = "Coldwater fell from\nthe top of the sky.",
 		boxW = 23,
 		boxH = 48,
 		snd = audio_stream_load("txt_noelle.ogg"),
@@ -615,39 +620,8 @@ charList = {
 		}
 	},
 	{
-		name = "Annoying Dog",
-		desc = "bark bark",
-		boxW = 29,
-		boxH = 42,
-		forceAccel = true,
-		speedMult = 2,
-		sprites = {
-			{
-			    ["left"] = {
-					texture = get_texture_info("annoying_dog_walk_left"),
-					width = 42,
-					length = 2,
-				},
-				["down"] = {
-					texture = get_texture_info("annoying_dog_walk_down"),
-					width = 42,
-					length = 2,
-				},
-				["up"] = {
-					texture = get_texture_info("annoying_dog_walk_up"),
-					width = 42,
-					length = 2,
-				},
-				["right"] = {
-					texture = get_texture_info("annoying_dog_walk_right"),
-					width = 42,
-					length = 2,
-				}
-			},
-		}
-	},
-	{
 		name = "Ralsei",
+		desc = "* The third hero.\nThe prince, alone in the\ndeepest dark.",
 		boxW = 23,
 		boxH = 44,
 		snd = audio_stream_load("txt_ralsei.ogg"),
@@ -751,8 +725,40 @@ charList = {
 		}
 	},
 	{
+		name = "Annoying Dog",
+		desc = "bark bark",
+		boxW = 29,
+		boxH = 42,
+		forceAccel = true,
+		speedMult = 2,
+		sprites = {
+			{
+			    ["left"] = {
+					texture = get_texture_info("annoying_dog_walk_left"),
+					width = 42,
+					length = 2,
+				},
+				["down"] = {
+					texture = get_texture_info("annoying_dog_walk_down"),
+					width = 42,
+					length = 2,
+				},
+				["up"] = {
+					texture = get_texture_info("annoying_dog_walk_up"),
+					width = 42,
+					length = 2,
+				},
+				["right"] = {
+					texture = get_texture_info("annoying_dog_walk_right"),
+					width = 42,
+					length = 2,
+				}
+			},
+		}
+	},
+	{
 		name = "Lancer",
-		desc = "* Ho ho ho!",
+		desc = '* The pointy headed will\nsay "TOOTHPASTE," and then\n"BOY."',
 		boxW = 25,
 		boxH = 35,
 		snd = audio_stream_load("txt_lancer.mp3"),
