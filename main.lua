@@ -428,6 +428,18 @@ charList = {
 					speed = 1,
 					snd = snd_splat,
 				},
+				["chomp"] = {
+					texture = get_texture_info("susie_dark_chomp"),
+					length = 2,
+					fps = 10,
+					loop = true,
+				},
+				["relax"] = {
+					texture = get_texture_info("susie_dark_relax"),
+					length = 1,
+					fps = 1,
+					loop = true,
+				},
 				["attack"] = {
 					other = true,
 					texture = get_texture_info("susie_dark_attack"),
@@ -448,7 +460,7 @@ charList = {
 	},
 	{
 		name = "Noelle", 
-		desc = "Coldwater fell from\nthe top of the sky.",
+		desc = "* Coldwater fell from\nthe top of the sky.",
 		boxW = 23,
 		boxH = 48,
 		snd = audio_stream_load("txt_noelle.ogg"),
@@ -522,6 +534,7 @@ charList = {
 	},
 	{
 		name = "Berdly",
+		desc = "* Valiant warrior of\nbrave intelligence!",
 		boxW = 22,
 		boxH = 40,
 		snd = audio_stream_load("txt_berd.ogg"),
@@ -600,6 +613,7 @@ charList = {
 	},
 	{
 		name = "Carol",
+		desc = "* YOU Are welcome here \nanytime.",
 		boxW = 26,
 		boxH = 49,
 		sprites = {
@@ -726,7 +740,7 @@ charList = {
 	},
 	{
 		name = "Annoying Dog",
-		desc = "bark bark",
+		desc = "* bark bark",
 		boxW = 29,
 		boxH = 42,
 		forceAccel = true,
@@ -818,6 +832,7 @@ charList = {
 	},
 	{
 		name = "Rudinn",
+		desc = "* A diamond in\nthe rough.",
 		boxW = 20,
 		boxH = 37,
 		sprites = {
@@ -839,6 +854,7 @@ charList = {
 	},
 	{
 		name = "Hathy",
+		desc = "* A soft and gentle kiss.",
 		boxW = 20,
 		boxH = 38,
 		sprites = {
@@ -860,6 +876,7 @@ charList = {
 	},
 	{
 		name = "Jigsawry",
+		desc = "* BARRY! THEY GOT\nBARRY!",
 		boxW = 25,
 		boxH = 29,
 		sprites = {
@@ -905,6 +922,7 @@ charList = {
 	},
 	{
 		name = "Rudinn Ranger",
+		desc = "* Likes throwing knifes.",
 		boxW = 20,
 		boxH = 37,
 		sprites = {
@@ -1014,6 +1032,7 @@ charList = {
 	},
 	{
 		name = "Addison",
+		desc = "* Spamton.... He's\n , well.",
 		boxW = 25,
 		boxH = 45,
 		sprites = {
@@ -1104,7 +1123,7 @@ charList = {
 	},
 	{
 		name = "Aqua",
-		desc = "* Ooo, are playing a \nscreaming game?\nAAAAAAAAAAAAAAAAAAA",
+		desc = "* Ooo, Are we playing a \nscreaming game?\nAAAAAAAAAAAAAAAAAAA",
 		boxW = 20,
 		boxH = 36,
 		sprites = {
@@ -1167,7 +1186,7 @@ charList = {
 	},
 	{
 		name = "Seth",
-		desc = "* ...",
+		desc = "* Aqua, do\n THAT Attack!",
 		boxW = 30,
 		boxH = 41,
 		sprites = {
@@ -1206,7 +1225,7 @@ charList = {
 	},
 	{
 		name = "Yellow",
-		desc = "",
+		desc = "* Hey there, pardner!",
 		boxW = 27,
 		boxH = 32,
 		sprites = {
@@ -1254,6 +1273,7 @@ charList = {
 	},
 	{
 		name = "Blue",
+		desc = "* ...",
 		boxW = 20,
 		boxH = 60,
 		sprites = {
@@ -1279,6 +1299,7 @@ charList = {
 	},
 	{
 		name = "Orange",
+		desc = "* SHUT UP\n CHIBI!",
 		boxW = 20,
 		boxH = 16,
 		sprites = {
@@ -1315,6 +1336,7 @@ charList = {
 	},
 	{
 		name = "Green",
+		desc = "* ...",
 		boxW = 32,
 		boxH = 48,
 		sprites = {
@@ -1342,6 +1364,7 @@ charList = {
 	},
 	{
 		name = "Pink",
+		desc = "* The prettiest of all\n flowers, PINK!",
 		boxW = 23,
 		boxH = 43,
 		sprites = {
