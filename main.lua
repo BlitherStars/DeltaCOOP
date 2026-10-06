@@ -263,6 +263,12 @@ charList = {
 					fps = 1,
 					loop = true,
 				},
+				["kneel"] = {
+					texture = get_texture_info("kris_light_kneel"),
+					length = 1,
+					fps = 1,
+					loop = true,
+				},
 				["defeat"] = {
 					other = true,
 					texture = get_texture_info("kris_light_down"),
@@ -300,6 +306,12 @@ charList = {
 				},
 				["dance_act"] = {
 					texture = get_texture_info("kris_dark_dance"),
+					length = 4,
+					fps = 8,
+					loop = true,
+				},
+				["wiggle_act"] = {
+					texture = get_texture_info("kris_dark_wiggle"),
 					length = 4,
 					fps = 8,
 					loop = true,
