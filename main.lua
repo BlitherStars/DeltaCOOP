@@ -434,6 +434,12 @@ charList = {
 					fps = 10,
 					loop = true,
 				},
+				["relax"] = {
+					texture = get_texture_info("susie_dark_relax"),
+					length = 1,
+					fps = 1,
+					loop = true,
+				},
 				["attack"] = {
 					other = true,
 					texture = get_texture_info("susie_dark_attack"),
