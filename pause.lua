@@ -49,6 +49,7 @@ local function hud_render()
     
     djui_hud_set_color(255, 255, 255, 255)
     djui_hud_set_font(FONT_SPECIAL)
+    djui_hud_print_text("LV "..math.floor(s.exp/2000), (screenOffset / 2) + 280, pauseY + 12, 0.5)
     
     for i,v in pairs(pauseMenuOptions) do
 		local x = x + 45 + (60 * (i-1))
@@ -160,7 +161,7 @@ local function hud_render()
 				djui_hud_print_text(v.desc and v.desc:sub(1, math.floor(descChars)) or "", (screenOffset / 2)  + (38 * 4.25), 26, 0.4)
 			end
 		end
-		lerpOption = math.lerp(lerpOption, math.max(math.floor(selectedOption / 4) - 5, 1) - 1, 0.15)
+		lerpOption = math.lerp(lerpOption, math.max(math.floor(selectedOption / 4) - 3, 1) - 1, 0.15)
 		
 	    if cooldownCounter > 0 then
 	        cooldownCounter = cooldownCounter - 1

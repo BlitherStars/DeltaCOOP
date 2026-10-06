@@ -39,7 +39,7 @@ logo = get_texture_info("logo")
 textbox = get_texture_info("textbox")
 soul = get_texture_info("heart")
 
-FONT_SPECIAL = new_font(get_texture_info("font_operator"), [[ !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~¡¢£¥©«®°±µ¶·»¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ]], -1, 16, 32)
+--FONT_SPECIAL = new_font(get_texture_info("font_operator"), [[ !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~¡¢£¥©«®°±µ¶·»¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ]], -1, 16, 32)
 FONT_NAME = new_font(get_texture_info("font_name"), " ABCDEFGHIJKLMNOPQRSTUVWXYZ", -1, 11, 18)
 FONT_TINYNUM = new_font(get_texture_info("font_tinynum"), " 0123456789+-%/.einfa", -1, 9, 10)
 

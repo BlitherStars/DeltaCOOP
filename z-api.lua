@@ -51,6 +51,27 @@ _G.SURVEY_INTERFACE = {
 	end,
 	
 	inBattle = false,
+	
+	ASSETS = {
+		snd_ominous = snd_ominous,
+		snd_ominous_cancel = snd_ominous_cancel,
+		
+		snd_menumove = snd_menumove,
+		snd_menuback = snd_menuback,
+		snd_menuaccept = snd_menuaccept,
+		snd_save = snd_save,
+		
+		snd_txt = snd_txt,
+		
+		snd_slash = snd_slash,
+		snd_damage = snd_damage,
+		snd_splat = snd_splat,
+		
+		vessel_icon = vessel_icon,
+		logo = logo,
+		textbox = textbox,
+		soul = soul
+	}
 }
 
 _G.SURVEY = SURVEY_INTERFACE

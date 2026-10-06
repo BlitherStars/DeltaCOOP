@@ -116,8 +116,8 @@ local function render_overworld()
 		
 		s.character = math.max(table.indexOf(charNames, mod_storage_load("character")), 1)
 		
-		s.exp = mod_storage_exists("exp") and math.min(mod_storage_load_number("exp"), 20000) or 0
-		s.maxHP = math.floor(90 * (1 + (s.exp / 5000)))
+		s.exp = mod_storage_exists("exp") and math.min(mod_storage_load_number("exp"), 12000) or 0
+		s.maxHP = math.floor(90 * (1 + (s.exp / 2000)))
 		s.hp = s.maxHP
 		
 		s.costume = 1
@@ -261,8 +261,8 @@ local function render_overworld()
 					map = s.map
 				})
 				if ss.hp <= 0 and not ss.dead then
-					s.exp = math.min(s.exp + math.random(50, 150), 20000)
-					local newHP = math.floor(90 * (1 + (s.exp / 5000)))
+					s.exp = math.min(s.exp + math.random(50, 150), 12000)
+					local newHP = math.floor(90 * (1 + (s.exp / 2000)))
 					local hpDiff = newHP - s.maxHP
 					s.maxHP = newHP
 					s.hp = s.hp + hpDiff
@@ -366,6 +366,18 @@ local function render_overworld()
 	if nx > rW - box_w/2 then nx = rW - box_w/2 end
 	if ny < - box_w/2 then ny = - box_h/2 end
 	if ny > rH - box_h/2 then ny = rH - box_h/2 end
+	
+	local boundX = math.max(rW - sW, 0)
+	local boundY = math.max(rH - sH, 0)
+	if not inDialog then
+		if SURVEY_INTERFACE.inBattle then
+			camPos.x = math.lerp(camPos.x, s.x - ((sW - box_w) / 2) - (screenOffset / 2) + 96, 0.1)
+			camPos.y = math.lerp(camPos.y, s.y - ((sH - box_h) / 2) + 16, 0.1)
+		else
+			camPos.x = math.lerp(camPos.x, math.min(math.max(s.x - ((sW - box_w) / 2), 0), boundX) - (screenOffset / 2), (255-battleAlpha)/255)
+			camPos.y = math.lerp(camPos.y, math.min(math.max(s.y - ((sH - (box_h / 2)) / 2), 0), boundY), (255-battleAlpha)/255)
+		end
+	end
 	
 	for lay_id, layer in pairs(map.layers) do
 		if layer.type == "objectgroup" then
@@ -523,18 +535,6 @@ local function render_overworld()
 		end
 		if anim_frame ~= s.frame then
 			s.frame = anim_frame
-		end
-	end
-	
-	local boundX = math.max(rW - sW, 0)
-	local boundY = math.max(rH - sH, 0)
-	if not inDialog then
-		if SURVEY_INTERFACE.inBattle then
-			camPos.x = math.lerp(camPos.x, s.x - ((sW - box_w) / 2) - (screenOffset / 2) + 96, 0.1)
-			camPos.y = math.lerp(camPos.y, s.y - ((sH - box_h) / 2) + 16, 0.1)
-		else
-			camPos.x = math.lerp(camPos.x, math.min(math.max(s.x - ((sW - box_w) / 2), 0), boundX) - (screenOffset / 2), (255-battleAlpha)/255)
-			camPos.y = math.lerp(camPos.y, math.min(math.max(s.y - ((sH - (box_h / 2)) / 2), 0), boundY), (255-battleAlpha)/255)
 		end
 	end
 
@@ -780,6 +780,8 @@ local function render_overworld()
 	djui_hud_render_rect(x, y + 14, 48, 6)
 	djui_hud_set_color(255, 255, 0, 255)
 	djui_hud_render_rect(x, y + 14, math.floor(48 * f), 6)
+	djui_hud_set_color(255, 255, 255, 255)
+	djui_hud_print_text("HP", x-10, y + 14, 0.38)
 	
 	djui_hud_set_font(FONT_TINYNUM)
 	djui_hud_set_color(255, 255, 255, 255)

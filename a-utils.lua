@@ -133,7 +133,6 @@ function overlapPolygon(a, b, steps)
 				math.lerp(pa.y, pb.y, x)
 			}
 			if (pos[1] >= b.x and pos[1] <= (b.x + b.width) and pos[2] >= b.y and pos[2] <= (b.y + b.height)) then
-				log_to_console("u"..math.random(1,16),0)
 				return true;
 			end
 		end

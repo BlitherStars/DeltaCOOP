@@ -212,7 +212,6 @@ function djui_hud_measure_text(str)
 			local v = lines[i]
 			local ww, hh = custom_measure(custom_fonts[curFont], v)
 			if ww > c.w then
-				log_to_console(c.w.." > "..ww,0)
 				c.w = ww
 			end
 			c.w = c.w + 1
