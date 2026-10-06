@@ -428,6 +428,12 @@ charList = {
 					speed = 1,
 					snd = snd_splat,
 				},
+				["chomp"] = {
+					texture = get_texture_info("susie_dark_chomp"),
+					length = 2,
+					fps = 10,
+					loop = true,
+				},
 				["attack"] = {
 					other = true,
 					texture = get_texture_info("susie_dark_attack"),
