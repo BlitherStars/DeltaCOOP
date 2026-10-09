@@ -37,6 +37,7 @@ anim_timer = 0
 
 inTransition = false
 inSaveMenu = false
+inEmoteMenu = false
 saveMenuHasSelected = false
 saveMenuSel = 1
 saveMenuCd = 0
@@ -94,6 +95,10 @@ local function render_overworld()
 	local sW = 320
 	local sH = djui_hud_get_screen_height()
 	local inDialog = (dialog.num > 0 and dialog.num <= #dialog.data)
+
+	if (m.controller.buttonPressed & Y_BUTTON) ~= 0 and not inDialog and not inSaveMenu and not inTransition and not s.dead then
+		inEmoteMenu = not inEmoteMenu
+	end
 	
 	freezeControls = paused or inTransition or s.dead or inDialog or inSaveMenu or fade_alpha > 0
 	
@@ -792,6 +797,10 @@ local function render_overworld()
 	if inSaveMenu then
 		render_save_menu()
 	end
+
+	if inEmoteMenu then
+		render_emote_menu()
+	end
 	
 	call_custom_hook(HOOK_DC_UI_RENDER)
 	
@@ -804,6 +813,178 @@ local function render_overworld()
 	
 	djui_hud_set_color(0, 0, 0, transitionAlpha)
 	djui_hud_render_rect(-4, -4, djui_hud_get_screen_width() + 8, sH + 8)
+end
+
+if not emote_menu_index then emote_menu_index = 1 end
+if not emote_stick_cooldown then emote_stick_cooldown = 0 end
+
+function render_emote_menu()
+    local sW = 320
+    local sH = djui_hud_get_screen_height()
+    
+    local menu_w = 110
+    local menu_h = 192
+    local menu_x = sW - menu_w - 16 + ((screenOffset and screenOffset / 2) or 0)
+    local menu_y = (sH - menu_h) / 2
+    
+    djui_hud_set_color(0, 0, 0, 255)
+    djui_hud_render_rect(menu_x - 3, menu_y - 3, menu_w + 6, menu_h + 6)
+    
+    djui_hud_set_color(255, 255, 255, 255)
+    djui_hud_render_rect(menu_x, menu_y, menu_w, menu_h)
+    
+    djui_hud_set_color(0, 0, 0, 255)
+    djui_hud_render_rect(menu_x + 3, menu_y + 3, menu_w - 6, menu_h - 6)
+    
+    local grey_size = 72
+    local grey_x = menu_x + (menu_w - grey_size) / 2
+    local grey_y = menu_y + 12
+    djui_hud_set_color(100, 100, 100, 255)
+    djui_hud_render_rect(grey_x, grey_y, grey_size, grey_size)
+    
+    djui_hud_set_font(FONT_SPECIAL)
+    local text = "EMOTES"
+    local text_scale = 0.4
+    local text_w = djui_hud_measure_text(text) * text_scale
+    local text_x = menu_x + (menu_w - text_w) / 2
+    local text_y = grey_y + grey_size + 12
+    
+    djui_hud_set_color(255, 255, 255, 255)
+    local line_y = text_y + 6
+    local left_line_x = menu_x + 3
+    local left_line_w = text_x - left_line_x - 4
+    if left_line_w > 0 then
+        djui_hud_render_rect(left_line_x, line_y, left_line_w, 2)
+    end
+    
+    local right_line_x = text_x + text_w + 4
+    local right_line_w = (menu_x + menu_w - 3) - right_line_x
+    if right_line_w > 0 then
+        djui_hud_render_rect(right_line_x, line_y, right_line_w, 2)
+    end
+    
+    djui_hud_set_color(255, 255, 0, 255)
+    djui_hud_print_text(text, text_x, text_y, text_scale)
+    
+    local list_y = text_y + 18
+    local m = gMarioStates[0]
+    local s = gPlayerSyncTable[m.playerIndex]
+    
+    if s and s.character and charList and charList[s.character] then
+        local sprites = charList[s.character].sprites[s.costume or 1]
+        if sprites then
+            local discard = { ["up"] = true, ["down"] = true, ["left"] = true, ["right"] = true, ["attack"] = true }
+            local sorted_emotes = {}
+            
+            for name, v in pairs(sprites) do
+                if not discard[name] and not (v.other == true) then
+                    table.insert(sorted_emotes, {name = name, data = v})
+                end
+            end
+            
+            table.sort(sorted_emotes, function(a, b) return a.name:lower() < b.name:lower() end)
+            
+            if #sorted_emotes > 0 then
+                local up_pressed = (m.controller.buttonPressed & U_JPAD) ~= 0
+                local down_pressed = (m.controller.buttonPressed & D_JPAD) ~= 0
+                local a_pressed = (m.controller.buttonPressed & A_BUTTON) ~= 0
+                
+                if m.controller.stickY > 40 and emote_stick_cooldown == 0 then
+                    up_pressed = true
+                    emote_stick_cooldown = 8
+                elseif m.controller.stickY < -40 and emote_stick_cooldown == 0 then
+                    down_pressed = true
+                    emote_stick_cooldown = 8
+                elseif math.abs(m.controller.stickY) <= 40 then
+                    emote_stick_cooldown = 0
+                end
+                
+                if emote_stick_cooldown > 0 then
+                    emote_stick_cooldown = emote_stick_cooldown - 1
+                end
+                
+                local moved = false
+                if up_pressed then 
+                    emote_menu_index = emote_menu_index - 1 
+                    moved = true
+                    m.controller.buttonPressed = m.controller.buttonPressed & ~U_JPAD
+                end
+                if down_pressed then 
+                    emote_menu_index = emote_menu_index + 1 
+                    moved = true
+                    m.controller.buttonPressed = m.controller.buttonPressed & ~D_JPAD
+                end
+                
+                if emote_menu_index < 1 then emote_menu_index = #sorted_emotes end
+                if emote_menu_index > #sorted_emotes then emote_menu_index = 1 end
+                
+                if moved and snd_menumove then
+                    audio_stream_play(snd_menumove, true, 1)
+                end
+                
+                if a_pressed then
+                    local emote_name = sorted_emotes[emote_menu_index].name
+                    
+                    if emote then
+                        emote(emote_name)
+                    end
+                    
+                    m.controller.buttonPressed = m.controller.buttonPressed & ~A_BUTTON
+                end
+                
+                local preview_data = sorted_emotes[emote_menu_index].data
+                local preview_tex = type(preview_data) == "table" and (preview_data.texture or preview_data[1]) or preview_data
+                if preview_tex then
+                    djui_hud_set_color(255, 255, 255, 255)
+                    local tex_w = 32
+                    local tex_h = 32
+                    if type(preview_tex) == "userdata" or type(preview_tex) == "table" then
+                        local ok1, w = pcall(function() return preview_tex.width end)
+                        if ok1 and w then tex_w = w end
+                        local ok2, h = pcall(function() return preview_tex.height end)
+                        if ok2 and h then tex_h = h end
+                    end
+                    djui_hud_render_texture(preview_tex, grey_x + (grey_size - tex_w) / 2, grey_y + (grey_size - tex_h) / 2, 1, 1)
+                end
+                
+                local start_idx = 1
+                if emote_menu_index > 5 then
+                    start_idx = emote_menu_index - 4
+                end
+                
+                for i = 0, 4 do
+                    local idx = start_idx + i
+                    if idx <= #sorted_emotes then
+                        local item = sorted_emotes[idx]
+                        local display_name = item.name:gsub("_", " "):gsub("(%S+)", function(word)
+                            return word:sub(1,1):upper() .. word:sub(2):lower()
+                        end)
+                        
+                        if idx == emote_menu_index then
+                            djui_hud_set_color(255, 0, 0, 255)
+                            if soul then
+                                djui_hud_render_texture(soul, menu_x + 5, list_y + (16 * i) + 1, 0.5, 0.5)
+                            else
+                                local hx = menu_x + 5
+                                local hy = list_y + (16 * i) + 4
+                                djui_hud_render_rect(hx, hy, 2, 2)
+                                djui_hud_render_rect(hx + 4, hy, 2, 2)
+                                djui_hud_render_rect(hx - 1, hy + 2, 8, 2)
+                                djui_hud_render_rect(hx, hy + 4, 6, 2)
+                                djui_hud_render_rect(hx + 2, hy + 6, 2, 2)
+                            end
+                            
+                            djui_hud_set_color(255, 255, 0, 255)
+                        else
+                            djui_hud_set_color(255, 255, 255, 255)
+                        end
+                        
+                        djui_hud_print_text(display_name, menu_x + 16, list_y + (16 * i), 0.35)
+                    end
+                end
+            end
+        end
+    end
 end
 
 function render_dialog()
