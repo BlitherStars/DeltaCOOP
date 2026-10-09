@@ -178,17 +178,16 @@ warps = {
 
 -- MAP LIST --
 entryMap = "lobby1"
-maps = {
-	["lobby1"] = require("/maps/lobby1"),
-	["lobby2"] = require("/maps/lobby2"),
-}
+maps = {}
+for _, file in pairs(get_mod_files(get_active_mod(), "maps")) do
+	maps[file:gsub("maps/",""):gsub(".lua","")] = require("/"..file:gsub(".lua",""))
+end
 
 -- MAP TILESETS --
-tilesets = {
-	["castle"] = require("/tilesets/castle"),
-	["field"] = require("/tilesets/field"),
-	["forest"] = require("/tilesets/forest"),
-}
+tilesets = {}
+for _, file in pairs(get_mod_files(get_active_mod(), "tilesets")) do
+	tilesets[file:gsub("tilesets/",""):gsub(".lua","")] = require("/"..file:gsub(".lua",""))
+end
 
 -- PRESETS --
 propPresets = {
@@ -1449,46 +1448,5 @@ s = gPlayerSyncTable[0]
 np = gNetworkPlayers[0]
 
 hud_hide()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 dev = false

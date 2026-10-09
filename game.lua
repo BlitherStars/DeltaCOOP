@@ -146,6 +146,7 @@ local function render_overworld()
 	local sprites = char.sprites[s.costume]
 	
 	local map = maps[s.map]
+	local objc_r, objc_g, objc_b = hex_to_rgb(map.properties["obj_color"] or "FFFFFF")
 	if map.properties["music"] then
 		play_overworld_music(map.properties["music"])
 	else
@@ -616,7 +617,7 @@ local function render_overworld()
 		local angle = degrees_to_sm64(ent.angle or 0) 
 		
 		call_custom_hook(HOOK_QUEUE_RENDER, ent)
-		djui_hud_set_color(ent.r or 255, ent.g or 255, ent.b or 255, 255 * alpha)
+		djui_hud_set_color((ent.r or 255) * (objc_r / 255), (ent.g or 255) * (objc_g / 255), (ent.b or 255) * (objc_b / 255), 255 * alpha)
 		if hasTex then
 			local spr_w = (sprite.width or (sprite.texture.width / (sprite.length or 4)))
 			local tex_w = spr_w * math.abs(scaleX)
@@ -1017,7 +1018,7 @@ function draw_tile_layer(data, properties, tilesetList, x, y, scale)
 				if table.contains(fxList, "sinewave_h") then
 					cX = cX + math.sin((get_global_timer() / 15) + (oY / tileset.tileheight))
 				end
-				if table.contains(fxList, "scramble") and math.random(1, 16) == 1 then
+				if table.contains(fxList, "scramble") and math.random(1, 512) == 1 then
 					tX = math.min(tX + tileset.tilewidth, texture.width)
 				end
 				if not (cX < (screenOffset/2) - tileset.tilewidth or cY < - tileset.tileheight or cX >= (screenOffset/2) + 320 or cY >= 240) then
