@@ -235,7 +235,7 @@ charList = {
 				["right"] = {
 					texture = get_texture_info("kris_light_walk_right"),
 				},
-				["hapi"] = {
+				["sjskdjskjdbsk"] = {
 					texture = get_texture_info("kris_light_hapi"),
 					length = 1,
 					fps = 1,
@@ -251,13 +251,13 @@ charList = {
 					fps = 1,
 					snd = snd_splat,
 				},
-				["diagonall"] = {
+				["diagonal_left"] = {
 					texture = get_texture_info("kris_light_diagonal_left"),
 					length = 1,
 					fps = 1,
 					loop = true,
 				},
-				["diagonalr"] = {
+				["diagonal_right"] = {
 					texture = get_texture_info("kris_light_diagonal_right"),
 					length = 1,
 					fps = 1,
@@ -377,13 +377,13 @@ charList = {
 					
 					snd = audio_stream_load("slap.ogg"),
 				},
-				["diagonall"] = {
+				["diagonal_left"] = {
 					texture = get_texture_info("susie_light_diagonal_left"),
 					length = 1,
 					fps = 1,
 					loop = true,
 				},
-				["diagonalr"] = {
+				["diagonal_right"] = {
 					texture = get_texture_info("susie_light_diagonal_right"),
 					length = 1,
 					fps = 1,
@@ -498,7 +498,7 @@ charList = {
 					
 					snd = audio_stream_load("snd_noelle_scared.ogg")
 				},
-				["hapi"] = {
+				["shsojsks"] = {
 					texture = get_texture_info("noelle_light_hapi"),
 					length = 1,
 					fps = 1,
@@ -916,7 +916,7 @@ charList = {
 					loop = true,
 					snd = snd_splat,
 				},
-				["theygotbarry"] = {
+				["they_got_barry"] = {
 					texture = get_texture_info("jigsawry_barry"),
 					length = 1,
 					fps = 1,
@@ -1264,7 +1264,7 @@ charList = {
 					length = 1,
 					loop = true,
 				},
-				["waitamin"] = {
+				["wait_a_min"] = {
 					texture = get_texture_info("yellow_waita"),
 					length = 1,
 					loop = true,
