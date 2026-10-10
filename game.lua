@@ -95,12 +95,15 @@ local function render_overworld()
 	local sW = 320
 	local sH = djui_hud_get_screen_height()
 	local inDialog = (dialog.num > 0 and dialog.num <= #dialog.data)
-
-	if (m.controller.buttonPressed & Y_BUTTON) ~= 0 and not inDialog and not inSaveMenu and not inTransition and not s.dead then
-		inEmoteMenu = not inEmoteMenu
-	end
 	
-	freezeControls = paused or inTransition or s.dead or inDialog or inSaveMenu or fade_alpha > 0
+	freezeControls = paused
+		or inTransition or s.dead
+		or inDialog or inSaveMenu
+		or inEmoteMenu or fade_alpha > 0
+	
+	if (m.controller.buttonPressed & Y_BUTTON) ~= 0 and not freezeControls then
+		inEmoteMenu = true
+	end
 	
 	if not s.deltarune or s.hp == nil or s.x == nil or s.y == nil or s.anim == nil then
 		s.deltarune = true
@@ -297,28 +300,6 @@ local function render_overworld()
 		run = not run
 	end
 	
-	local discard = {
-		["up"] = true,
-		["down"] = true,
-		["left"] = true,
-		["right"] = true,
-	}
-	local keys = {
-		L_JPAD,
-		D_JPAD,
-		U_JPAD,
-		R_JPAD
-	}
-	local curKey = 1
-	for i, v in pairs(sprites) do
-		if not s.battle and not discard[i] and not (v.other == true) and keys[curKey] and not freezeControls and not useDpad then
-			if (m.controller.buttonPressed & keys[curKey]) ~= 0 then
-				emote(i, true)
-			end
-			curKey = curKey + 1
-		end
-	end
-	
 	local max_frames = sprites[s.anim].length or 4
 	local fpsDist = (sprites[s.anim].fps or 12) / 30
 	local loop = sprites[s.anim].loop or false
@@ -348,7 +329,7 @@ local function render_overworld()
 	else
 		anim_timer = anim_timer + fpsDist
 		anim_frame = 1 + ((loop or repeatAmount > 1) and (math.floor(anim_timer) % max_frames) or math.min(math.floor(anim_timer), max_frames))
-		if (not loop and not persistent and anim_timer >= (max_frames * repeatAmount)) or ((loop or persistent) and (m.controller.buttonPressed & A_BUTTON) ~= 0 and not other) then
+		if (not loop and not persistent and anim_timer >= (max_frames * repeatAmount)) or ((loop or persistent) and ((m.controller.buttonPressed & A_BUTTON) ~= 0 and not freezeControls) and not other) then
 			s.walking = not s.battle
 			playAnim(s.battle and "right" or lastAnim)
 		end
@@ -889,6 +870,7 @@ function render_emote_menu()
                 local up_pressed = (m.controller.buttonPressed & U_JPAD) ~= 0
                 local down_pressed = (m.controller.buttonPressed & D_JPAD) ~= 0
                 local a_pressed = (m.controller.buttonPressed & A_BUTTON) ~= 0
+                local b_pressed = (m.controller.buttonPressed & B_BUTTON) ~= 0
                 
                 if m.controller.stickY > 40 and emote_stick_cooldown == 0 then
                     up_pressed = true
@@ -924,14 +906,13 @@ function render_emote_menu()
                 end
                 
                 if a_pressed then
-                    local emote_name = sorted_emotes[emote_menu_index].name
-                    
-                    if emote then
-                        emote(emote_name)
-                    end
-                    
-                    m.controller.buttonPressed = m.controller.buttonPressed & ~A_BUTTON
+                    emote(sorted_emotes[emote_menu_index].name)
                 end
+                
+                if b_pressed then
+                    inEmoteMenu = false
+                end
+                
                 
                 local preview_data = sorted_emotes[emote_menu_index].data
                 local preview_tex = type(preview_data) == "table" and (preview_data.texture or preview_data[1]) or preview_data
@@ -939,13 +920,13 @@ function render_emote_menu()
                     djui_hud_set_color(255, 255, 255, 255)
                     local tex_w = 32
                     local tex_h = 32
-                    if type(preview_tex) == "userdata" or type(preview_tex) == "table" then
+                    if type(preview_tex) == "table" then
                         local ok1, w = pcall(function() return preview_tex.width end)
-                        if ok1 and w then tex_w = w end
+                        if ok1 and w then tex_w = w / preview_data.length end
                         local ok2, h = pcall(function() return preview_tex.height end)
                         if ok2 and h then tex_h = h end
                     end
-                    djui_hud_render_texture(preview_tex, grey_x + (grey_size - tex_w) / 2, grey_y + (grey_size - tex_h) / 2, 1, 1)
+                    djui_hud_render_texture_tile(preview_tex, grey_x + (grey_size - tex_w) / 2, grey_y + (grey_size - tex_h) / 2, 1, 1, 0, 0, tex_w, tex_h)
                 end
                 
                 local start_idx = 1

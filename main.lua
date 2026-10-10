@@ -234,7 +234,7 @@ charList = {
 				["right"] = {
 					texture = get_texture_info("kris_light_walk_right"),
 				},
-				["sjskdjskjdbsk"] = {
+				["hapi"] = {
 					texture = get_texture_info("kris_light_hapi"),
 					length = 1,
 					fps = 1,
@@ -497,7 +497,7 @@ charList = {
 					
 					snd = audio_stream_load("snd_noelle_scared.ogg")
 				},
-				["shsojsks"] = {
+				["hapi"] = {
 					texture = get_texture_info("noelle_light_hapi"),
 					length = 1,
 					fps = 1,

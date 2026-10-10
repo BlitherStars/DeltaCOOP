@@ -340,7 +340,7 @@ function before_mario_update()
     end
 
     if pressed_pause() then
-        if not paused and fade_alpha <= 0 then
+        if not paused and not freezeControls then
             submenu = ""
             paused = true
             selectedOption = 1
