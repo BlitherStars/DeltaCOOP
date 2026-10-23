@@ -38,8 +38,13 @@ local function hud_render()
 	
     djui_hud_set_resolution(RESOLUTION_N64)
     local sW, sH = 320, djui_hud_get_screen_height()
-    local stickY = m.controller.stickY
-    local stickX = m.controller.stickX
+    local dx, dy = 0, 0
+    local stick_x = m.controller.stickX
+	local stick_y = m.controller.stickY
+    if (m.controller.buttonDown & L_JPAD) ~= 0 then dx, ldx = -1, -1 elseif (m.controller.buttonDown & R_JPAD) ~= 0 then dx, ldx = 1, 1 end
+	if (m.controller.buttonDown & U_JPAD) ~= 0 then dy = -1 elseif (m.controller.buttonDown & D_JPAD) ~= 0 then dy = 1 end
+	if stick_x > 32 then dx, ldx = 1, 1 elseif stick_x < -32 then dx, ldx = -1, -1 end
+	if stick_y > 32 then dy = -1 elseif stick_y < -32 then dy = 1 end
     local x, y = 10 + (screenOffset / 2), pauseY
     
     djui_hud_set_color(51, 32, 51, 255)
@@ -86,11 +91,11 @@ local function hud_render()
 		if cooldownCounter > 0 then
 			cooldownCounter = cooldownCounter - 1
 		else
-	        if stickY > 60 then
+	        if dy < 0 then
 	            selectedOption = wrap(selectedOption - 1, 1, #settings)
 	            audio_stream_play(snd_menumove, true, 1)
 	            cooldownCounter = cooldown
-	        elseif stickY < -60 then
+	        elseif dy > 0 then
 	            selectedOption = wrap(selectedOption + 1, 1, #settings)
 	            audio_stream_play(snd_menumove, true, 1)
 	            cooldownCounter = cooldown
@@ -99,7 +104,7 @@ local function hud_render()
 			if settings[selectedOption].type == "number" or settings[selectedOption].type == "text" then
 				local min = settings[selectedOption].type == "text" and 1 or settings[selectedOption].min
 				local max = settings[selectedOption].type == "text" and #settings[selectedOption].texts or settings[selectedOption].max
-				if stickX < -60 then
+				if dx < 0 then
 					settings[selectedOption].value = wrap(settings[selectedOption].value-1, min, max)
 					if settings[selectedOption].on_value_change then
 						settings[selectedOption].on_value_change(settings[selectedOption].value)
@@ -110,7 +115,7 @@ local function hud_render()
 					audio_stream_play(snd_menumove, true, 1)
 					cooldownCounter = cooldown
 				end
-				if stickX > 60 then
+				if dx > 0 then
 					settings[selectedOption].value = wrap(settings[selectedOption].value+1, min, max)
 					if settings[selectedOption].on_value_change then
 						settings[selectedOption].on_value_change(settings[selectedOption].value)
@@ -166,23 +171,23 @@ local function hud_render()
 	    if cooldownCounter > 0 then
 	        cooldownCounter = cooldownCounter - 1
 	    else
-	        if stickX < -60 then
+	        if dx < 0 then
 	            selectedOption = wrap(selectedOption - 1, 1, #charList)
 				descChars = 1
 	            audio_stream_play(snd_menumove, true, 1)
 	            cooldownCounter = cooldown
-	        elseif stickX > 60 then
+	        elseif dx > 0 then
 	            selectedOption = wrap(selectedOption + 1, 1, #charList)
 	            audio_stream_play(snd_menumove, true, 1)
 				descChars = 1
 	            cooldownCounter = cooldown
 	        end
-			if stickY > 60 then
+			if dy < 0 then
 	            selectedOption = wrap(selectedOption - 4, 1, #charList)
 	            audio_stream_play(snd_menumove, true, 1)
 				descChars = 1
 	            cooldownCounter = cooldown
-	        elseif stickY < -60 then
+	        elseif dy > 0 then
 	            selectedOption = wrap(selectedOption + 4, 1, #charList)
 	            audio_stream_play(snd_menumove, true, 1)
 				descChars = 1
@@ -222,11 +227,11 @@ local function hud_render()
 	    if cooldownCounter > 0 then
 	        cooldownCounter = cooldownCounter - 1
 	    else
-	        if stickY > 60 then
+	        if dy < 0 then
 	            selectedOption = wrap(selectedOption - 1, 1, #warps)
 	            audio_stream_play(snd_menumove, true, 1)
 	            cooldownCounter = cooldown
-	        elseif stickY < -60 then
+	        elseif dy > 0 then
 	            selectedOption = wrap(selectedOption + 1, 1, #warps)
 	            audio_stream_play(snd_menumove, true, 1)
 	            cooldownCounter = cooldown
@@ -261,11 +266,11 @@ local function hud_render()
 	    if cooldownCounter > 0 then
 	        cooldownCounter = cooldownCounter - 1
 	    else
-	        if stickY > 60 then
+	        if dy < 0 then
 	            selectedOption = wrap(selectedOption - 1, 1, #list)
 	            audio_stream_play(snd_menumove, true, 1)
 	            cooldownCounter = cooldown
-	        elseif stickY < -60 then
+	        elseif dy > 0 then
 	            selectedOption = wrap(selectedOption + 1, 1, #list)
 	            audio_stream_play(snd_menumove, true, 1)
 	            cooldownCounter = cooldown
@@ -287,11 +292,11 @@ local function hud_render()
 		if cooldownCounter > 0 then
 	        cooldownCounter = cooldownCounter - 1
 	    else
-	        if stickX < -60 then
+	        if dx < 0 then
 	            selectedOption = wrap(selectedOption - 1, 1, #pauseMenuOptions)
 	            audio_stream_play(snd_menumove, true, 1)
 	            cooldownCounter = cooldown
-	        elseif stickX > 60 then
+	        elseif dx > 0 then
 	            selectedOption = wrap(selectedOption + 1, 1, #pauseMenuOptions)
 	            audio_stream_play(snd_menumove, true, 1)
 	            cooldownCounter = cooldown

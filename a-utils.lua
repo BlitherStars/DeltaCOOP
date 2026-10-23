@@ -1,15 +1,4 @@
-local djui_hud_render_texture_real_tile = djui_hud_render_texture_tile
-
-function djui_hud_render_texture_tile(tex, x, y, scaleX, scaleY, tX, tY, tW, tH) 
-	djui_hud_render_texture_real_tile(tex, x, y, (tH/tW)*scaleX, scaleY, tX, tY, tW, tH)
-end
-
-function djui_hud_render_texture(tex, x, y, scaleX, scaleY)
-	djui_hud_render_texture_tile(tex, x, y, scaleX, scaleY, 0, 0, tex.width, tex.height)
-end
-
 function djui_hud_render_outlined_rect(x, y, width, height, borderColor, borderSize)
-
 	local defaultColor = djui_hud_get_color()
 
 	local x = x - (borderSize/2)
@@ -36,7 +25,93 @@ function djui_hud_render_outlined_rect(x, y, width, height, borderColor, borderS
 	
 	djui_hud_set_color(defaultColor.r, defaultColor.g, defaultColor.b, defaultColor.a)
 	djui_hud_render_rect(x + (borderSize/2), y + (borderSize/2), width - borderSize, height - borderSize)
+end
 
+function djui_hud_print_outlined_text(text, x, y, scale, outlineDarkness, borderScale)
+	local outlineDarkness = outlineDarkness or 0
+	local offset = (borderScale or 2) * scale
+	local color = djui_hud_get_color()
+	
+	djui_hud_set_color(color.r * outlineDarkness, color.g * outlineDarkness, color.b * outlineDarkness, color.a)
+	djui_hud_print_text(text, x - offset, y, scale)
+	djui_hud_print_text(text, x + offset, y, scale)
+	djui_hud_print_text(text, x, y - offset, scale)
+	djui_hud_print_text(text, x, y + offset, scale)
+	djui_hud_print_text(text, x - offset / 2, y - offset / 2, scale)
+	djui_hud_print_text(text, x - offset / 2, y + offset / 2, scale)
+	djui_hud_print_text(text, x + offset / 2, y + offset / 2, scale)
+	djui_hud_print_text(text, x + offset / 2, y - offset / 2, scale)
+	
+	djui_hud_set_color(color.r, color.g, color.b, color.a)
+	djui_hud_print_text(text, x, y, scale)
+end
+
+local djui_hud_render_texture_real_tile = djui_hud_render_texture_tile
+
+function djui_hud_render_texture_tile(tex, x, y, scaleX, scaleY, tX, tY, tW, tH) 
+	djui_hud_render_texture_real_tile(tex, x, y, (tH/tW)*scaleX, scaleY, tX, tY, tW, tH)
+end
+
+function djui_hud_render_texture(tex, x, y, scaleX, scaleY)
+	djui_hud_render_texture_tile(tex, x, y, scaleX, scaleY, 0, 0, tex.width, tex.height)
+end
+
+function djui_hud_render_texture_rect(tex, x, y, w, h, cornerSize)
+	local w, h = math.max(w, cornerSize * 2), math.max(h, cornerSize * 2)
+	djui_hud_render_texture_tile(tex,
+		x, y,
+		1, 1,
+		0, 0,
+		cornerSize, cornerSize
+	)
+	djui_hud_render_texture_tile(tex,
+		x + cornerSize, y,
+		(w - (cornerSize * 2)) / (tex.width - (cornerSize * 2)), 1,
+		cornerSize, 0,
+		(tex.width - (cornerSize * 2)), cornerSize
+	)
+	djui_hud_render_texture_tile(tex,
+		x + w - cornerSize, y,
+		1, 1,
+		tex.width - cornerSize, 0,
+		cornerSize, cornerSize
+	)
+	djui_hud_render_texture_tile(tex,
+		x, y + cornerSize,
+		1, (h - (cornerSize * 2)) / (tex.height - (cornerSize * 2)),
+		0, cornerSize,
+		cornerSize, (tex.height - (cornerSize * 2))
+	)
+	djui_hud_render_texture_tile(tex,
+		x + w - cornerSize, y + cornerSize,
+		1, (h - (cornerSize * 2)) / (tex.height - (cornerSize * 2)),
+		tex.width - cornerSize, cornerSize,
+		cornerSize, (tex.height - (cornerSize * 2))
+	)
+	djui_hud_render_texture_tile(tex,
+		x + w - cornerSize, y + h - cornerSize,
+		1, 1,
+		tex.width - cornerSize, tex.height - cornerSize,
+		cornerSize, cornerSize
+	)
+	djui_hud_render_texture_tile(tex,
+		x, y + h - cornerSize,
+		1, 1,
+		0, tex.height - cornerSize,
+		cornerSize, cornerSize
+	)
+	djui_hud_render_texture_tile(tex,
+		x + cornerSize, y + h - cornerSize,
+		(w - (cornerSize * 2)) / (tex.width - (cornerSize * 2)), 1,
+		cornerSize, tex.height - cornerSize,
+		(tex.width - (cornerSize * 2)), cornerSize
+	)
+	djui_hud_render_texture_tile(tex,
+		x + cornerSize, y + cornerSize,
+		(w - (cornerSize * 2)) / (tex.width - (cornerSize * 2)), (h - (cornerSize * 2)) / (tex.height - (cornerSize * 2)),
+		cornerSize, cornerSize,
+		(tex.width - (cornerSize * 2)), (tex.height - (cornerSize * 2))
+	)
 end
 
 function wrap(var, min, max)
@@ -55,9 +130,11 @@ musicStream = nil
 function play_overworld_music(stream)
     if musicStream ~= stream then
     	stop_overworld_music()
-	    audio_stream_play(stream, false, 0.6)
-		audio_stream_set_looping(stream, true)
-	    musicStream = stream
+	    if stream then
+		    audio_stream_play(stream, false, 0.6)
+			audio_stream_set_looping(stream, true)
+		    musicStream = stream
+		end
     end
 end
 

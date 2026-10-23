@@ -86,7 +86,7 @@ local function render_overworld()
 	set_audio_muted(1)
 	
 	if musicStream then
-		audio_stream_set_volume(musicStream, SURVEY_INTERFACE.inBattle and 0 or 0.5)
+		audio_stream_set_volume(musicStream, Survey.inBattle and 0 or 0.5)
 	end
 	
 	djui_hud_set_resolution(RESOLUTION_N64)
@@ -357,7 +357,7 @@ local function render_overworld()
 	local boundX = math.max(rW - sW, 0)
 	local boundY = math.max(rH - sH, 0)
 	if not inDialog then
-		if SURVEY_INTERFACE.inBattle then
+		if Survey.inBattle then
 			camPos.x = math.lerp(camPos.x, s.x - ((sW - box_w) / 2) - (screenOffset / 2) + 96, 0.1)
 			camPos.y = math.lerp(camPos.y, s.y - ((sH - box_h) / 2) + 16, 0.1)
 		else
@@ -529,7 +529,7 @@ local function render_overworld()
 		local m = gMarioStates[i]
 		local np = gNetworkPlayers[m.playerIndex]
 		local ss = gPlayerSyncTable[m.playerIndex]
-		if (not SURVEY_INTERFACE.inBattle or m.playerIndex == 0) and (np.connected or ss.deltarune) and ss.map == s.map then
+		if (not Survey.inBattle or m.playerIndex == 0) and (np.connected or ss.deltarune) and ss.map == s.map then
 			table.insert(render_queue, {
 				type = "player",
 				id = m.playerIndex or 0,
@@ -554,7 +554,7 @@ local function render_overworld()
 		return a.y < b.y
 	end)
 	
-	battleAlpha = math.lerp(battleAlpha, SURVEY_INTERFACE.inBattle and 255 or 0, 0.1)
+	battleAlpha = math.lerp(battleAlpha, Survey.inBattle and 255 or 0, 0.1)
 	if battleAlpha > 0 then
 		djui_hud_set_color(0, 0, 0, battleAlpha)
 		djui_hud_render_rect(-4, -4, djui_hud_get_screen_width() + 8, sH + 8)
@@ -626,14 +626,9 @@ local function render_overworld()
 		local text_x = screen_x + (pw / 2) - (text_width / 2)
 		local text_y = screen_y - ph - ((ent.hp and ent.hp < 1 and ent.id ~= m.playerIndex) and 14 or 8)
 		
-		local out_px = 1
 		if useNametags and ent.type == "player" then
-			djui_hud_set_color(0, 0, 0, 255)
-			djui_hud_print_text(ent.name, text_x - out_px, text_y, text_scale)
-			djui_hud_print_text(ent.name, text_x + out_px, text_y, text_scale)
-			djui_hud_print_text(ent.name, text_x, text_y - out_px, text_scale)
-			djui_hud_print_text(ent.name, text_x, text_y + out_px, text_scale)
-			
+			djui_hud_set_color(255, 255, 255, 255)
+			djui_hud_print_outlined_text(ent.name, text_x, text_y, text_scale, 0, 3	)
 			djui_hud_set_color(255, 255, 255, 255)
 			djui_hud_print_text(ent.name, text_x, text_y, text_scale)
 		end
@@ -747,7 +742,7 @@ local function render_overworld()
 	local x, y = (screenOffset / 2), sH - 26 + coolY
 	local sprite = char.sprites[s.costume]["down"]
 	local spr_w = (sprite.width or (sprite.texture.width / (sprite.length or 4)))
-	coolY = math.lerp(coolY, (not SURVEY_INTERFACE.inBattle and (paused or (s.hp < s.maxHP and s.hp > 0))) and 0 or 32, 0.2)
+	coolY = math.lerp(coolY, (not Survey.inBattle and (paused or (s.hp < s.maxHP and s.hp > 0))) and 0 or 32, 0.2)
 	
 	local f = s.hp / s.maxHP
 	djui_hud_set_color(51, 32, 51, 255)
@@ -809,14 +804,7 @@ function render_emote_menu()
     local menu_x = sW - menu_w - 16 + ((screenOffset and screenOffset / 2) or 0)
     local menu_y = (sH - menu_h) / 2
     
-    djui_hud_set_color(0, 0, 0, 255)
-    djui_hud_render_rect(menu_x - 3, menu_y - 3, menu_w + 6, menu_h + 6)
-    
-    djui_hud_set_color(255, 255, 255, 255)
-    djui_hud_render_rect(menu_x, menu_y, menu_w, menu_h)
-    
-    djui_hud_set_color(0, 0, 0, 255)
-    djui_hud_render_rect(menu_x + 3, menu_y + 3, menu_w - 6, menu_h - 6)
+    djui_hud_render_texture_rect(deltabox, menu_x - 3, menu_y - 3, menu_w + 6, menu_h + 6, 13)
     
     local grey_size = 72
     local grey_x = menu_x + (menu_w - grey_size) / 2
@@ -1029,19 +1017,16 @@ function render_save_menu()
 	local dx = 0
 	local dy = 0
 	
-	if useDpad then
-		if (m.controller.buttonDown & L_JPAD) ~= 0 then dx, ldx = -1, -1 elseif (m.controller.buttonDown & R_JPAD) ~= 0 then dx, ldx = 1, 1 end
-		if (m.controller.buttonDown & U_JPAD) ~= 0 then dy = -1 elseif (m.controller.buttonDown & D_JPAD) ~= 0 then dy = 1 end
-	else
-		if stick_x > 32 then dx, ldx = 1, 1 elseif stick_x < -32 then dx, ldx = -1, -1 end
-		if stick_y > 32 then dy = -1 elseif stick_y < -32 then dy = 1 end
-	end
+	if (m.controller.buttonDown & L_JPAD) ~= 0 then dx, ldx = -1, -1 elseif (m.controller.buttonDown & R_JPAD) ~= 0 then dx, ldx = 1, 1 end
+	if (m.controller.buttonDown & U_JPAD) ~= 0 then dy = -1 elseif (m.controller.buttonDown & D_JPAD) ~= 0 then dy = 1 end
+	if stick_x > 32 then dx, ldx = 1, 1 elseif stick_x < -32 then dx, ldx = -1, -1 end
+	if stick_y > 32 then dy = -1 elseif stick_y < -32 then dy = 1 end
 	
 	local options = {"Save", "Return"}
 	local x,y = (screenOffset/2) + 40, 72
 	
-	djui_hud_set_color(0, 0, 0, 255)
-	djui_hud_render_outlined_rect(x,y, 240, 48, {255,255,255,255}, 4)
+	djui_hud_set_color(255, 255, 255, 255)
+	djui_hud_render_texture_rect(deltabox, x - 8,y - 8, 240 + 16, 48 + 16, 13)
 	
 	djui_hud_set_color(255, 255, not saveMenuHasSelected and 255 or 0, 255)
 	djui_hud_print_text(np.name, x + 8, y + 8, 0.5)
@@ -1051,9 +1036,9 @@ function render_save_menu()
 	djui_hud_print_text(maps[mod_storage_load("map", "toby_fox")] and (maps[mod_storage_load("map", "toby_fox")].properties["name"] or "car pit") or "______", x + 8, y + 24, 0.5)
 	
 	for i, v in pairs(options) do
-		local tx, ty = x + 64 + (64 * (i - 1)), y + 64
-		djui_hud_set_color(0, 0, 0, 255)
-		djui_hud_render_outlined_rect(tx - 16, ty - 4, (djui_hud_measure_text(v) / 2) + 24, 24, {255,255,255,255}, 4)
+		local tx, ty = x + 64 + (64 * (i - 1)), y + 74
+		djui_hud_set_color(255, 255, 255, 255)
+		djui_hud_render_texture_rect(deltabox, tx - 16 - 8, ty - 4 - 8, (djui_hud_measure_text(v) / 2) + 24 + 16, 24 + 16, 13)
 		djui_hud_set_color(255, 255, not saveMenuHasSelected and 255 or 0, 255)
 		djui_hud_print_text(v, tx, ty, 0.5)
 		if i == saveMenuSel then
@@ -1086,17 +1071,17 @@ function render_save_menu()
 end
 
 function render_playerlist()
-	djui_hud_set_color(0, 0, 0, 128)
-	djui_hud_render_rect((screenOffset / 2) + 4, 4, 240, djui_hud_get_screen_height() - 8)
+	djui_hud_set_color(255, 255, 255, 128)
+	djui_hud_render_texture_rect(deltabox, (screenOffset / 2), 0, 244, djui_hud_get_screen_height(), 13)
 	local yy = 0
 	for i = 0, (MAX_PLAYERS - 1) do
 		local np = gNetworkPlayers[i]
 		local s = gPlayerSyncTable[i]
 		if np.connected then
 			djui_hud_set_color(0, 0, 0, 128)
-			local x, y = (screenOffset / 2) + 6, 6 + yy
+			local x, y = (screenOffset / 2) + 12, 12 + yy
 			djui_hud_set_scissor(x / 2, 0, 212, djui_hud_get_screen_height())
-			djui_hud_render_rect(x, y, 236, 12)
+			djui_hud_render_rect(x, y, 220, 12)
 			djui_hud_set_color(255, 255, 255, 255)
 			djui_hud_print_text(np.name,x + 2, y, 0.40)
 			local lvtext = "\\#ffff00\\LV \\#ffffff\\"..math.floor(1 + (s.exp / 2000))
@@ -1107,15 +1092,15 @@ function render_playerlist()
 		end
 	end
 	djui_hud_reset_scissor()
-	djui_hud_set_color(0, 0, 0, 128)
-	djui_hud_render_rect((screenOffset / 2) + 248, 4, 240, djui_hud_get_screen_height() - 8)
 	djui_hud_set_color(255, 255, 255, 128)
-	djui_hud_print_text("Mods", (screenOffset / 2) + 252, 6, 0.4)
+	djui_hud_render_texture_rect(deltabox, (screenOffset / 2) + 248, 4, 240, djui_hud_get_screen_height() - 8, 13)
+	djui_hud_set_color(255, 255, 255, 128)
+	djui_hud_print_text("Mods", (screenOffset / 2) + 260, 14, 0.4)
 	local yy = 14
 	for i = 1, #modList do
 		local mod = modList[i]
 		djui_hud_set_color(0, 0, 0, 128)
-		local x, y = (screenOffset / 2) + 252, 6 + yy
+		local x, y = (screenOffset / 2) + 260, 14 + yy
 		djui_hud_render_rect(x, y, 236, 12)
 		djui_hud_set_color(255, 255, 255, 255)
 		djui_hud_print_text(mod,x + 2, y, 0.40)

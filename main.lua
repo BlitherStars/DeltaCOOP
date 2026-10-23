@@ -37,6 +37,7 @@ snd_splat = audio_stream_load("splat.ogg")
 vessel_icon = get_texture_info("vessel_icon")
 logo = get_texture_info("logo")
 textbox = get_texture_info("textbox")
+deltabox = get_texture_info("deltabox")
 soul = get_texture_info("heart")
 
 --FONT_SPECIAL = new_font(get_texture_info("font_operator"), [[ !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~¡¢£¥©«®°±µ¶·»¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ]], -1, 16, 32)
