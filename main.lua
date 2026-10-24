@@ -22,6 +22,7 @@ gGlobalSyncTable.disablePVP = false
 -- ASSETS --
 snd_ominous = audio_sample_load("snd_ominous.ogg")
 snd_ominous_cancel = audio_sample_load("snd_ominous_cancel.ogg")
+snd_error = audio_sample_load("snd_error.ogg")
 
 snd_menumove = audio_stream_load("snd_menumove.mp3")
 snd_menuback = audio_stream_load("snd_menuback.ogg")
