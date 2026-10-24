@@ -101,8 +101,24 @@ local function render_overworld()
 		or inDialog or inSaveMenu
 		or inEmoteMenu or fade_alpha > 0
 	
-	if (m.controller.buttonPressed & Y_BUTTON) ~= 0 and not freezeControls then
-		inEmoteMenu = true
+if (m.controller.buttonPressed & Y_BUTTON) ~= 0 and not freezeControls then
+		local char = charList[s.character]
+		local sprites = char and char.sprites and char.sprites[s.costume or 1]
+		local hasEmotes = false
+		if sprites then
+			local discard = { ["up"] = true, ["down"] = true, ["left"] = true, ["right"] = true, ["attack"] = true }
+			for name, v in pairs(sprites) do
+				if not discard[name] and not (v.other == true) then
+					hasEmotes = true
+					break
+				end
+			end
+		end
+		if hasEmotes then
+			inEmoteMenu = true
+		else
+			audio_sample_play(snd_error, gMarioStates[0].pos, 1)
+		end
 	end
 	
 	if not s.deltarune or s.hp == nil or s.x == nil or s.y == nil or s.anim == nil then
