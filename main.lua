@@ -1194,6 +1194,14 @@ charList = {
 					length = 4,
 					loop = true
 				},
+				["attack"] = {
+					texture = get_texture_info("aqua_attack"),
+					length = 6,
+					offsetX = 14,
+					offsetY = 6,
+					fps = 16,
+					other = true,
+				},
 			},
 		}
 	},
