@@ -127,7 +127,7 @@ local function hud_render()
 					cooldownCounter = cooldown
 				end
 			end
-			if settings[selectedOption].type == "bool" and (math.abs(stickX) > 30 or (m.controller.buttonPressed & A_BUTTON) ~= 0) then
+			if settings[selectedOption].type == "bool" and (math.abs(stick_x) > 30 or (m.controller.buttonPressed & A_BUTTON) ~= 0) then
 				settings[selectedOption].value = not settings[selectedOption].value
 				if settings[selectedOption].on_value_change then
 					settings[selectedOption].on_value_change(settings[selectedOption].value)
