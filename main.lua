@@ -338,6 +338,7 @@ charList = {
 	{
 		name = "Susie",
 		desc = "* The second hero.\nThe girl, with hope crossed\non her heart.",
+		color = {255, 0, 255, 255},
 		boxW = 26,
 		boxH = 46,
 		snd = audio_stream_load("txt_susie.ogg"),
@@ -548,6 +549,7 @@ charList = {
 	{
 		name = "Berdly",
 		desc = "* Valiant warrior of\nbrave intelligence!",
+		color = {29, 175, 255, 255},
 		boxW = 22,
 		boxH = 40,
 		snd = audio_stream_load("txt_berd.ogg"),
@@ -649,6 +651,7 @@ charList = {
 	{
 		name = "Ralsei",
 		desc = "* The third hero.\nThe prince, alone in the\ndeepest dark.",
+		color = {1, 255, 0, 255},
 		boxW = 23,
 		boxH = 44,
 		snd = audio_stream_load("txt_ralsei.ogg"),
@@ -754,6 +757,7 @@ charList = {
 	{
 		name = "Annoying Dog",
 		desc = "* bark bark",
+		color = {255, 174, 0, 255},
 		boxW = 29,
 		boxH = 42,
 		forceAccel = true,
@@ -786,6 +790,8 @@ charList = {
 	{
 		name = "Lancer",
 		desc = '* The pointy headed will\nsay "TOOTHPASTE," and then\n"BOY."',
+		color = {50, 50, 255, 255},
+		boxW = 25,
 		boxW = 25,
 		boxH = 35,
 		snd = audio_stream_load("txt_lancer.mp3"),
@@ -846,6 +852,7 @@ charList = {
 	{
 		name = "Rudinn",
 		desc = "* A diamond in\nthe rough.",
+		color = {52, 172, 145, 255},
 		boxW = 20,
 		boxH = 37,
 		sprites = {
@@ -868,6 +875,7 @@ charList = {
 	{
 		name = "Hathy",
 		desc = "* A soft and gentle kiss.",
+		color = {52, 172, 70, 255},
 		boxW = 20,
 		boxH = 38,
 		sprites = {
@@ -890,6 +898,7 @@ charList = {
 	{
 		name = "Jigsawry",
 		desc = "* BARRY! THEY GOT\nBARRY!",
+		color = {193, 38, 150, 255},
 		boxW = 25,
 		boxH = 29,
 		sprites = {
@@ -936,6 +945,7 @@ charList = {
 	{
 		name = "Rudinn Ranger",
 		desc = "* Likes throwing knifes.",
+		color = {193, 38, 49, 255},
 		boxW = 20,
 		boxH = 37,
 		sprites = {
@@ -958,6 +968,7 @@ charList = {
 	{
 		name = "Rouxls Kaard",
 		desc = "* Chips Ahoyeth Worms!",
+		color = {15, 0, 98, 255},
 		boxW = 24,
 		boxH = 57,
 		sprites = {
@@ -1137,6 +1148,7 @@ charList = {
 	{
 		name = "Aqua",
 		desc = "* Ooo, Are we playing a \nscreaming game?\nAAAAAAAAAAAAAAAAAAA",
+		color = {1, 255, 255, 255},
 		boxW = 20,
 		boxH = 36,
 		sprites = {
@@ -1207,7 +1219,8 @@ charList = {
 	},
 	{
 		name = "Seth",
-		desc = "* Aqua, do\n THAT Attack!",
+		desc = "* Aqua, do THAT Attack!",
+		color = {204, 0, 255, 255},
 		boxW = 30,
 		boxH = 41,
 		sprites = {
@@ -1295,6 +1308,7 @@ charList = {
 	{
 		name = "Blue",
 		desc = "* ...",
+		color = {0, 93, 255, 255},
 		boxW = 20,
 		boxH = 60,
 		sprites = {
@@ -1321,6 +1335,7 @@ charList = {
 	{
 		name = "Orange",
 		desc = "* SHUT UP\n CHIBI!",
+		color = {255, 144, 0, 255},
 		boxW = 20,
 		boxH = 16,
 		sprites = {
@@ -1358,6 +1373,7 @@ charList = {
 	{
 		name = "Green",
 		desc = "* ...",
+		color = {67, 255, 0, 255},
 		boxW = 32,
 		boxH = 48,
 		sprites = {
@@ -1386,6 +1402,7 @@ charList = {
 	{
 		name = "Pink",
 		desc = "* The prettiest of all\n flowers, PINK!",
+		color = {255, 102, 221, 255},
 		boxW = 23,
 		boxH = 43,
 		sprites = {
