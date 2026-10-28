@@ -1441,6 +1441,20 @@ charList = {
 					
 					snd = audio_stream_load("pink_laugh.ogg"),
 				},
+				["mischievous_laugh"] = {
+					texture = get_texture_info("pink_mischiveous_laugh"),
+					length = 2,
+					repeatAmount = 12,
+					fps = 12,
+					
+					snd = audio_stream_load("pink_laugh.ogg"),
+				},
+				["standby"] = {
+					texture = get_texture_info("pink_standby"),
+					length = 1,
+					fps = 8,
+					loop = true,
+				},
 				["shocked"] = {
 					texture = get_texture_info("pink_shocked"),
 					length = 1,
@@ -1451,6 +1465,12 @@ charList = {
 				},
 				["hey"] = {
 					texture = get_texture_info("pink_hey"),
+					length = 1,
+					fps = 1,
+					loop = true,
+				},
+				["burnt"] = {
+					texture = get_texture_info("pink_burnt"),
 					length = 1,
 					fps = 1,
 					loop = true,
