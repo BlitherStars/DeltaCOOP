@@ -1469,6 +1469,12 @@ charList = {
 					fps = 1,
 					loop = true,
 				},
+				["jeer"] = {
+					texture = get_texture_info("pink_tongue"),
+					length = 1,
+					fps = 1,
+					loop = true,
+				},
 				["burnt"] = {
 					texture = get_texture_info("pink_burnt"),
 					length = 1,
