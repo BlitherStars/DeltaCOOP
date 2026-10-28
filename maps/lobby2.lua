@@ -571,35 +571,6 @@ return{
             ["map"] =             "lobby1"
           },
         },
-        {
-          id = 2763,
-          name = "enemy",
-          type = "",
-          shape = "rectangle",
-          x = 530,
-          y = 280,
-          width = 40,
-          height = 40,
-          rotation = 0,
-          visible = true,
-          properties = {
-            ["sprite"] = {
-				texture = get_texture_info("dummy"),
-				length = 1,
-				loop = true
-			},
-            ["encounter"] = {
-            	enemies = {
-            		require("/enemies/dummy"),
-            		require("/enemies/dummy"),
-            		require("/enemies/dummy"),
-            		require("/enemies/dummy"),
-            		require("/enemies/dummy"),
-            		require("/enemies/dummy"),
-				}
-			},
-          }
-        }
       }
     },
     {
