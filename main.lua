@@ -317,12 +317,6 @@ charList = {
 					fps = 8,
 					loop = true,
 				},
-				["battle_idle"] = {
-					texture = get_texture_info("kris_dark_battle_idle"),
-					length = 6,
-					fps = 8,
-					loop = true,
-				},
 				["attack"] = {
 					other = true,
 					texture = get_texture_info("kris_dark_attack"),
@@ -460,12 +454,6 @@ charList = {
 					fps = 1,
 					loop = true,
 				},
-				["battle_idle"] = {
-					texture = get_texture_info("susie_dark_battle_idle"),
-					length = 4,
-					fps = 8,
-					loop = true,
-				},
 				["attack"] = {
 					other = true,
 					texture = get_texture_info("susie_dark_attack"),
@@ -541,12 +529,6 @@ charList = {
 					loop = true,
 					
 					snd = audio_stream_load("snd_hapi.ogg"),
-				},
-				["battle_idle"] = {
-					texture = get_texture_info("noelle_dark_battle_idle"),
-					length = 5,
-					fps = 8,
-					loop = true,
 				},
 				["attack"] = {
 					other = true,
@@ -627,12 +609,6 @@ charList = {
 					texture = get_texture_info("berdly_dark_ripbozo"),
 					length = 1,
 					fps = 1,
-					loop = true,
-				},
-				["battle_idle"] = {
-					texture = get_texture_info("berdly_dark_battle_idle"),
-					length = 5,
-					fps = 8,
 					loop = true,
 				},
 				["attack"] = {
@@ -808,13 +784,6 @@ charList = {
 					width = 42,
 					length = 2,
 				},
-				["battle_idle"] = {
-					texture = get_texture_info("annoying_dog_walk_right"),
-					width = 42,
-					length = 2,
-					fps = 8,
-					loop = true,
-				}
 			},
 		}
 	},
@@ -900,12 +869,6 @@ charList = {
 				["right"] = {
 					texture = get_texture_info("rudinn_walk_right"),
 				},
-				["battle_idle"] = {
-					texture = get_texture_info("rudinn_walk_right"),
-					length = 4,
-					fps = 8,
-					loop = true,
-				},
 				["sleepy"] = {
 					texture = get_texture_info("rudinn_sleepy"),
 					length = 3,
@@ -935,12 +898,6 @@ charList = {
 				["right"] = {
 					texture = get_texture_info("hathy_walk_right"),
 				},
-				["battle_idle"] = {
-					texture = get_texture_info("hathy_walk_right"),
-					length = 4,
-					fps = 8,
-					loop = true,
-				}
 			},
 		}
 	},
@@ -981,12 +938,6 @@ charList = {
 					fps = 1,
 					loop = true,
 				},
-				["battle_idle"] = {
-					texture = get_texture_info("jigsawry_walk"),
-					length = 6,
-					fps = 8,
-					loop = true,
-				},
 				["defeat"] = {
 					texture = get_texture_info("jigsawry_down"),
 					length = 1,
@@ -1017,12 +968,6 @@ charList = {
 				["right"] = {
 					texture = get_texture_info("rudinn_ranger_walk_right"),
 				},
-				["battle_idle"] = {
-					texture = get_texture_info("rudinn_ranger_walk_right"),
-					length = 4,
-					fps = 8,
-					loop = true,
-				}
 			},
 		}
 	},
@@ -1267,12 +1212,6 @@ charList = {
 					length = 4,
 					loop = true
 				},
-				["battle_idle"] = {
-					texture = get_texture_info("aqua_battle_idle"),
-					length = 8,
-					fps = 8,
-					loop = true,
-				},
 				["attack"] = {
 					texture = get_texture_info("aqua_attack"),
 					length = 6,
@@ -1319,12 +1258,6 @@ charList = {
 				["collapsed"] = {
 					texture = get_texture_info("seth_collapsed"),
 					length = 1,
-					loop = true,
-				},
-				["battle_idle"] = {
-					texture = get_texture_info("seth_battle_idle"),
-					length = 4,
-					fps = 8,
 					loop = true,
 				},
 			},
