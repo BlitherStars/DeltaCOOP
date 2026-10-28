@@ -348,8 +348,8 @@ if (m.controller.buttonPressed & Y_BUTTON) ~= 0 and not freezeControls then
 	else
 		anim_timer = anim_timer + fpsDist
 		anim_frame = 1 + ((loop or repeatAmount > 1) and (math.floor(anim_timer) % max_frames) or math.min(math.floor(anim_timer), max_frames))
-		if (not loop and not persistent and anim_timer >= (max_frames * repeatAmount)) or ((loop or persistent) and ((m.controller.buttonPressed & A_BUTTON) ~= 0 and not freezeControls) and not other) then
-			s.walking = not s.battle
+		if (not loop and not persistent and anim_timer >= (max_frames * repeatAmount)) or ((loop or persistent) and ((m.controller.buttonPressed & A_BUTTON) ~= 0 and not freezeControls) and not Survey.inBattle and not other) then
+		s.walking = not s.battle
 			playAnim(s.battle and "right" or lastAnim)
 		end
 	end
