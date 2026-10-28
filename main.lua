@@ -317,6 +317,14 @@ charList = {
 					fps = 8,
 					loop = true,
 				},
+				["halloween"] = {
+					texture = get_texture_info("kris_dark_halloween"),
+					length = 1,
+					fps = 1,
+					loop = true,
+					
+					snd = audio_stream_load("snd_hapi.ogg"),
+				},
 				["attack"] = {
 					other = true,
 					texture = get_texture_info("kris_dark_attack"),
