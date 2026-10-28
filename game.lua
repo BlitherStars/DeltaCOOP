@@ -79,6 +79,9 @@ local function on_chat_message(m, msg)
 end
 
 local function render_overworld()
+	if not gMarioStates or not gMarioStates[0] then return end
+	local m = gMarioStates[0]
+
 	djui_hud_set_color(0, 0, 0, 255)
 	djui_hud_render_rect(-4, -4, djui_hud_get_screen_width() + 8, djui_hud_get_screen_height() + 8)
 	
@@ -648,11 +651,14 @@ if (m.controller.buttonPressed & Y_BUTTON) ~= 0 and not freezeControls then
 			djui_hud_set_color(255, 255, 255, 255)
 			djui_hud_print_text(ent.name, text_x, text_y, text_scale)
 		end
-		
+
 		if ent.hp and ent.hp < 1 and ent.id ~= m.playerIndex then
 			djui_hud_set_color(128, 0, 0, 255)
 			djui_hud_render_rect(text_x + (text_width - 32) / 2, text_y + 10, 32, 4)
-			djui_hud_set_color(255, 255, 0, 255)
+			
+			local pChar = charList[ent.character or 1]
+			local hpCol = pChar and pChar.color or {255, 255, 0, 255}
+			djui_hud_set_color(hpCol[1], hpCol[2], hpCol[3], hpCol[4] or 255)
 			djui_hud_render_rect(text_x + (text_width - 32) / 2, text_y + 10, 32 * ent.hp, 4)
 		end
 		
@@ -777,7 +783,8 @@ if (m.controller.buttonPressed & Y_BUTTON) ~= 0 and not freezeControls then
 	djui_hud_set_color(128, 0, 0, 255)
 	djui_hud_render_rect(x, y + 14, 48, 6)
 	
-	local hpCol = char.color or {255, 255, 0, 255}
+	local safeChar = char or {}
+	local hpCol = safeChar.color or {255, 255, 0, 255}
 	djui_hud_set_color(hpCol[1], hpCol[2], hpCol[3], hpCol[4] or 255)
 	djui_hud_render_rect(x, y + 14, math.floor(48 * f), 6)
 	
