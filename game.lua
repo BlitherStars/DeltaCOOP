@@ -984,7 +984,7 @@ function render_emote_menu()
 end
 
 function render_dialog()
-	local x, y = ((320 - 297) / 2) + (screenOffset / 2), djui_hud_get_screen_height() - 84
+	local x, y = ((320 - 300) / 2) + (screenOffset / 2), djui_hud_get_screen_height() - 85
 	local text = dialog.data[dialog.num].text or ""
 	local displayText = ""
 	local inSlash = false
@@ -1002,7 +1002,7 @@ function render_dialog()
 		displayText = displayText:gsub([[\\nn]], "\n")
 	end
 	djui_hud_set_color(255, 255, 255, 255)
-	djui_hud_render_texture(textbox, x, y, 1, 1)
+	djui_hud_render_texture_rect(deltabox, x, y, 300, 85, 13)
 	djui_hud_print_text(displayText:sub(1, math.floor(dialog.chars)), x + 16, y + 12, 0.5)
 	local old_chars = math.floor(dialog.chars)
 	local old_char = displayText:sub(math.floor(old_chars), math.floor(old_chars))

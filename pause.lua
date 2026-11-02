@@ -62,19 +62,14 @@ local function hud_render()
 	end
 	djui_hud_render_texture_tile(pauseMenuOptions[lastMenuSelected].tex, x, pauseY + 15, 1, 1, 66, 0, 35, 24)
 	
-	if submenu ~= "" then
-		djui_hud_set_color(0, 0, 0, 128)
-		djui_hud_render_rect((screenOffset / 2), 0, sW, sH)
-	end
-	
 	djui_hud_set_color(255, 255, 255, 255)
 	    
     if submenu == "options" then
+    	djui_hud_render_texture_rect(deltabox, x, 50, sW - 20, 165, 13)
     	for i = 1, #settings do
 			local v = settings[i]
 			local text = v.name
 			local value = ""
-			djui_hud_set_color(255, 255, 255, i == selectedOption and 255 or 128)
 			if v.type == "bool" then
 				value = v.value and "ON" or "OFF"
 			end
@@ -84,8 +79,13 @@ local function hud_render()
 			if v.type == "text" then
 				value = v.texts[v.value] or "-"
 			end
-			djui_hud_print_text(text, x, -6 + (16 * i), 0.5)
-			djui_hud_print_text(value, djui_hud_get_screen_width() - (djui_hud_measure_text(value) / 2) - 10 - (screenOffset/2), -6 + (16 * i), 0.5)
+			if i == selectedOption then
+				djui_hud_set_color(255, 0, 0, 255)
+				djui_hud_render_texture(soul, x + 20, 53 + (16 * i), 0.7, 0.7)
+			end
+			djui_hud_set_color(255, 255, 255, 255)
+			djui_hud_print_text(text, x + 35, 50 + (16 * i), 0.5)
+			djui_hud_print_text(value, djui_hud_get_screen_width() - (djui_hud_measure_text(value) / 2) - 30 - (screenOffset/2), 50 + (16 * i), 0.5)
 		end
 		
 		if cooldownCounter > 0 then
@@ -152,6 +152,7 @@ local function hud_render()
 			audio_stream_play(snd_menuback, true, 1)
 		end
     elseif submenu == "vessels" then
+    	djui_hud_render_texture_rect(deltabox, x - 10, -13, sW, sH + 48, 13)
     	for i,v in pairs(charList) do
 			local x = (screenOffset / 2) + 10 + (38 * ((i - 1) % 4))
 			local y = 10 + (38 * (math.floor((i - 1) / 4) - lerpOption))
@@ -166,7 +167,7 @@ local function hud_render()
 				djui_hud_print_text(v.desc and v.desc:sub(1, math.floor(descChars)) or "", (screenOffset / 2)  + (38 * 4.25), 26, 0.4)
 			end
 		end
-		lerpOption = math.lerp(lerpOption, math.max(math.floor(selectedOption / 4) - 3, 1) - 1, 0.15)
+		lerpOption = math.lerp(lerpOption, math.max(math.floor((selectedOption - 1) / 4) - 3, 1) - 1, 0.15)
 		
 	    if cooldownCounter > 0 then
 	        cooldownCounter = cooldownCounter - 1
@@ -216,6 +217,8 @@ local function hud_render()
 			lerpOption = 1
 	    end
 	elseif submenu == "warper" then
+		djui_hud_render_texture_rect(deltabox, x - 10, -13, sW, sH + 48, 13)
+		
 		for i,v in pairs(warps) do
 			local textX = x
 			local textY = 10 + (16 * (i - lerpOption))
@@ -250,6 +253,8 @@ local function hud_render()
 			lerpOption = 1
 	    end
 	elseif submenu == "warp_dev" then
+		djui_hud_render_texture_rect(deltabox, x - 10, -13, sW, sH + 48, 13)
+		
 		local list = {}
 		for i,v in pairs(maps) do
 			table.insert(list, i)
