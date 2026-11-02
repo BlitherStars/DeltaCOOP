@@ -65,13 +65,13 @@ local function on_chat_message(m, msg)
 	}
 	
 	local msg_lower = msg:lower()
-	if gPlayerSyncTable[0].map == gPlayerSyncTable[m.playerIndex].map then
+	if s.map == gPlayerSyncTable[m.playerIndex].map then
 		if msg_lower == "proceed" or msg_lower == "abort" then	
 			if sender_map == local_map then
 				if msg_lower == "proceed" then
-					audio_sample_play(snd_ominous, gMarioStates[0].pos, 1.0)
+					audio_stream_play(snd_ominous, true, 1.0)
 				elseif msg_lower == "abort" then
-					audio_sample_play(snd_ominous_cancel, gMarioStates[0].pos, 1.0)
+					audio_stream_play(snd_ominous_cancel, true, 1.0)
 				end
 			end
 		end
@@ -103,8 +103,9 @@ local function render_overworld()
 		or inTransition or s.dead
 		or inDialog or inSaveMenu
 		or inEmoteMenu or fade_alpha > 0
+		or Survey.inBattle
 	
-if (m.controller.buttonPressed & Y_BUTTON) ~= 0 and not freezeControls then
+	if (m.controller.buttonPressed & Y_BUTTON) ~= 0 and not freezeControls then
 		local char = charList[s.character]
 		local sprites = char and char.sprites and char.sprites[s.costume or 1]
 		local hasEmotes = false
@@ -120,7 +121,7 @@ if (m.controller.buttonPressed & Y_BUTTON) ~= 0 and not freezeControls then
 		if hasEmotes then
 			inEmoteMenu = true
 		else
-			audio_sample_play(snd_error, gMarioStates[0].pos, 1)
+			audio_stream_play(snd_error, true, 1)
 		end
 	end
 	
