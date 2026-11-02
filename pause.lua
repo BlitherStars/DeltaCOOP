@@ -47,20 +47,18 @@ local function hud_render()
 	if stick_y > 32 then dy = -1 elseif stick_y < -32 then dy = 1 end
     local x, y = 10 + (screenOffset / 2), pauseY
     
-    djui_hud_set_color(51, 32, 51, 255)
-    djui_hud_render_rect((screenOffset / 2), y, sW, 48)
     djui_hud_set_color(0, 0, 0, 255)
-    djui_hud_render_rect((screenOffset / 2), y, sW, 46)
+    djui_hud_render_rect((screenOffset / 2), y, sW, 38)
     
     djui_hud_set_color(255, 255, 255, 255)
     djui_hud_set_font(FONT_SPECIAL)
     djui_hud_print_text("LV "..math.floor(s.exp/2000), (screenOffset / 2) + 280, pauseY + 12, 0.5)
     
     for i,v in pairs(pauseMenuOptions) do
-		local optX = x + 45 + (60 * (i-1))
-		djui_hud_render_texture_tile(v.tex, optX, pauseY + 15, 1, 1, i == lastMenuSelected and 0 or 33, 0, 33, 24)
+		local optX = x + 60 + (45 * (i-1))
+		djui_hud_render_texture_tile(v.tex, optX, pauseY + 7, 1, 1, i == lastMenuSelected and 0 or 33, 0, 33, 24)
 	end
-	djui_hud_render_texture_tile(pauseMenuOptions[lastMenuSelected].tex, x, pauseY + 15, 1, 1, 66, 0, 35, 24)
+	djui_hud_render_texture_tile(pauseMenuOptions[lastMenuSelected].tex, x, pauseY + 7, 1, 1, 66, 0, 35, 24)
 	
 	if submenu ~= "" and submenu ~= "options" then
 		djui_hud_set_color(0, 0, 0, 128)
@@ -71,26 +69,22 @@ local function hud_render()
 	    
     if submenu == "options" then
         local boxW = 280
-        local boxH = 147
-        local rowSpacing = _G.cheatsApi and 13 or 16
+        local boxH = 150
+        local rowSpacing = _G.cheatsApi and 11 or 18
         local boxX = (sW - boxW) / 2 + ((screenOffset and screenOffset / 2) or 0)
         local boxY = (sH - boxH) / 1.7
 
         djui_hud_set_color(255, 255, 255, 255)
-        if deltabox then
-            djui_hud_render_texture_rect(deltabox, boxX - 8, boxY - 8, boxW + 16, boxH + 16, 13)
-        end
-        djui_hud_set_color(0, 0, 0, 255)
-        djui_hud_render_rect(boxX, boxY, boxW, boxH)
-
+        djui_hud_render_texture_rect(deltabox, boxX - 8, boxY - 8, boxW + 16, boxH + 16, 13)
+        
         djui_hud_set_color(255, 255, 255, 255)
         djui_hud_set_font(FONT_SPECIAL)
         local title = "CONFIG"
-        local titleScale = 0.4
+        local titleScale = 0.5
         local titleW = djui_hud_measure_text(title) * titleScale
         djui_hud_print_text(title, boxX + (boxW - titleW) / 2, boxY + 5, titleScale)
 
-        local startY = _G.cheatsApi and (boxY + 17) or (boxY + 30)
+        local startY = (boxY + 30)
     	for i = 1, #settings do
 			local v = settings[i]
 			local text = v.name
@@ -107,16 +101,12 @@ local function hud_render()
 
             if i == selectedOption then
                 djui_hud_set_color(255, 0, 0, 255)
-                if soul then
-                    djui_hud_render_texture(soul, boxX + 22, itemY + 1, 0.4, 0.4)
-                else
-                    djui_hud_render_rect(boxX + 22, itemY + 4, 5, 5)
-                end
+                djui_hud_render_texture(soul, boxX + 28, itemY + 4, 0.5, 0.5)
             end
 
             djui_hud_set_color(255, 255, 255, 255)
-			djui_hud_print_text(text, boxX + 40, itemY, 0.4)
-			djui_hud_print_text(value, boxX + boxW - 40 - (djui_hud_measure_text(value) * 0.4), itemY, 0.4)
+			djui_hud_print_text(text, boxX + 40, itemY, 0.5)
+			djui_hud_print_text(value, boxX + boxW - 40 - (djui_hud_measure_text(value) * 0.45), itemY, 0.46)
 		end
 		
 		if cooldownCounter > 0 then
