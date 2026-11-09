@@ -169,7 +169,7 @@ function get_vessel_from_str(name)
         for _, v in pairs(charList) do
         	table.insert(charNames, v.name)
         end	        
-        return table.indexOf(charNames, mod_storage_load("character"))
+        return table.indexOf(charNames, name)
 	else
 		return name
 	end
