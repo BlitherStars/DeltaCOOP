@@ -145,7 +145,7 @@ local function render_overworld()
 		s.character = math.max(table.indexOf(charNames, mod_storage_load("character")), 1)
 		
 		s.exp = mod_storage_exists("exp") and math.min(mod_storage_load_number("exp"), 12000) or 0
-		s.maxHP = math.floor(90 * nath.floor(1 + (s.exp / 2000)))
+		s.maxHP = math.floor(90 * math.floor(1 + (s.exp / 2000)))
 		s.hp = s.maxHP
 		
 		s.costume = 1
