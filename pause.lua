@@ -52,7 +52,7 @@ local function hud_render()
     
     djui_hud_set_color(255, 255, 255, 255)
     djui_hud_set_font(FONT_SPECIAL)
-    djui_hud_print_text("LV "..math.floor(s.exp/2000), (screenOffset / 2) + 280, pauseY + 12, 0.5)
+    djui_hud_print_text("LV "..(math.floor(s.exp/2000) + 1), (screenOffset / 2) + 280, pauseY + 12, 0.5)
     
     for i,v in pairs(pauseMenuOptions) do
 		local optX = x + 60 + (45 * (i-1))
