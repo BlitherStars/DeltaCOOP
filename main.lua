@@ -1,5 +1,5 @@
--- name: DeltaCoop [WIP]
--- description: IN MARIO 64???
+-- name: DeltaCoop [v0.1 Public Beta]
+-- description: A Deltarune RP on Super Mario 64 Coop Deluxe!\nWell, that's basically it.\n\nDeveloped by:\n\n\\#9B00FF\\BlitherStars\\#ffffff\\ - Owner\n\\#FFDC51\\ErickCatmanuel\\#ffffff\\ - Coder
 
 -- MOD LIST --
 modList = {}
@@ -1529,3 +1529,9 @@ np = gNetworkPlayers[0]
 hud_hide()
 
 dev = false
+
+djui_popup_create("Type \"\\#FFFF00\\/download\\#FFFFFF\\\" to see the download link.", 1)
+hook_chat_command("download", "- show download link", function()
+	djui_chat_message_create("Download Link: \n\\#00aaff\\https://github.com/BlitherStars/DeltaCOOP/releases/latest")
+	return true
+end)

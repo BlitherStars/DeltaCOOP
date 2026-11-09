@@ -41,7 +41,7 @@ local function on_hud_render()
 	    	"If it might be an impersonator,",
 	    	"check the coopnet id, character and palette,",
 			"Blither uses Luigi with dark green cap, shirt and shoes and red overalls.",
-			"Erick uses Mario with dark teal cap,",
+			"Erick uses Luigi/Toad with dark teal cap,",
 			"seafoam gloves, teal overalls, moss shoes and cyan shirt.",
 		}
 	    
@@ -73,19 +73,19 @@ local function on_hud_render()
 	    	"L - Change Skin",
 			"B - Run",
 			"X - Attack",
+			"Y - Emotes",
 			"",
-	    	"Go to the Pause Menu, then Vessels",
-			"to Change your Character",
+	    	"Go to the Char Menu on Config",
+			"to select a vessel/character",
 			"",
-	    	"Go to the Pause Menu, then Warps",
-			"to go to a location",
-			"(also check commands for emotes)"
+	    	"Go to the Warp Menu on Config",
+			"to go to a place",
 		}
 	    
 	    local mid_y = screen_h / 4
 		
 		for i,v in pairs(lines) do
-	    	djui_hud_print_text(v, (screen_w - (djui_hud_measure_text(v)*mid_scale)) / 2, mid_y + 12 * i, mid_scale)
+	    	djui_hud_print_text(v, (screen_w - (djui_hud_measure_text(v)*mid_scale)) / 2, mid_y + 10 * i, mid_scale)
 		end
 	end
 	
