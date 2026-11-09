@@ -19,7 +19,7 @@ There we post devlogs, playtest announcements, and much more!
   
   - Blither Dev - Owner: what can i say?
   - ErickCatmanuel - Developer: Added maps, vessel menu, and reworked much stuff!
-  - Fel135 - Developer and Contributor of the mod: Made the Chara Sprites for the API Character Example
+  - Fel135 - Developer and Contributor of the mod: Made the Chara Sprites for the API Example Mod
 </details>
 
 ‎Feel free to report bugs or contribute to the project.
