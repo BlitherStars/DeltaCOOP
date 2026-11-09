@@ -144,7 +144,7 @@ local function render_overworld()
 		
 		s.character = math.max(table.indexOf(charNames, mod_storage_load("character")), 1)
 		
-		s.exp = mod_storage_exists("exp") and math.min(mod_storage_load_number("exp"), 10000) or 0
+		s.exp = mod_storage_exists("exp") and math.min(mod_storage_load_number("exp"), 12000) or 0
 		s.maxHP = math.floor(90 * nath.floor(1 + (s.exp / 2000)))
 		s.hp = s.maxHP
 		
@@ -290,7 +290,7 @@ local function render_overworld()
 					map = s.map
 				})
 				if ss.hp <= 0 and not ss.dead then
-					s.exp = math.min(s.exp + math.random(50, 150), 10000)
+					s.exp = math.min(s.exp + math.random(50, 150), 12000)
 					local newHP = math.floor(90 * math.floor(1 + (s.exp / 2000)))
 					local hpDiff = newHP - s.maxHP
 					s.maxHP = newHP
