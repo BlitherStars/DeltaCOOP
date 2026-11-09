@@ -9,6 +9,14 @@ Awesome, Right?
 
 This is all worked for fun, so feel free to suggest stuff!
 
+## Screenshots
+<p align="center">
+<img width="960" height="720" alt="258829" src="https://github.com/user-attachments/assets/20874b99-9814-4eac-a76e-3f2ace1747f4" />
+<img width="960" height="720" alt="258828" src="https://github.com/user-attachments/assets/50e9189b-4a5a-425e-8543-413bc1ad5d53" />
+<img width="945" height="720" alt="258825" src="https://github.com/user-attachments/assets/ed43ed5d-82d1-4667-946e-46983955734a" />
+<img width="960" height="720" alt="258831" src="https://github.com/user-attachments/assets/ef943b26-ec39-4fab-84e6-330204c99fb6" />
+</p>
+
 ## Community
 
 We have an official Discord server open to the public [here](https://discord.gg/QNJD2enFcm)!
