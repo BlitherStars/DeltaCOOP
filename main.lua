@@ -181,15 +181,15 @@ warps = {
 -- MAP LIST --
 entryMap = "lobby1"
 maps = {
-	require("/maps/lobby1"),
-	require("/maps/lobby2")
+	["lobby1"] = require("/maps/lobby1"),
+	["lobby2"] = require("/maps/lobby2")
 }
 
 -- MAP TILESETS --
 tilesets = {
-	require("/tilesets/castle"),
-	require("/tilesets/field"),
-	require("/tilesets/forest")
+	["castle"] = require("/tilesets/castle"),
+	["field"] = require("/tilesets/field"),
+	["forest"] = require("/tilesets/forest")
 }
 
 -- PRESETS --
