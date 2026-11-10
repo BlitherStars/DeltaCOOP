@@ -180,16 +180,17 @@ warps = {
 
 -- MAP LIST --
 entryMap = "lobby1"
-maps = {}
-for _, file in pairs(get_mod_files(get_active_mod(), "maps")) do
-	maps[file:gsub("maps/",""):gsub(".lua","")] = require("/"..file:gsub(".lua",""))
-end
+maps = {
+	require("/maps/lobby1"),
+	require("/maps/lobby2")
+}
 
 -- MAP TILESETS --
-tilesets = {}
-for _, file in pairs(get_mod_files(get_active_mod(), "tilesets")) do
-	tilesets[file:gsub("tilesets/",""):gsub(".lua","")] = require("/"..file:gsub(".lua",""))
-end
+tilesets = {
+	require("/tilesets/castle"),
+	require("/tilesets/field"),
+	require("/tilesets/forest")
+}
 
 -- PRESETS --
 propPresets = {
