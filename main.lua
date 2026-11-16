@@ -180,17 +180,45 @@ warps = {
 
 -- MAP LIST --
 entryMap = "lobby1"
-maps = {
-	["lobby1"] = require("/maps/lobby1"),
-	["lobby2"] = require("/maps/lobby2")
-}
+local function load_lua_dir(dir)
+	local out = {}
+	local names = {}
+	if get_mod_files then
+		local okf, list = pcall(get_mod_files, get_active_mod(), dir)
+		if okf and type(list) == "table" then
+			for _, f in pairs(list) do
+				local str = type(f) == "table" and (f.relativePath or f.path or f.name) or f
+				if type(str) == "string" then
+					local key = str:gsub("\\", "/"):match("([^/]+)%.lua$")
+					if key then names[key] = true end
+				end
+			end
+		end
+	end
+	for name in pairs(names) do
+		for _, path in ipairs({"/" .. dir .. "/" .. name, dir .. "/" .. name}) do
+			local ok, data = pcall(require, path)
+			if ok and type(data) == "table" then
+				out[name] = data
+				break
+			end
+		end
+		if out[name] == nil then
+			log_to_console("DeltaCoop: could not load " .. dir .. "/" .. name .. ".lua", 2)
+		end
+	end
+	return out
+end
+
+entryMap = "lobby1"
+maps = load_lua_dir("maps")
+if maps[entryMap] == nil then
+	for k in pairs(maps) do entryMap = k break end
+	log_to_console("DeltaCoop: could not load the Entry Map, redirecting to "..entryMap.."...", 2)
+end
 
 -- MAP TILESETS --
-tilesets = {
-	["castle"] = require("/tilesets/castle"),
-	["field"] = require("/tilesets/field"),
-	["forest"] = require("/tilesets/forest")
-}
+tilesets = load_lua_dir("tilesets")
 
 -- PRESETS --
 propPresets = {

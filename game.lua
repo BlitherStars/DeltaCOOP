@@ -81,6 +81,7 @@ end
 local function render_overworld()
 	if not gMarioStates or not gMarioStates[0] then return end
 	local m = gMarioStates[0]
+	if not s or not maps or maps[entryMap] == nil then return end
 
 	djui_hud_set_color(0, 0, 0, 255)
 	djui_hud_render_rect(-4, -4, djui_hud_get_screen_width() + 8, djui_hud_get_screen_height() + 8)
@@ -162,7 +163,7 @@ local function render_overworld()
 		s.flipX = false
 	end
 	
-	if maps[s.map] == nil then
+	if s.map == nil or maps[s.map] == nil then
 		s.map = entryMap
 	end
 	
@@ -1146,8 +1147,8 @@ function draw_tile_layer(data, properties, tilesetList, x, y, scale)
 	local r,g,b = 255,255,255
 	local tiles = data.data
 	local fxList = {}
-	local map = maps[s.map]
-	if not tiles then return end
+	local map = maps[s.map] or maps[entryMap]
+	if not tiles or not map then return end
 	if properties["color"] then
 		r, g, b = hex_to_rgb(properties["color"])
 	end
@@ -1204,6 +1205,8 @@ function draw_tile_layer(data, properties, tilesetList, x, y, scale)
 end
 
 function get_map_spawn_pos(map, id)
+	map = map or maps[entryMap]
+	if not map or not map.layers then return {x = 0, y = 0} end
 	for i, layer in pairs(map.layers) do
 		if layer.type == "objectgroup" and layer.name == "markers" then
 			for ii, obj in pairs(layer.objects) do

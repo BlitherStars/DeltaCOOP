@@ -246,7 +246,9 @@ function getPoints(obj)
 end
 
 function change_map(map, spawn)
-	local rData = maps[map] or maps[entryMap]
+	if maps[map] == nil then map = entryMap end
+	local rData = maps[map]
+	if not rData then return end
 	inTransition = true
 	lastSpawn = spawn
 	dialog.num = -1
